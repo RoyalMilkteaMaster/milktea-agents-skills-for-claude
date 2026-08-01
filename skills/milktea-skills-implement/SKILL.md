@@ -1,0 +1,116 @@
+---
+name: milktea-skills-implement
+description: 執行已核准的 Spec 與 Tickets。偵測 Claude、Codex、CLI 與子 Agent 能力，派發開發 Agent 及兩個獨立 Reviewer；每位 Reviewer 同時審查 Standards 與 Spec，開發者驗證、修正或反駁 Findings，三方共識後才完成 Ticket。只有單一後端時改用三個隔離上下文並標示缺少跨模型獨立性。由 milktea-skills-grill-me 建立的新執行 Task 啟動，或在使用者要求執行已核准 Tickets 時使用。
+disable-model-invocation: true
+---
+
+# Milktea Skills Implement
+
+啟動後，本 Task 的 Core Agent 立即進入 `Implement Coordinator` 角色，直到所有核准 Tickets 完成、使用者停止或工作確實受阻。
+
+Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的裁決者。使用者擁有最終決策權；Spec、Tickets、`CONTEXT.md` 與 ADR 約束所有角色。
+
+## 前提
+
+- Spec、Tickets、依賴、測試接縫與驗收條件已核准。
+- 專案指令、`CONTEXT.md` 與相關 ADR 可讀。
+- Issue tracker 可讀取 Ticket、追加 comments 並更新狀態。
+- 工作目錄與基準版本明確。
+
+缺少必要資料時停止並指出缺口。
+
+## 工作環境預檢
+
+實作前快速檢查，不建立環境：
+
+1. 顯示目前 OS、Shell，以及是否位於 WSL 或 Container；終端機品牌不作為判定依據。
+2. 只有 Python 專案才檢查專案指定的 Python、`.venv`、`VIRTUAL_ENV`、`CONDA_PREFIX`、`sys.prefix` 與 `sys.base_prefix`。
+3. 未偵測到隔離環境時提醒使用者；不阻擋唯讀工作。
+4. 不得自動建立、啟用、切換、更新環境或把套件裝進系統 Python。
+5. 執行缺少環境或套件時，請使用者先準備，再重新驗證。
+
+## 後端偵測
+
+派工前只做一次唯讀偵測：
+
+1. 盤點目前可用的子 Agent、Task、Claude、Codex、MCP 與 CLI 工具。
+2. 優先讀取專案明確指定的命令、路徑、模式或 WSL distribution。
+3. 找不到設定時，檢查目前 `PATH`；Windows 再使用 `Get-Command claude` 與 `Get-Command codex`。
+4. Windows 已安裝 WSL 時，可在指定或已知 distribution 內使用 `command -v claude` 與 `command -v codex`。
+5. 只有 `claude --version` 或 `codex --version` 成功，才判定對應 CLI 可用。
+6. WSL 模式必須確認 distribution、Linux 工作目錄及專案可讀寫；Windows 路徑以 `wslpath` 轉換。
+
+不得遞迴掃描磁碟、擅自安裝工具、修改環境或把推測當成可用結果。
+
+## 角色配置
+
+每張 Ticket 固定三個隔離角色：一個臨時開發 Agent、兩個臨時 Reviewer。Coordinator 不算在三方共識內。
+
+1. **Claude 與 Codex 可用**：優先使用 Claude 開發 Agent，另派一個 Claude Reviewer 與一個 Codex Reviewer；Ticket 已核准其他後端時依 Ticket 執行。
+2. **只有 Claude**：一個 Claude 開發 Agent、兩個隔離的 Claude Reviewer。
+3. **只有 Codex**：一個 Codex 開發 Agent、兩個隔離的 Codex Reviewer。
+4. **無法建立兩個隔離 Reviewer**：停止並請使用者決定是否接受降級；不得宣稱三方共識。
+5. **沒有開發後端**：列出偵測結果並停止。
+
+單一模型仍維持相同驗收標準，但必須標示「缺少跨模型獨立性」。首輪 Review 完成前，兩位 Reviewer 不得互看結論。
+
+## 派工契約
+
+首次派工前必讀 `references/delegation-contracts.md`。
+
+- 不建立永久 Developer 或 Reviewer Profile。
+- 每張 Ticket 建立一個一般臨時開發 Agent 與兩個一般臨時 Reviewer，分別保留 ID 到共識完成。
+- Coordinator 透過委派訊息明確指定 `Developer`、`Reviewer A` 或 `Reviewer B`；不得依靠 Agent 自己猜。
+- 兩位 Reviewer 都載入 `/milktea-agents-army-claude:milktea-skills-code-review`；不可用時回報 `BLOCKED: CODE_REVIEW_SKILL_UNAVAILABLE`，不得自行模擬。
+- 每次委派都要明寫角色、Ticket、固定 Snapshot、輸入、權限、禁止事項與回報格式。
+
+## Ticket 流程
+
+依順序逐張處理：
+
+1. 確認依賴完成，記錄基準版本、工作範圍與開發 Agent 識別。
+2. 依派工契約，把 Ticket、必要文件、允許修改範圍及驗收指令交給臨時開發 Agent。
+3. 要求開發 Agent 在適用時按需載入 `/milktea-agents-army-claude:milktea-skills-tdd`；不適用時記錄理由與替代驗證。
+4. 告知開發 Agent：不得預載 `/milktea-agents-army-claude:milktea-skills-git-merge-conflict`；只有 merge、rebase 或 cherry-pick 實際回報衝突時才載入。Skill 不可用時回報 `BLOCKED: GIT_MERGE_CONFLICT_SKILL_UNAVAILABLE`。
+5. 告知開發 Agent：完成實作或衝突解決後只能回報 `Ready for Review`；未達三方共識前不得標記完成、接下一張 Ticket 或釋放可續談識別。
+6. 收到 `Ready for Review` 後，固定 Review snapshot：基準、revision、Diff、檔案列表與必跑證據；在收到 Findings 或 Coordinator 指示前，開發 Agent 不得繼續修改。
+7. 依 Reviewer 契約平行派出兩個一般臨時 Agent，分別指定為 Reviewer A 與 Reviewer B；提供相同 snapshot、Spec、Ticket、`CONTEXT.md`、ADR 與開發證據。
+8. 要求兩位 Reviewer 各自按需載入 `/milktea-agents-army-claude:milktea-skills-code-review`，獨立完成 Standards 與 Spec 兩軸 Review。
+9. 把兩份完整報告交給開發 Agent；不得合併成模糊結論。
+10. 開發 Agent 逐項重現並驗證 Finding：正確則修正與重驗；錯誤則以程式、測試或文件反駁。
+11. 把修正、反證與新 snapshot 交回原 Reviewer 複查。
+12. 同一爭議完成一次證據交換仍無法解決時，交由使用者裁決，不無限消耗 Token。
+13. 所有阻擋與重要 Finding 關閉，且開發者與兩位 Reviewer 明確同意後，才標記 Ticket 完成。
+14. 保存最終證據後結束該開發 Agent 與兩位 Reviewer；下一張 Ticket 建立全新實例。
+
+適用 Ticket 缺少 TDD，或缺少 Code Review Skill 時停止並回報；不得自行模擬或跳過。
+
+## Ticket 證據紀錄
+
+由本 Skill 的協調者把下列內容依序追加到對應 Ticket comments，不另建本機報告：
+
+1. 開始執行：基準版本、開發角色、範圍與必跑指令。
+2. `Ready for Review`：Snapshot、變更摘要與測試證據。
+3. 實際發生時：Debug 根因與回歸測試、Git 衝突取捨與驗證。
+4. 每輪 Review：兩份獨立完整報告、開發者修正或反證、Reviewer 複查。
+5. 完成：最終 Snapshot、必跑結果、共識與未解風險。
+
+只追加，不覆寫既有 comments。寫入失敗時保留完整內容並回報；補寫前不得把 Ticket 標記完成。
+
+## Task 邊界
+
+- 預設在同一執行 Task 完成全部核准 Tickets；不得因對話變長就例行拆分。
+- 只有平台發出 Context 警告、壓縮造成必要資訊不足，或已無法安全繼續時，才提出延續 Task。
+- 先完成目前可安全收尾的最小工作、保存狀態與證據，再詢問使用者。
+- 使用者核准後才建立延續 Task；工具不可用時提供可直接貼上的啟動指令。
+- 新需求不得沿用執行 Task，必須重新從 `/milktea-agents-army-claude:milktea-skills-grill-me` 開始。
+
+## 完成規則
+
+- 所有核准 Tickets 與驗收條件均有可重現證據。
+- 必跑指令成功；失敗或未執行項目已明示。
+- 所有有效 Findings 已修正，錯誤 Findings 已由證據推翻。
+- 三個隔離角色明確達成共識；降級情況已標示並取得使用者核准。
+- 依 Ticket 與專案 Git 規則提交；未授權不得 Commit 或 Push。
+
+最後輸出每張 Ticket 狀態、角色後端、測試證據、兩份 Review 結論、共識、未解風險與版本識別。
