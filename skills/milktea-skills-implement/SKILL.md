@@ -13,7 +13,7 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 ## 前提
 
 - Spec、Tickets、依賴、測試接縫與驗收條件已核准。
-- 專案指令、兩份 `docs/planning/` 文件、`CONTEXT.md` 與相關 ADR 可讀。
+- 專案指令、`docs/agents/issue-tracker.md`、兩份 `docs/planning/` 文件、`CONTEXT.md` 與相關 ADR 可讀。
 - Issue tracker 可讀取 Ticket、追加 comments 並更新狀態。
 - 工作目錄與基準版本明確。
 

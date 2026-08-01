@@ -10,6 +10,8 @@
 
 其餘 Skills 由流程或臨時 Agent 按需載入。
 
+首次規劃會自動設定並驗證產品 Repository 的 Issue Tracker；有效設定不重問。
+
 ## 測試載入
 
 WSL：
@@ -51,6 +53,6 @@ milktea-agents-army-claude/  # Claude 發行包
 ├── .claude-plugin/          # Plugin 與 Marketplace 設定
 │   ├── plugin.json       # Claude Plugin 定義
 │   └── marketplace.json  # Claude Marketplace 定義
-├── skills/               # 12 個繁體中文 Skills
+├── skills/               # 13 個繁體中文 Skills
 └── README.md             # 使用說明
 ```

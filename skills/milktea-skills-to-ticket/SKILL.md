@@ -11,17 +11,17 @@ description: 將已核准中文規格拆成可獨立派工、驗證與 Review �
 
 - Spec 已核准並可直接開啟。
 - 可行性關卡允許執行。
-- Issue tracker、標籤與 Ticket 連結方式已設定。
+- `docs/agents/issue-tracker.md` 的正式 Tracker、標籤與 Ticket 連結方式可用。
 
-缺少任一項時停止，不猜測。
+Spec 或可行性前提缺少時停止，不猜測。Tracker 設定不存在、不完整或無法操作時，呼叫 `/milktea-agents-army-claude:milktea-skills-setup-issue-tracker`；只在收到 `TRACKER_READY` 後繼續。設定 Skill 不可用或設定失敗時停止並回報實際缺口。
 
 ## 流程
 
-1. 讀取 Spec、`docs/planning/requirements.md`、`docs/planning/architecture.md`、可行性報告、專案指令、`CONTEXT.md`、ADR 與程式庫現況。
+1. 讀取 Spec、`docs/agents/issue-tracker.md`、`docs/planning/requirements.md`、`docs/planning/architecture.md`、可行性報告、專案指令、`CONTEXT.md`、ADR 與程式庫現況。
 2. 依使用者價值切成可獨立驗證的 Tickets；避免純分層或模糊雜務票。
 3. 標示依賴、阻擋關係、建議順序與可安全平行的工作。
 4. 為每張 Ticket 指定執行角色、兩個隔離 Reviewer 與驗收證據；實際後端由執行階段偵測。
-5. 發布到 issue tracker，套用 `ready-for-agent`，並使用原生 blocking links；不支援時在 Ticket 內明列。
+5. 發布到設定檔指定的 Repository 與 issue tracker，套用 `ready-for-agent`，並使用原生 blocking links；不支援時在 Ticket 內明列。不得依目前工作目錄猜 Repository。
 6. 顯示完整拆分與關係，要求使用者核准；不派工、不實作。
 
 ## Ticket 格式

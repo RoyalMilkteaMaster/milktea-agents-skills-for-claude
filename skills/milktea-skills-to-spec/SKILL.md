@@ -14,18 +14,19 @@ description: 將已核准的需求、架構與可行性報告整理成完整中�
 - `docs/planning/requirements.md` 的需求與驗收結果。
 - `docs/planning/architecture.md` 的架構、資料流與測試接縫。
 - 可行性報告與後續處置。
+- `docs/agents/issue-tracker.md` 的正式 Tracker 設定可用。
 
-缺少或互相衝突時停止，指出應回到哪個階段；不得自行補問或猜測。
+需求、架構或可行性缺少或互相衝突時停止，指出應回到哪個階段；不得自行補問或猜測。
+
+Tracker 設定不存在、不完整或無法操作時，呼叫 `/milktea-agents-army-claude:milktea-skills-setup-issue-tracker`；只在收到 `TRACKER_READY` 後繼續。設定 Skill 不可用或設定失敗時停止並回報實際缺口。
 
 ## 流程
 
-1. 讀取 `docs/planning/requirements.md`、`docs/planning/architecture.md`、可行性報告、專案指令、`CONTEXT.md`、相關 ADR 與程式庫現況。
+1. 讀取 `docs/agents/issue-tracker.md`、`docs/planning/requirements.md`、`docs/planning/architecture.md`、可行性報告、專案指令、`CONTEXT.md`、相關 ADR 與程式庫現況。
 2. 確認可行性關卡允許繼續；低成功率的使用者覆核必須留有紀錄。
 3. 依下方格式撰寫規格，不加入未確認內容。
-4. 發布到專案已設定的 issue tracker，套用已設定的 Spec 標籤；不得套用 `ready-for-agent`。
+4. 發布到設定檔指定的 Repository 與 issue tracker，套用已設定的 Spec 標籤；不得套用 `ready-for-agent`，不得依目前工作目錄猜 Repository。
 5. 顯示完整規格，回報 issue 標題、編號與連結，等待使用者核准。
-
-找不到 issue tracker 或標籤設定時停止，明確指出缺少的設定。
 
 ## 規格格式
 

@@ -50,6 +50,8 @@ workspace/                    # 同一專案家族的外層工作區
 │  ├─ scripts/                # 開發、維護、部署腳本
 │  ├─ config/                 # 可提交的設定與範例
 │  └─ docs/                   # 規劃、架構、報告與開發文件
+│     ├─ agents/              # Agent 操作設定
+│     │  └─ issue-tracker.md  # Tracker、Repository、標籤與阻擋方式
 │     ├─ planning/            # 已核准規劃
 │     │  ├─ requirements.md   # 核准需求
 │     │  └─ architecture.md   # 核准架構與資料流
@@ -103,6 +105,7 @@ PROJECT_RUNTIME_ROOT=D:/workspace/<project>_runtime
 ## 文件與報告
 
 - `CONTEXT.md`：只記錄已確認的專有名詞、關係與歧義。
+- `docs/agents/issue-tracker.md`：正式 Tracker 的 Repository、操作後端、標籤、阻擋方式與權限狀態。
 - `docs/planning/requirements.md`：核准需求。
 - `docs/planning/architecture.md`：核准架構與資料流。
 - `docs/adr/`：ADR；需要寫入時才建立。

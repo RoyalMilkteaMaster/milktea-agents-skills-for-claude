@@ -10,6 +10,12 @@ disable-model-invocation: true
 
 即使使用者要求「確認後開始寫程式」，也必須先完成本流水線，再交由新的執行 Task；不得在 Planner Task 實作。
 
+## 專案預檢
+
+先讀取 `docs/agents/issue-tracker.md`。設定不存在、不完整或無法操作時，呼叫 `/milktea-agents-army-claude:milktea-skills-setup-issue-tracker`；收到 `TRACKER_READY` 後才進入需求階段。
+
+Issue Tracker 是專案操作設定，不是需求或架構決策。有效時安靜通過，不詢問、不重設。
+
 ## 流水線
 
 依序執行，不跳步：
@@ -22,7 +28,7 @@ disable-model-invocation: true
 6. 顯示完整 Ticket 規劃，取得使用者核准。
 7. 說明為何應建立新 Task，再詢問是否開始執行。
 
-子技能不存在時，回報缺少的技能並停止；不得自行模擬或跳過。
+需要的子技能不存在時，回報缺少的技能並停止；不得自行模擬或跳過。
 
 ## 核准關卡
 
@@ -58,7 +64,7 @@ Ticket 核准後，先告知使用者：
 
 使用者選擇建立後：
 
-1. 確認 `AGENTS.md`、`CONTEXT.md`、`docs/planning/requirements.md`、`docs/planning/architecture.md`、相關 ADR、可行性報告、Spec、Tickets、角色與 Review 規則皆已保存，且新 Task 可讀取相同版本。
+1. 確認 `AGENTS.md`、`CONTEXT.md`、`docs/agents/issue-tracker.md`、`docs/planning/requirements.md`、`docs/planning/architecture.md`、相關 ADR、可行性報告、Spec、Tickets、角色與 Review 規則皆已保存，且新 Task 可讀取相同版本。
 2. 建立全新 Task，不複製完整訪談對話。
 3. 執行 Task 的初始指令第一行必須明確呼叫 `/milktea-agents-army-claude:milktea-skills-implement`，使新的 Core Agent 進入 `Implement Coordinator` 角色；不得再次呼叫 `grill-me`。
 4. 由執行 Skill 偵測 Claude 工具、Claude CLI、WSL Claude 與 Codex Subagents；Claude 不可用時自動降級，不得跳過 Review。
@@ -72,7 +78,7 @@ Ticket 核准後，先告知使用者：
 
 你是本執行 Task 的 Core Agent。載入 Skill 後立即成為 Implement Coordinator；只負責派工、證據轉交、Review 與完成關卡，不親自實作或審查。
 
-必讀：AGENTS.md、CONTEXT.md、docs/planning/requirements.md、docs/planning/architecture.md、相關 ADR、可行性報告。
+必讀：AGENTS.md、CONTEXT.md、docs/agents/issue-tracker.md、docs/planning/requirements.md、docs/planning/architecture.md、相關 ADR、可行性報告。
 Spec：列出已核准的實際連結。
 Tickets：依執行順序列出已核准的實際連結。
 
@@ -82,6 +88,7 @@ Tickets：依執行順序列出已核准的實際連結。
 ## 完成條件
 
 - 需求、架構、可行性、Spec 與 Tickets 均經使用者核准。
+- `docs/agents/issue-tracker.md` 已驗證可用。
 - Ticket 角色、依賴、Review 與驗收條件完整。
 - 使用者已選擇建立新 Task 或暫不執行。
 - 本 Task 未開始實作。

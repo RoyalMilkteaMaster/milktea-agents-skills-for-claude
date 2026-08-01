@@ -7,6 +7,8 @@ description: 以繁體中文逐一確認需求、範圍、使用流程、限制�
 
 確認「為什麼做、誰需要、要做到什麼」。不討論如何實作。
 
+Issue Tracker 由規劃入口的專案預檢處理；本 Skill 不詢問、不記錄 Tracker 選擇。
+
 ## 流程
 
 1. 讀取目前對話、專案指令、`CONTEXT.md`、既有 `docs/planning/requirements.md` 與產品行為。
@@ -51,7 +53,6 @@ description: 以繁體中文逐一確認需求、範圍、使用流程、限制�
 ## 實作偏好或硬性限制
 ## 驗收結果
 ## 範圍外
-## Issue Tracker
 ## 未決事項
 ```
 
