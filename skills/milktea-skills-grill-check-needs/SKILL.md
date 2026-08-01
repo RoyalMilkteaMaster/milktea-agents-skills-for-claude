@@ -9,51 +9,51 @@ description: 以繁體中文逐一確認需求、範圍、使用流程、限制�
 
 ## 流程
 
-1. 讀取目前對話、專案指令、`CONTEXT.md` 與既有產品行為。
+1. 讀取目前對話、專案指令、`CONTEXT.md`、既有 `docs/planning/requirements.md` 與產品行為。
 2. 重述目標、已知事實與未決需求。
 3. 建立需求決策樹，先問會改變其他分支的問題。
 4. 一次只問一個決策，附推薦選項、理由與主要代價。
 5. 確認所有需求面向後，輸出摘要並請使用者核准。
-6. 把已確認且會重複使用的內容寫入專案根目錄 `CONTEXT.md`。
+6. 使用者核准後，把完整需求寫入 `docs/planning/requirements.md`；只把已確認的專有名詞、關係與歧義更新至專案根目錄 `CONTEXT.md`。
 
-## CONTEXT.md
+## 文件責任
 
-首次需要寫入時才建立，不得預建其他空目錄。固定使用下列章節；未知內容寫「未確認」，不得猜測：
+寫入時才建立必要目錄，不預建空架構。既有文件只更新本次核准範圍，保留未受影響內容。不得把完整需求、架構或可行性內容寫進 `CONTEXT.md`。
+
+`CONTEXT.md` 固定使用：
 
 ```markdown
 # Project Context
 
-## 產品與使用者
-## 術語
-## Code／Data／Runtime Roots
-## 架構與資料流
-## 模組責任
-## 公開介面與 Schema
-## 測試接縫
-## 技術限制
-## Issue Tracker
+## 專有名詞
 
-- 類型：
-- Project／Repository：
-- Spec 標籤：
-- Ticket 標籤：`ready-for-agent`
-- Blocking links：原生／Ticket 文字
-- 必要權限：建立 Issue、留言、更新狀態
+| 名詞 | 共同定義 | 備註 |
+|---|---|---|
 
-## 文件索引
-## 文件與報告位置
+## 關係
 
-- CONTEXT：`CONTEXT.md`
-- ADR：`docs/adr/`
-- 可行性報告：`docs/feasibility/`
-- 架構健檢：`docs/architecture-reviews/`
-- 文件資產：`docs/assets/`
-- Spec：已設定的 issue tracker
-- Tickets：已設定的 issue tracker
-- 執行、Debug、Git 衝突與 Review 證據：對應 Ticket comments
+## 歧義
 ```
 
-專案已有自訂路徑時保留並記錄實際位置，不建立第二套來源。
+只記錄已與使用者確認的內容。歧義未解時標示狀態，不猜測。
+
+`docs/planning/requirements.md` 固定使用：
+
+```markdown
+# 核准需求
+
+## 問題與使用者
+## 目標結果
+## 核心流程
+## 必要需求
+## 邊界與錯誤
+## 產品限制
+## 實作偏好或硬性限制
+## 驗收結果
+## 範圍外
+## Issue Tracker
+## 未決事項
+```
 
 ## 需求面向
 
@@ -99,3 +99,5 @@ description: 以繁體中文逐一確認需求、範圍、使用流程、限制�
 - 驗收結果可觀察、可判定。
 - 實作方法未被誤當成已驗證事實。
 - 使用者核准需求摘要。
+- 核准內容已寫入 `docs/planning/requirements.md`。
+- `CONTEXT.md` 只包含已確認的專有名詞、關係與歧義。

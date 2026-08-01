@@ -17,7 +17,7 @@ description: 將已核准中文規格拆成可獨立派工、驗證與 Review �
 
 ## 流程
 
-1. 讀取 Spec、可行性報告、專案指令、`CONTEXT.md`、ADR 與程式庫現況。
+1. 讀取 Spec、`docs/planning/requirements.md`、`docs/planning/architecture.md`、可行性報告、專案指令、`CONTEXT.md`、ADR 與程式庫現況。
 2. 依使用者價值切成可獨立驗證的 Tickets；避免純分層或模糊雜務票。
 3. 標示依賴、阻擋關係、建議順序與可安全平行的工作。
 4. 為每張 Ticket 指定執行角色、兩個隔離 Reviewer 與驗收證據；實際後端由執行階段偵測。

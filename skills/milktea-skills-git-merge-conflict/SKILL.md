@@ -17,7 +17,7 @@ description: 供執行 Git 整合的臨時開發 Agent 按需載入。當 merge�
 
 ## 前提
 
-讀取專案 Git 規則、派工、Ticket、Spec、`CONTEXT.md`、ADR、目前操作與兩邊版本。先確認本次 Git 操作與授權範圍正確。
+讀取專案 Git 規則、派工、Ticket、Spec、`docs/planning/requirements.md`、`docs/planning/architecture.md`、`CONTEXT.md`、ADR、目前操作與兩邊版本。先確認本次 Git 操作與授權範圍正確。
 
 ## 流程
 

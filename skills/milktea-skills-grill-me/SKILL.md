@@ -58,7 +58,7 @@ Ticket 核准後，先告知使用者：
 
 使用者選擇建立後：
 
-1. 確認 `AGENTS.md`、`CONTEXT.md`、相關 ADR、可行性報告、Spec、Tickets、角色與 Review 規則皆已保存；實際文件路徑已記錄在 `CONTEXT.md`，且新 Task 可讀取相同版本。
+1. 確認 `AGENTS.md`、`CONTEXT.md`、`docs/planning/requirements.md`、`docs/planning/architecture.md`、相關 ADR、可行性報告、Spec、Tickets、角色與 Review 規則皆已保存，且新 Task 可讀取相同版本。
 2. 建立全新 Task，不複製完整訪談對話。
 3. 執行 Task 的初始指令第一行必須明確呼叫 `/milktea-agents-army-claude:milktea-skills-implement`，使新的 Core Agent 進入 `Implement Coordinator` 角色；不得再次呼叫 `grill-me`。
 4. 由執行 Skill 偵測 Claude 工具、Claude CLI、WSL Claude 與 Codex Subagents；Claude 不可用時自動降級，不得跳過 Review。
@@ -72,7 +72,7 @@ Ticket 核准後，先告知使用者：
 
 你是本執行 Task 的 Core Agent。載入 Skill 後立即成為 Implement Coordinator；只負責派工、證據轉交、Review 與完成關卡，不親自實作或審查。
 
-必讀：AGENTS.md、CONTEXT.md、相關 ADR、可行性報告。
+必讀：AGENTS.md、CONTEXT.md、docs/planning/requirements.md、docs/planning/architecture.md、相關 ADR、可行性報告。
 Spec：列出已核准的實際連結。
 Tickets：依執行順序列出已核准的實際連結。
 

@@ -8,12 +8,12 @@ disable-model-invocation: true
 
 啟動後，本 Task 的 Core Agent 立即進入 `Implement Coordinator` 角色，直到所有核准 Tickets 完成、使用者停止或工作確實受阻。
 
-Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的裁決者。使用者擁有最終決策權；Spec、Tickets、`CONTEXT.md` 與 ADR 約束所有角色。
+Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的裁決者。使用者擁有最終決策權；Spec、Tickets、`docs/planning/requirements.md`、`docs/planning/architecture.md`、`CONTEXT.md` 與 ADR 約束所有角色。
 
 ## 前提
 
 - Spec、Tickets、依賴、測試接縫與驗收條件已核准。
-- 專案指令、`CONTEXT.md` 與相關 ADR 可讀。
+- 專案指令、兩份 `docs/planning/` 文件、`CONTEXT.md` 與相關 ADR 可讀。
 - Issue tracker 可讀取 Ticket、追加 comments 並更新狀態。
 - 工作目錄與基準版本明確。
 
@@ -74,7 +74,7 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 4. 告知開發 Agent：不得預載 `/milktea-agents-army-claude:milktea-skills-git-merge-conflict`；只有 merge、rebase 或 cherry-pick 實際回報衝突時才載入。Skill 不可用時回報 `BLOCKED: GIT_MERGE_CONFLICT_SKILL_UNAVAILABLE`。
 5. 告知開發 Agent：完成實作或衝突解決後只能回報 `Ready for Review`；未達三方共識前不得標記完成、接下一張 Ticket 或釋放可續談識別。
 6. 收到 `Ready for Review` 後，固定 Review snapshot：基準、revision、Diff、檔案列表與必跑證據；在收到 Findings 或 Coordinator 指示前，開發 Agent 不得繼續修改。
-7. 依 Reviewer 契約平行派出兩個一般臨時 Agent，分別指定為 Reviewer A 與 Reviewer B；提供相同 snapshot、Spec、Ticket、`CONTEXT.md`、ADR 與開發證據。
+7. 依 Reviewer 契約平行派出兩個一般臨時 Agent，分別指定為 Reviewer A 與 Reviewer B；提供相同 snapshot、Spec、Ticket、兩份 `docs/planning/` 文件、`CONTEXT.md`、ADR 與開發證據。
 8. 要求兩位 Reviewer 各自按需載入 `/milktea-agents-army-claude:milktea-skills-code-review`，獨立完成 Standards 與 Spec 兩軸 Review。
 9. 把兩份完整報告交給開發 Agent；不得合併成模糊結論。
 10. 開發 Agent 逐項重現並驗證 Finding：正確則修正與重驗；錯誤則以程式、測試或文件反駁。

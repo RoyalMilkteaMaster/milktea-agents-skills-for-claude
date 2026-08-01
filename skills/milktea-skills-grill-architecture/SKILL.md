@@ -9,13 +9,15 @@ description: 根據已核准需求、現有程式庫與 Milktea 專案結構偏�
 
 ## 流程
 
-1. 讀取核准需求、專案指令、程式庫、`CONTEXT.md` 與相關 ADR。
+1. 讀取 `docs/planning/requirements.md`、專案指令、程式庫、`CONTEXT.md` 與相關 ADR。
 2. 必讀 `references/project-structure-style.md`；確認 Code、Data、Runtime 根目錄與框架例外。
 3. 查清現有資料結構、資料流、模組責任、公開介面與測試模式。
 4. 列出已知架構限制、使用者的實作偏好與未決技術決策。
 5. 依相依順序一次確認一個決策，附推薦、理由與主要代價。
 6. 發現需求衝突時退回需求階段，不自行修改需求。
-7. 摘要架構並取得使用者核准；把核准內容與實際文件路徑更新至 `CONTEXT.md`，重大決策依規則寫入 ADR。
+7. 摘要架構並取得使用者核准；把完整核准內容寫入 `docs/planning/architecture.md`。新術語、關係或歧義才更新 `CONTEXT.md`；重大決策依規則寫入 ADR。
+
+既有 `architecture.md` 只更新本次核准範圍，保留未受影響內容。
 
 ## 架構面向
 
@@ -49,12 +51,12 @@ description: 根據已核准需求、現有程式庫與 Milktea 專案結構偏�
 - 只看程式碼無法理解原因。
 - 曾在多個合理方案間取捨。
 
-使用 `CONTEXT.md` 指定位置；未指定時寫入 `docs/adr/NNNN-名稱.md`。寫入時才建立目錄，只寫背景、決策、理由與主要後果。
+寫入 `docs/adr/NNNN-名稱.md`。寫入時才建立目錄，只寫背景、決策、理由與主要後果。
 
 ## 摘要格式
 
 ```markdown
-## 架構確認摘要
+# 核准架構與資料流
 
 - Code Root：
 - Data Root：
@@ -75,7 +77,8 @@ description: 根據已核准需求、現有程式庫與 Milktea 專案結構偏�
 ## 完成條件
 
 - 所有會影響實作的架構決策皆已確認或明確延後。
-- Code、Data、Runtime 根目錄與例外已確認並寫入 `CONTEXT.md`。
+- 核准架構與資料流已寫入 `docs/planning/architecture.md`。
+- `CONTEXT.md` 只新增已確認的專有名詞、關係與歧義。
 - 使用者的實作方法已驗證、修正或拒絕，並說明依據。
 - 測試接縫與驗證邊界明確。
 - 使用者核准架構摘要。

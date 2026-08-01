@@ -9,11 +9,11 @@ description: 在寫規格前，以繁體中文評估已核准需求與架構的�
 
 ## 流程
 
-1. 讀取核准需求、架構摘要、專案指令、程式庫、`CONTEXT.md` 與 ADR。
+1. 讀取 `docs/planning/requirements.md`、`docs/planning/architecture.md`、專案指令、程式庫、`CONTEXT.md` 與 ADR。
 2. 查證技術能力、既有實作、外部依賴、權限、資料、硬體與目前價格。
 3. 分別評估技術、架構相容、依賴、驗證、成本、時間與主要風險。
 4. 依證據選擇一個成功機率區間，不給虛假的精確百分比。
-5. 讀取 `CONTEXT.md` 的實際路徑；未指定時使用 `docs/feasibility/<名稱>.md` 與 `docs/assets/feasibility/`。
+5. 使用 `docs/feasibility/<名稱>.md` 與 `docs/assets/feasibility/`。
 6. 寫入時才建立所需目錄，並把本 Skill 的六個 SVG 複製到文件資產目錄；不得讓報告連回 Skill 安裝路徑。
 7. 顯示報告並取得使用者核准，再依分級關卡決定是否進入 `to-spec`。
 
@@ -32,7 +32,7 @@ description: 在寫規格前，以繁體中文評估已核准需求與架構的�
 | 87.5%–100% | `assets/green.svg`／🟢 | 成功機率非常高 |
 | 無足夠證據 | `assets/unknown.svg`／⚪ | 無法評估 |
 
-預設報告位於 `docs/feasibility/` 時，使用 `../assets/feasibility/<檔名>.svg`。自訂路徑時改用正確相對路徑。無法顯示 SVG 時使用備用符號與文字，不得只靠顏色傳達結果。
+報告使用 `../assets/feasibility/<檔名>.svg`。無法顯示 SVG 時使用備用符號與文字，不得只靠顏色傳達結果。
 
 ## 判定規則
 

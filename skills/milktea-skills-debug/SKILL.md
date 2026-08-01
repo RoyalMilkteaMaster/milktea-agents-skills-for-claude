@@ -1,6 +1,6 @@
 ---
 name: milktea-skills-debug
-description: 供執行開發任務的 Claude 或 Codex 子 Agent 按需載入。遇到非預期錯誤、錯誤行為、不穩定測試或效能退化時，讀取既有 Spec、CONTEXT.md、ADR 與架構限制，重現問題、驗證根因、建立回歸測試、完成最小修正，再繼續原任務。不處理 TDD 刻意產生的 Red 或尚未完成造成的預期失敗。
+description: 供執行開發任務的 Claude 或 Codex 子 Agent 按需載入。遇到非預期錯誤、錯誤行為、不穩定測試或效能退化時，讀取既有 Spec、planning 文件、CONTEXT.md 與 ADR，重現問題、驗證根因、建立回歸測試、完成最小修正，再繼續原任務。不處理 TDD 刻意產生的 Red 或尚未完成造成的預期失敗。
 ---
 
 # Milktea Skills Debug
@@ -30,7 +30,7 @@ description: 供執行開發任務的 Claude 或 Codex 子 Agent 按需載入。
 
 ## 前提
 
-讀取目前派工、Ticket、Spec、`CONTEXT.md`、相關 ADR、架構限制、變更 Diff 與既有測試。先確認問題屬於本次工作，不把無關舊問題混入。
+讀取目前派工、Ticket、Spec、`docs/planning/requirements.md`、`docs/planning/architecture.md`、`CONTEXT.md`、相關 ADR、變更 Diff 與既有測試。先確認問題屬於本次工作，不把無關舊問題混入。
 
 ## 除錯流程
 

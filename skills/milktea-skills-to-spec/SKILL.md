@@ -11,15 +11,15 @@ description: 將已核准的需求、架構與可行性報告整理成完整中�
 
 下列內容必須已核准：
 
-- 需求摘要與驗收結果。
-- 架構摘要與測試接縫。
+- `docs/planning/requirements.md` 的需求與驗收結果。
+- `docs/planning/architecture.md` 的架構、資料流與測試接縫。
 - 可行性報告與後續處置。
 
 缺少或互相衝突時停止，指出應回到哪個階段；不得自行補問或猜測。
 
 ## 流程
 
-1. 讀取核准摘要、可行性報告、專案指令、術語表、相關 ADR 與程式庫現況。
+1. 讀取 `docs/planning/requirements.md`、`docs/planning/architecture.md`、可行性報告、專案指令、`CONTEXT.md`、相關 ADR 與程式庫現況。
 2. 確認可行性關卡允許繼續；低成功率的使用者覆核必須留有紀錄。
 3. 依下方格式撰寫規格，不加入未確認內容。
 4. 發布到專案已設定的 issue tracker，套用已設定的 Spec 標籤；不得套用 `ready-for-agent`。

@@ -23,7 +23,7 @@ description: 供臨時開發 Agent 依已核准 Ticket 與測試接縫按需載�
 
 - Ticket 已定義行為、驗收條件與測試接縫。
 - 已知測試框架、最小測試指令與完整驗證指令。
-- 已讀取 `CONTEXT.md`、相關 ADR 與既有測試慣例。
+- 已讀取 `docs/planning/requirements.md`、`docs/planning/architecture.md`、`CONTEXT.md`、相關 ADR 與既有測試慣例。
 
 缺少測試接縫時回報 Implement Coordinator，不得在執行階段自行發明或重新訪談。
 

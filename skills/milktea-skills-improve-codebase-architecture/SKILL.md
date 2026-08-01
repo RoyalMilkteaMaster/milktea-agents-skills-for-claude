@@ -11,10 +11,10 @@ disable-model-invocation: true
 ## 範圍
 
 - 只分析 Code Root 與必要 Git 歷史。
-- 讀取 `AGENTS.md`、`CONTEXT.md`、ADR、架構文件、依賴設定與測試。
+- 讀取 `AGENTS.md`、`docs/planning/requirements.md`、`docs/planning/architecture.md`、`CONTEXT.md`、ADR、依賴設定與測試。
 - Data／Runtime Root 只讀取已記錄的邊界與設定，不遞迴掃描資料、模型、快取或大型應用程式。
 - 工作目錄有未提交變更時照常唯讀分析，但在報告標明。
-- 只能寫入本次 HTML 報告與 `CONTEXT.md` 文件索引；不得修改其他專案檔案。
+- 只能寫入本次 HTML 報告；不得修改其他專案檔案。
 
 ## 流程
 
@@ -29,11 +29,9 @@ disable-model-invocation: true
 
 ## 報告位置
 
-先讀取 `CONTEXT.md`；未指定時使用：
-
 `docs/architecture-reviews/YYYY-MM-DD-<專案名稱>.html`
 
-寫入時才建立目錄。同日同名檔案已存在時追加 `-02`、`-03`，不得覆寫。把實際路徑加入 `CONTEXT.md` 的文件索引。
+寫入時才建立目錄。同日同名檔案已存在時追加 `-02`、`-03`，不得覆寫。
 
 ## HTML 規則
 
@@ -71,5 +69,5 @@ disable-model-invocation: true
 - 報告可開啟，Tailwind 與 Mermaid 正常；無 CDN 時仍可閱讀文字。
 - 所有重要結論可追溯到程式、Git、測試或文件證據。
 - 報告包含現況、候選、風險、遷移、驗證與回滾。
-- 除本次 HTML 報告與 `CONTEXT.md` 文件索引外，未修改來源碼、設定、依賴或外部 Data／Runtime；未 Stage、Commit 或 Push。
+- 除本次 HTML 報告外，未修改來源碼、設定、依賴、`CONTEXT.md` 或外部 Data／Runtime；未 Stage、Commit 或 Push。
 - 使用者取得完整路徑並可選擇下一步。

@@ -28,7 +28,7 @@
 workspace/                    # 同一專案家族的外層工作區
 ├─ <project>_project/         # Git：程式碼與可重現設定
 │  ├─ AGENTS.md              # 長期有效的 Agent 規則
-│  ├─ CONTEXT.md             # 已核准且持續更新的專案脈絡
+│  ├─ CONTEXT.md             # 專有名詞、關係與歧義
 │  ├─ frontend/              # 使用者介面專案
 │  │  └─ src/                # 前端主要原始碼
 │  │     ├─ pages/            # 路由頁面
@@ -49,7 +49,10 @@ workspace/                    # 同一專案家族的外層工作區
 │  ├─ tests/                  # 自動化測試與測試資料
 │  ├─ scripts/                # 開發、維護、部署腳本
 │  ├─ config/                 # 可提交的設定與範例
-│  └─ docs/                   # 架構、API、報告與開發文件
+│  └─ docs/                   # 規劃、架構、報告與開發文件
+│     ├─ planning/            # 已核准規劃
+│     │  ├─ requirements.md   # 核准需求
+│     │  └─ architecture.md   # 核准架構與資料流
 │     ├─ adr/                 # 重大且難逆轉的架構決策
 │     ├─ feasibility/         # 可行性評估 Markdown
 │     ├─ architecture-reviews/ # 架構健檢 HTML
@@ -99,14 +102,16 @@ PROJECT_RUNTIME_ROOT=D:/workspace/<project>_runtime
 
 ## 文件與報告
 
-- `CONTEXT.md`：專案根目錄唯一的已核准脈絡來源。
+- `CONTEXT.md`：只記錄已確認的專有名詞、關係與歧義。
+- `docs/planning/requirements.md`：核准需求。
+- `docs/planning/architecture.md`：核准架構與資料流。
 - `docs/adr/`：ADR；需要寫入時才建立。
 - `docs/feasibility/`：可行性報告；需要寫入時才建立。
 - `docs/architecture-reviews/`：架構健檢 HTML；需要寫入時才建立。
 - `docs/assets/`：報告資產；不得連回 Skill 安裝目錄。
 - Spec 與 Tickets：只存 issue tracker，避免本機副本成為第二套真相。
 - 執行、Debug、Git 衝突與 Review 證據：追加到對應 Ticket comments。
-- 自訂路徑必須寫入 `CONTEXT.md`；產出型 Agent 先讀取，未指定才用預設值。
+- 以上路徑固定；不得把需求、架構或報告正文複製到 `CONTEXT.md`。
 - 長期文件放 Code Root；業務資料放 Data Root；模型與大型應用程式放 Runtime Root。
 - 只在實際產出時建立所需目錄，不預建空骨架。
 

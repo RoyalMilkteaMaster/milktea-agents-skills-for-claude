@@ -18,7 +18,7 @@ description: 供 Claude 或 Codex Reviewer 子 Agent 在 Ticket 開發完成後�
 
 - 核准的 Spec、Ticket 與驗收條件。
 - 固定基準、Review revision、Diff、Commit 與檔案列表。
-- 專案規範、`CONTEXT.md`、相關 ADR 與必跑指令。
+- 專案規範、`docs/planning/requirements.md`、`docs/planning/architecture.md`、`CONTEXT.md`、相關 ADR 與必跑指令。
 - 開發 Agent 的變更摘要、測試證據與已知限制。
 
 無法確認規格、基準或變更範圍時，回報缺口並停止；不得猜測性審查整個程式庫。
