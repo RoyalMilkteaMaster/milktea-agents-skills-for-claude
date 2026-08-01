@@ -50,11 +50,15 @@ workspace/                    # 同一專案家族的外層工作區
 │  ├─ scripts/                # 開發、維護、部署腳本
 │  ├─ config/                 # 可提交的設定與範例
 │  └─ docs/                   # 規劃、架構、報告與開發文件
-│     ├─ agents/              # Agent 操作設定
-│     │  └─ issue-tracker.md  # Tracker、Repository、標籤與阻擋方式
+│     ├─ agents/              # 選用的 Agent 操作設定
+│     │  └─ issue-tracker.md  # 遠端 Tracker 模式與操作方式
 │     ├─ planning/            # 已核准規劃
 │     │  ├─ requirements.md   # 核准需求
 │     │  └─ architecture.md   # 核准架構與資料流
+│     ├─ work/                # 已核准 Spec、Tickets 與執行證據
+│     │  └─ <feature>/        # 單一功能工作包
+│     │     ├─ spec.md        # 本次規格
+│     │     └─ tickets/       # 每票一個 Markdown
 │     ├─ adr/                 # 重大且難逆轉的架構決策
 │     ├─ feasibility/         # 可行性評估 Markdown
 │     ├─ architecture-reviews/ # 架構健檢 HTML
@@ -105,15 +109,17 @@ PROJECT_RUNTIME_ROOT=D:/workspace/<project>_runtime
 ## 文件與報告
 
 - `CONTEXT.md`：只記錄已確認的專有名詞、關係與歧義。
-- `docs/agents/issue-tracker.md`：正式 Tracker 的 Repository、操作後端、標籤、阻擋方式與權限狀態。
+- `docs/agents/issue-tracker.md`：選用遠端 Tracker 的模式、Repository、標籤與權限；本機模式不需要此檔。
 - `docs/planning/requirements.md`：核准需求。
 - `docs/planning/architecture.md`：核准架構與資料流。
+- `docs/work/<功能名稱>/spec.md`：本機 Spec。
+- `docs/work/<功能名稱>/tickets/`：本機 Tickets、狀態與執行證據。
 - `docs/adr/`：ADR；需要寫入時才建立。
 - `docs/feasibility/`：可行性報告；需要寫入時才建立。
 - `docs/architecture-reviews/`：架構健檢 HTML；需要寫入時才建立。
 - `docs/assets/`：報告資產；不得連回 Skill 安裝目錄。
-- Spec 與 Tickets：只存 issue tracker，避免本機副本成為第二套真相。
-- 執行、Debug、Git 衝突與 Review 證據：追加到對應 Ticket comments。
+- Spec 與 Tickets：預設只存 `docs/work/`；明確啟用遠端模式時只存遠端 Tracker，避免兩套真相。
+- 執行、Debug、Git 衝突與 Review 證據：追加到本機 Ticket；遠端模式追加到對應 comments。
 - 以上路徑固定；不得把需求、架構或報告正文複製到 `CONTEXT.md`。
 - 長期文件放 Code Root；業務資料放 Data Root；模型與大型應用程式放 Runtime Root。
 - 只在實際產出時建立所需目錄，不預建空骨架。

@@ -1,6 +1,6 @@
 ---
 name: milktea-skills-to-spec
-description: 將已核准的需求、架構與可行性報告整理成完整中文規格並發布到專案 issue tracker。由 milktea-skills-grill-me 在規格階段調用，或在使用者要求把已確認內容轉成 Spec、PRD 或可拆票規格時使用；不訪談、不新增決策、不拆票。
+description: 將已核准的需求與架構整理成完整中文規格，預設寫入 docs/work/功能名稱/spec.md；只有使用者明確啟用遠端 Tracker 時才發布到遠端。由 milktea-skills-grill-me 在規格階段調用，或在使用者要求把已確認內容轉成 Spec、PRD 或可拆票規格時使用；不訪談、不新增決策、不拆票。
 ---
 
 # Milktea Skills To Spec
@@ -13,35 +13,28 @@ description: 將已核准的需求、架構與可行性報告整理成完整中�
 
 - `docs/planning/requirements.md` 的需求與驗收結果。
 - `docs/planning/architecture.md` 的架構、資料流與測試接縫。
-- 可行性報告與後續處置。
-- `docs/agents/issue-tracker.md` 的正式 Tracker 設定可用。
 
-需求、架構或可行性缺少或互相衝突時停止，指出應回到哪個階段；不得自行補問或猜測。
+需求或架構缺少或互相衝突時停止，指出應回到哪個階段；不得自行補問或猜測。
 
-Tracker 設定不存在、不完整或無法操作時，呼叫 `/milktea-agents-army-claude:milktea-skills-setup-issue-tracker`；只在收到 `TRACKER_READY` 後繼續。設定 Skill 不可用或設定失敗時停止並回報實際缺口。
+## 儲存模式
+
+- 預設使用本機 Markdown：`docs/work/<功能名稱>/spec.md`。
+- `<功能名稱>` 使用簡短、可辨識的 kebab-case；同一工作沿用既有目錄，不同工作撞名時追加 `-02`、`-03`。
+- 只有 `docs/agents/issue-tracker.md` 明確包含 `模式：remote` 且設定可用時，才發布到指定遠端 Tracker。
+- 設定不存在、缺少模式或仍是舊格式時，一律使用本機；不詢問、不自動設定遠端。
+- 不為了儲存或交接執行 `git add`、Commit、Push、建立 Repository 或修改 remote。
 
 ## 流程
 
-1. 讀取 `docs/agents/issue-tracker.md`、`docs/planning/requirements.md`、`docs/planning/architecture.md`、可行性報告、專案指令、`CONTEXT.md`、相關 ADR 與程式庫現況。
-2. 確認可行性關卡允許繼續；低成功率的使用者覆核必須留有紀錄。
-3. 依下方格式撰寫規格，不加入未確認內容。
-4. 發布到設定檔指定的 Repository 與 issue tracker，套用已設定的 Spec 標籤；不得套用 `ready-for-agent`，不得依目前工作目錄猜 Repository。
-5. 顯示完整規格，回報 issue 標題、編號與連結，等待使用者核准。
+1. 讀取 `docs/planning/requirements.md`、`docs/planning/architecture.md`、專案指令、`CONTEXT.md`、相關 ADR 與程式庫現況。
+2. 依下方格式撰寫規格，不加入未確認內容。
+3. 本機模式建立工作目錄並寫入固定路徑；遠端模式發布到設定的 Repository，套用 Spec 標籤且不得套用 `ready-for-agent`。
+4. 顯示完整規格與實際路徑或連結，等待使用者核准；修改後更新同一來源，不建立副本。
 
 ## 規格格式
 
 ```markdown
 # 〈規格名稱〉
-
-## 可行性
-
-![可行性圖示](圖示路徑)
-**〈判定〉｜成功機率〈區間〉**
-
-- 成本：
-- 時間：
-- 主要風險：
-- 完整報告：
 
 ## 問題
 
@@ -78,7 +71,6 @@ Tracker 設定不存在、不完整或無法操作時，呼叫 `/milktea-agents-
 
 ## 規則
 
-- 可行性摘要必須位於規格最上方。
 - User Stories 描述誰需要什麼及原因；驗收條件描述怎樣才算完成。
 - 使用專案術語並遵守 ADR。
 - 寫模組與介面名稱；省略易過期的檔案路徑、行號與大段程式碼。
@@ -88,7 +80,7 @@ Tracker 設定不存在、不完整或無法操作時，呼叫 `/milktea-agents-
 ## 完成條件
 
 - 規格只包含核准內容。
-- 可行性、User Stories 與驗收條件完整。
+- User Stories 與驗收條件完整。
 - 架構與測試決策可供拆票。
-- 規格已發布並套用已設定的 Spec 標籤。
+- 規格已寫入本機固定路徑；遠端模式則已發布並套用 Spec 標籤。
 - 使用者核准規格。

@@ -6,11 +6,13 @@
 
 - `/milktea-agents-army-claude:milktea-skills-grill-me`：新需求規劃。
 - `/milktea-agents-army-claude:milktea-skills-implement`：接手已核准的 Tickets。
+- `/milktea-agents-army-claude:milktea-skills-check-feasibility`：主動產生獨立可行性報告。
 - `/milktea-agents-army-claude:milktea-skills-improve-codebase-architecture`：主動進行架構健檢。
+- `/milktea-agents-army-claude:milktea-skills-setup-issue-tracker`：明確切換本機或遠端 Tracker。
 
 其餘 Skills 由流程或臨時 Agent 按需載入。
 
-首次規劃會自動設定並驗證產品 Repository 的 Issue Tracker；有效設定不重問。
+Spec 與 Tickets 預設寫入 `docs/work/`，不需要 GitHub、Commit 或 Push。Claude Code 無法建立使用者可見的頂層 Task 時，會輸出完整啟動指令並停止 Planner Task。
 
 ## 測試載入
 

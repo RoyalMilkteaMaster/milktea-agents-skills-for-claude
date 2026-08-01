@@ -13,8 +13,8 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 ## 前提
 
 - Spec、Tickets、依賴、測試接縫與驗收條件已核准。
-- 專案指令、`docs/agents/issue-tracker.md`、兩份 `docs/planning/` 文件、`CONTEXT.md` 與相關 ADR 可讀。
-- Issue tracker 可讀取 Ticket、追加 comments 並更新狀態。
+- 專案指令、兩份 `docs/planning/` 文件、`CONTEXT.md` 與相關 ADR 可讀。
+- 本機 Ticket 檔案可讀寫；只有明確啟用遠端模式時才要求 Tracker 可操作。
 - 工作目錄與基準版本明確。
 
 缺少必要資料時停止並指出缺口。
@@ -72,22 +72,27 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 2. 依派工契約，把 Ticket、必要文件、允許修改範圍及驗收指令交給臨時開發 Agent。
 3. 要求開發 Agent 在適用時按需載入 `/milktea-agents-army-claude:milktea-skills-tdd`；不適用時記錄理由與替代驗證。
 4. 告知開發 Agent：不得預載 `/milktea-agents-army-claude:milktea-skills-git-merge-conflict`；只有 merge、rebase 或 cherry-pick 實際回報衝突時才載入。Skill 不可用時回報 `BLOCKED: GIT_MERGE_CONFLICT_SKILL_UNAVAILABLE`。
-5. 告知開發 Agent：完成實作或衝突解決後只能回報 `Ready for Review`；未達三方共識前不得標記完成、接下一張 Ticket 或釋放可續談識別。
-6. 收到 `Ready for Review` 後，固定 Review snapshot：基準、revision、Diff、檔案列表與必跑證據；在收到 Findings 或 Coordinator 指示前，開發 Agent 不得繼續修改。
+5. 把 Ticket 狀態更新為「執行中」。告知開發 Agent：完成實作或衝突解決後只能回報 `Ready for Review`；未達三方共識前不得標記完成、接下一張 Ticket 或釋放可續談識別。
+6. 收到 `Ready for Review` 後，把 Ticket 狀態更新為「Review 中」，固定 Review snapshot：基準、revision、Diff、檔案列表與必跑證據；在收到 Findings 或 Coordinator 指示前，開發 Agent 不得繼續修改。
 7. 依 Reviewer 契約平行派出兩個一般臨時 Agent，分別指定為 Reviewer A 與 Reviewer B；提供相同 snapshot、Spec、Ticket、兩份 `docs/planning/` 文件、`CONTEXT.md`、ADR 與開發證據。
 8. 要求兩位 Reviewer 各自按需載入 `/milktea-agents-army-claude:milktea-skills-code-review`，獨立完成 Standards 與 Spec 兩軸 Review。
 9. 把兩份完整報告交給開發 Agent；不得合併成模糊結論。
 10. 開發 Agent 逐項重現並驗證 Finding：正確則修正與重驗；錯誤則以程式、測試或文件反駁。
 11. 把修正、反證與新 snapshot 交回原 Reviewer 複查。
 12. 同一爭議完成一次證據交換仍無法解決時，交由使用者裁決，不無限消耗 Token。
-13. 所有阻擋與重要 Finding 關閉，且開發者與兩位 Reviewer 明確同意後，才標記 Ticket 完成。
+13. 所有阻擋與重要 Finding 關閉，且開發者與兩位 Reviewer 明確同意後，才把 Ticket 狀態更新為「完成」。
 14. 保存最終證據後結束該開發 Agent 與兩位 Reviewer；下一張 Ticket 建立全新實例。
 
 適用 Ticket 缺少 TDD，或缺少 Code Review Skill 時停止並回報；不得自行模擬或跳過。
 
 ## Ticket 證據紀錄
 
-由本 Skill 的協調者把下列內容依序追加到對應 Ticket comments，不另建本機報告：
+先判定保存後端：
+
+- 預設由 Coordinator 追加到本機 Ticket 的 `## 執行與 Review 紀錄`，並更新狀態；Developer 與 Reviewer 不直接寫 Ticket，避免並行衝突。
+- 只有 `docs/agents/issue-tracker.md` 明確包含 `模式：remote` 時，才改用對應 Ticket comments 與遠端狀態。
+
+依序保存：
 
 1. 開始執行：基準版本、開發角色、範圍與必跑指令。
 2. `Ready for Review`：Snapshot、變更摘要與測試證據。
@@ -95,14 +100,14 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 4. 每輪 Review：兩份獨立完整報告、開發者修正或反證、Reviewer 複查。
 5. 完成：最終 Snapshot、必跑結果、共識與未解風險。
 
-只追加，不覆寫既有 comments。寫入失敗時保留完整內容並回報；補寫前不得把 Ticket 標記完成。
+只追加，不覆寫既有紀錄。寫入失敗時保留完整內容並回報；補寫前不得把 Ticket 標記完成。
 
 ## Task 邊界
 
 - 預設在同一執行 Task 完成全部核准 Tickets；不得因對話變長就例行拆分。
 - 只有平台發出 Context 警告、壓縮造成必要資訊不足，或已無法安全繼續時，才提出延續 Task。
 - 先完成目前可安全收尾的最小工作、保存狀態與證據，再詢問使用者。
-- 使用者核准後才建立延續 Task；工具不可用時提供可直接貼上的啟動指令。
+- 使用者核准後，平台有頂層 Task 工具時必須實際建立並回報 Task ID；不可用時才提供可直接貼上的啟動指令。兩種情況都不得留在舊 Task 繼續。
 - 新需求不得沿用執行 Task，必須重新從 `/milktea-agents-army-claude:milktea-skills-grill-me` 開始。
 
 ## 完成規則
