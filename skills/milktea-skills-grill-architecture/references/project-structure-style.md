@@ -50,8 +50,6 @@ workspace/                    # 同一專案家族的外層工作區
 │  ├─ scripts/                # 開發、維護、部署腳本
 │  ├─ config/                 # 可提交的設定與範例
 │  └─ docs/                   # 規劃、架構、報告與開發文件
-│     ├─ agents/              # 選用的 Agent 操作設定
-│     │  └─ issue-tracker.md  # 遠端 Tracker 模式與操作方式
 │     ├─ planning/            # 已核准規劃
 │     │  ├─ requirements.md   # 核准需求
 │     │  └─ architecture.md   # 核准架構與資料流
@@ -71,7 +69,7 @@ workspace/                    # 同一專案家族的外層工作區
 │  ├─ uploads/                # 使用者或外部系統輸入
 │  ├─ artifacts/              # 任務與生成流程產物
 │  ├─ exports/                # 提供使用者取用的匯出結果
-│  ├─ logs/                   # 執行與稽核紀錄
+│  ├─ logs/                   # 啟用正式 Logging 時才建立
 │  └─ temporary/              # 可安全清除的暫存資料
 │
 ├─ <project>_runtime/         # 不進 Git：大型執行資源
@@ -89,7 +87,7 @@ workspace/                    # 同一專案家族的外層工作區
 ## 三個根目錄
 
 - **Code Root**：程式碼、測試、設定範例、Schema 與 migrations。
-- **Data Root**：實際資料庫、表單資料、上傳、輸出、產物與 Log。
+- **Data Root**：實際資料庫、表單資料、上傳、輸出、產物，以及已啟用的正式 Log。
 - **Runtime Root**：Blender、ComfyUI、模型、外掛、大型環境與可重建快取。
 - `execution/` 只放呼叫與控制外部工具的程式，不放工具本體。
 - 多個 Worktree 可共用 Data／Runtime Root，不得各自複製；並行寫入必須有鎖或單一寫入者。
@@ -109,7 +107,6 @@ PROJECT_RUNTIME_ROOT=D:/workspace/<project>_runtime
 ## 文件與報告
 
 - `CONTEXT.md`：只記錄已確認的專有名詞、關係與歧義。
-- `docs/agents/issue-tracker.md`：選用遠端 Tracker 的模式、Repository、標籤與權限；本機模式不需要此檔。
 - `docs/planning/requirements.md`：核准需求。
 - `docs/planning/architecture.md`：核准架構與資料流。
 - `docs/work/<功能名稱>/spec.md`：本機 Spec。
@@ -118,8 +115,8 @@ PROJECT_RUNTIME_ROOT=D:/workspace/<project>_runtime
 - `docs/feasibility/`：可行性報告；需要寫入時才建立。
 - `docs/architecture-reviews/`：架構健檢 HTML；需要寫入時才建立。
 - `docs/assets/`：報告資產；不得連回 Skill 安裝目錄。
-- Spec 與 Tickets：預設只存 `docs/work/`；明確啟用遠端模式時只存遠端 Tracker，避免兩套真相。
-- 執行、Debug、Git 衝突與 Review 證據：追加到本機 Ticket；遠端模式追加到對應 comments。
+- Spec 與 Tickets：只存 `docs/work/`，維持單一真相。
+- 執行、Debug、Git 衝突與 Review 證據：追加到對應本機 Ticket 的 `## 執行與 Review 紀錄`。
 - 以上路徑固定；不得把需求、架構或報告正文複製到 `CONTEXT.md`。
 - 長期文件放 Code Root；業務資料放 Data Root；模型與大型應用程式放 Runtime Root。
 - 只在實際產出時建立所需目錄，不預建空骨架。

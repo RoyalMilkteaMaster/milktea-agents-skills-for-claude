@@ -1,23 +1,30 @@
 ---
-name: milktea-skills-implement
-description: 執行已核准的 Spec 與 Tickets。偵測實際可用的 AI Agent、CLI 與子 Agent 能力，依目前 Task 分工派發開發 Agent 及兩個獨立 Reviewer；每位 Reviewer 同時審查 Standards 與 Spec，開發者驗證、修正或反駁 Findings，三方共識後才完成 Ticket。只有單一後端時改用三個隔離上下文並標示缺少跨模型獨立性。由 milktea-skills-grill-me 建立的新執行 Task 啟動，或在使用者要求執行已核准 Tickets 時使用。
+name: milktea-skills-brownfield-refactor-implement
+description: 執行使用者從 Brownfield Refactor Planner 交接的 HTML、Spec 與 Tickets。以 Brownfield Refactor Implement Coordinator 身分完整執行開發 Agent、雙 Reviewer、TDD、Debug、證據紀錄與三方共識流程；不重新規劃或擴大範圍，只有存在 Logging Ticket 時才處理正式 Logging，全部修改完成後確認 Planner 列出的原有功能仍然正常。使用者把 Brownfield Planner 交接內容貼到新的執行 Task 時使用。
 disable-model-invocation: true
 ---
 
-# Milktea Skills Implement
+# Milktea Skills Brownfield Refactor Implement
 
-啟動後，本 Task 的 Core Agent 立即進入 `Implement Coordinator` 角色，直到所有核准 Tickets 完成、使用者停止或工作確實受阻。
+啟動後，本 Task 的 Core Agent 立即進入 `Brownfield Refactor Implement Coordinator` 角色，直到所有核准 Tickets 完成、使用者停止或工作確實受阻。
 
-Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的裁決者。使用者擁有最終決策權；Spec、Tickets、`docs/planning/requirements.md`、`docs/planning/architecture.md`、`CONTEXT.md` 與 ADR 約束所有角色。
+Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的裁決者。使用者擁有最終決策權；HTML 架構報告、Spec、Tickets、`docs/planning/requirements.md`、`docs/planning/architecture.md`、`CONTEXT.md` 與 ADR 約束所有角色。
 
 ## 前提
 
-- Spec、Tickets、依賴、測試接縫與驗收條件已核准。
+- 使用者已主動把 Brownfield Planner 的交接內容貼入新的執行 Task；此動作即代表使用者已核准報告與執行計畫，不再檢查 HTML 是否具有核准標記，也不再次詢問。
+- 交接內容指定的 HTML 架構報告、Spec、Tickets、依賴、測試接縫與驗收條件可讀。
 - 專案指令、兩份 `docs/planning/` 文件、`CONTEXT.md` 與相關 ADR 可讀。
 - `docs/work/<功能名稱>/tickets/` 內的本機 Ticket 檔案可讀寫。
 - 工作目錄與基準版本明確。
 
-缺少必要資料時停止並指出缺口。
+缺少實際執行所需資料時停止並指出缺口；不得重新規劃或擴大 Planner 交接範圍。
+
+## Brownfield 規則
+
+- 只執行交接內容指定的 Tickets，不重新訪談、設計架構、產生 Spec 或拆票。
+- 有 Logging Ticket 時，依一般 Ticket 流程執行；沒有 Logging Ticket 時，不檢查、不詢問，也不建立正式 Logging。
+- 所有 Tickets 完成後，依 Planner 報告列出的「必須保留功能」及其驗證方式逐項確認。任何必須保留的功能未通過時，不得宣告重構完成。
 
 ## 工作環境預檢
 
@@ -102,12 +109,19 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 - 使用者核准後，平台有頂層 Task 工具時必須實際建立並回報 Task ID；不可用時才提供可直接貼上的啟動指令。兩種情況都不得留在舊 Task 繼續。
 - 新需求不得沿用執行 Task，必須重新從 `/milktea-agents-army-claude:milktea-skills-grill-me` 開始。
 
+## 原有功能確認
+
+所有 Tickets 完成並通過各自的驗收與 Review 後，讀取 Planner 報告中的「必須保留功能」及驗證方式，逐項執行修改後驗證並保存實際結果。
+
+任何必須保留的功能未通過時，回到受影響的 Ticket 依原本 Developer、雙 Reviewer 與三方共識流程修正；不得另建一套驗證流程，也不得宣告重構完成。
+
 ## 完成規則
 
 - 所有核准 Tickets 與驗收條件均有可重現證據。
+- Planner 列出的所有必須保留功能均已依指定方式確認正常。
 - 必跑指令成功；失敗或未執行項目已明示。
 - 所有有效 Findings 已修正，錯誤 Findings 已由證據推翻。
 - 三個隔離角色明確達成共識；降級情況已標示並取得使用者核准。
 - 依 Ticket 與專案 Git 規則提交；未授權不得 Commit 或 Push。
 
-最後輸出每張 Ticket 狀態、角色後端、測試證據、兩份 Review 結論、共識、未解風險與版本識別。
+最後輸出每張 Ticket 狀態、角色後端、測試證據、兩份 Review 結論、共識、原有功能確認結果、未解風險與版本識別。

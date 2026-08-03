@@ -39,7 +39,7 @@ description: 供執行開發任務的 Claude 或 Codex 子 Agent 按需載入。
 3. 實際執行回饋迴圈，確認捕捉的是同一問題；偶發問題先提高重現率。
 4. 逐步移除輸入、設定、資料與呼叫鏈，保留最小重現案例。
 5. 產生 2–5 個可推翻假設，依證據排序；一次只驗證一個變因。
-6. 優先使用 Debugger 或針對性觀測；臨時 Log 使用唯一 `[DEBUG-識別碼]`，不得大量亂灑 Log。
+6. 優先使用 Debugger 或只在能區分假設的位置加入觀測；臨時 Log 使用唯一 `[DEBUG-識別碼]`，不得大量亂灑。輸出預設送到 Console；必須存檔時放在作業系統暫存目錄，不寫入 Repository 或正式 `<專案名稱>_data/logs/`。
 7. 效能問題先建立基準並使用 Profiler、Query Plan 或 Bisect；不得憑感覺最佳化。
 8. 只有證據能解釋完整症狀時，才確認根因。
 
@@ -51,7 +51,7 @@ description: 供執行開發任務的 Claude 或 Codex 子 Agent 按需載入。
 2. 調用 `/milktea-agents-army-claude:milktea-skills-tdd`，把最小重現轉成 Red 回歸測試。
 3. 修改程式，使回歸測試通過。
 4. 重跑最小重現、原始情境、相關測試與 Ticket 必跑指令。
-5. 移除所有臨時觀測、Debug Log 與拋棄式 Harness；保留正式回歸測試。
+5. 加入臨時觀測的除錯 Agent 必須在回到原任務前，移除所有 Debug 程式碼、暫存 Log 檔案與拋棄式 Harness；只保留正式回歸測試。
 
 不得降低斷言、停用測試、吞掉例外、擴大 Ticket 範圍或以重試掩蓋根因。
 
@@ -74,4 +74,4 @@ description: 供執行開發任務的 Claude 或 Codex 子 Agent 按需載入。
 - 已清除的臨時觀測。
 - 未解風險或需要使用者裁決的範圍變更。
 
-把回報交給執行協調者追加到對應 Ticket comment；不得另建本機 Debug 報告或自行修改 tracker，除非 Ticket 明確授權。
+把回報交給執行協調者追加到對應本機 Ticket 的 `## 執行與 Review 紀錄`；不得另建 Debug 報告或自行修改 Ticket。

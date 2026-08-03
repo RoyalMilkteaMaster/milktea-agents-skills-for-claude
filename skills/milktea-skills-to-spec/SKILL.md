@@ -1,6 +1,6 @@
 ---
 name: milktea-skills-to-spec
-description: 將已核准的需求與架構整理成完整中文規格，預設寫入 docs/work/功能名稱/spec.md；只有使用者明確啟用遠端 Tracker 時才發布到遠端。由 milktea-skills-grill-me 在規格階段調用，或在使用者要求把已確認內容轉成 Spec、PRD 或可拆票規格時使用；不訪談、不新增決策、不拆票。
+description: 將已核准的需求與架構整理成完整中文規格，固定寫入 docs/work/功能名稱/spec.md。由 milktea-skills-grill-me 在規格階段調用，或在使用者要求把已確認內容轉成 Spec、PRD 或可拆票規格時使用；不訪談、不新增決策、不拆票。
 ---
 
 # Milktea Skills To Spec
@@ -16,20 +16,18 @@ description: 將已核准的需求與架構整理成完整中文規格，預設�
 
 需求或架構缺少或互相衝突時停止，指出應回到哪個階段；不得自行補問或猜測。
 
-## 儲存模式
+## 儲存位置
 
-- 預設使用本機 Markdown：`docs/work/<功能名稱>/spec.md`。
+- 固定使用本機 Markdown：`docs/work/<功能名稱>/spec.md`。
 - `<功能名稱>` 使用簡短、可辨識的 kebab-case；同一工作沿用既有目錄，不同工作撞名時追加 `-02`、`-03`。
-- 只有 `docs/agents/issue-tracker.md` 明確包含 `模式：remote` 且設定可用時，才發布到指定遠端 Tracker。
-- 設定不存在、缺少模式或仍是舊格式時，一律使用本機；不詢問、不自動設定遠端。
-- 不為了儲存或交接執行 `git add`、Commit、Push、建立 Repository 或修改 remote。
+- 不為了儲存或交接執行 `git add`、Commit、Push、建立 Repository 或修改 Git 設定。
 
 ## 流程
 
 1. 讀取 `docs/planning/requirements.md`、`docs/planning/architecture.md`、專案指令、`CONTEXT.md`、相關 ADR 與程式庫現況。
 2. 依下方格式撰寫規格，不加入未確認內容。
-3. 本機模式建立工作目錄並寫入固定路徑；遠端模式發布到設定的 Repository，套用 Spec 標籤且不得套用 `ready-for-agent`。
-4. 顯示完整規格與實際路徑或連結，等待使用者核准；修改後更新同一來源，不建立副本。
+3. 建立工作目錄並寫入固定路徑。
+4. 顯示完整規格與實際路徑，等待使用者核准；修改後更新同一來源，不建立副本。
 
 ## 規格格式
 
@@ -82,5 +80,5 @@ description: 將已核准的需求與架構整理成完整中文規格，預設�
 - 規格只包含核准內容。
 - User Stories 與驗收條件完整。
 - 架構與測試決策可供拆票。
-- 規格已寫入本機固定路徑；遠端模式則已發布並套用 Spec 標籤。
+- 規格已寫入本機固定路徑。
 - 使用者核准規格。

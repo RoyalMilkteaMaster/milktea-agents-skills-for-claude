@@ -19,7 +19,7 @@ disable-model-invocation: true
 3. `/milktea-agents-army-claude:milktea-skills-to-spec`：整理已核准內容，不新增決策。
 4. `/milktea-agents-army-claude:milktea-skills-to-ticket`：拆分 Tickets、依賴、角色與 Review 責任。
 5. 顯示完整 Ticket 規劃，取得使用者核准。
-6. 說明為何應建立新 Task，再詢問是否開始執行。
+6. 顯示 `/milktea-agents-army-claude:milktea-skills-to-ticket` 產生的完整交接內容，再詢問是否開始執行。
 
 需要的子技能不存在時，回報缺少的技能並停止；不得自行模擬或跳過。
 
@@ -43,45 +43,28 @@ disable-model-invocation: true
 
 本 Task 是規劃 Task。只有完成 `to-ticket` 且 Tickets 經使用者核准後，才建立另一個執行 Task。
 
-Ticket 核准後，先告知使用者：
+Ticket 核准後，原樣顯示 `/milktea-agents-army-claude:milktea-skills-to-ticket` 產生的完整交接內容。不得改寫、縮短、重建或維護第二份啟動模板，也不得提供「留在目前 Task 執行」。
 
-> 建議在目前專案目錄建立新的執行 Task。目前 Task 已累積需求、架構、規格與拆票對話；繼續加入實作紀錄、測試輸出與子 Agent 回報，會增加上下文雜訊。新 Task 只讀取已核准文件，可保留乾淨的執行上下文，且不需要 Commit 或 Push 規劃檔案。
+Codex Desktop 有頂層 Task 工具時，只提供：
 
-接著只提供：
-
-1. **在目前專案目錄建立新的執行 Task（推薦）**
+1. **直接建立新的執行 Task（推薦）**
 2. **暫不執行**
 
-不得提供「留在目前 Task 執行」。有選項工具時使用選項工具；否則使用編號選單。
-
-使用者選擇建立後：
+有選項工具時使用選項工具；否則使用編號選單。使用者選擇建立後：
 
 1. 確認 `AGENTS.md`、`CONTEXT.md`、`docs/planning/requirements.md`、`docs/planning/architecture.md`、相關 ADR、實際 Spec、Tickets、角色與 Review 規則皆已保存，且新 Task 可讀取相同版本。
-2. 讀取 `references/task-handoff.md`，依目前平台建立全新 Task；不複製完整訪談對話。
-3. 執行 Task 的初始指令第一行必須明確呼叫 `/milktea-agents-army-claude:milktea-skills-implement`，使新的 Core Agent 進入 `Implement Coordinator` 角色；不得再次呼叫 `grill-me`。
-4. 由執行 Skill 偵測 Claude 工具、Claude CLI、WSL Claude 與 Codex Subagents；Claude 不可用時自動降級，不得跳過 Review。
-5. 要求先驗證依賴再派工，不把完整訪談內容交給執行 Agent。
-6. 平台有頂層 Task 工具時必須實際呼叫並回報 Task ID；不可用時才輸出可直接貼入新 Task 的完整啟動指令。兩種情況都不得留在 Planner Task 實作。
+2. 讀取 `references/task-handoff.md`，把已顯示的同一份交接內容原樣交給目前平台；不複製完整訪談對話。
+3. Codex Desktop 有頂層 Task 工具時，使用同一份交接內容直接建立並開啟新的 local Task，回報 Task ID；使用者不必手動複製。
+4. Claude Code、Codex CLI 或無頂層 Task 工具的平台，只保留已顯示的可複製內容；不得啟動巢狀 CLI 或以 Subagent 冒充新 Task。
+5. 建立失敗時回報實際錯誤並保留完整可複製內容；不得假裝成功或留在 Planner Task 實作。
 
-初始指令必須使用此格式，並填入實際連結與順序：
-
-```text
-/milktea-agents-army-claude:milktea-skills-implement
-
-你是本執行 Task 的 Core Agent。載入 Skill 後立即成為 Implement Coordinator；只負責派工、證據轉交、Review 與完成關卡，不親自實作或審查。
-
-必讀：AGENTS.md、CONTEXT.md、docs/planning/requirements.md、docs/planning/architecture.md、相關 ADR。
-工作來源：本機填入 docs/work/<功能名稱>/；遠端模式填入 Tracker 與父 Spec 連結。
-Spec：列出已核准的實際本機路徑或遠端連結。
-Tickets：依執行順序列出已核准的實際本機路徑或遠端連結。
-
-先完成環境與後端預檢，再從第一張未完成 Ticket 開始。
-```
+Claude Code、Codex CLI 或無頂層 Task 工具的平台，不顯示無法執行的自動建立選項；顯示完整交接內容、回報 `TASK_CREATION_UNAVAILABLE` 後結束規劃 Task。
 
 ## 完成條件
 
 - 需求、架構、Spec 與 Tickets 均經使用者核准。
-- Spec 與 Tickets 已保存到 `docs/work/<功能名稱>/`；只有明確啟用遠端模式時例外。
+- Spec 與 Tickets 已保存到 `docs/work/<功能名稱>/`。
 - Ticket 角色、依賴、Review 與驗收條件完整。
-- 使用者已選擇建立新 Task 或暫不執行；選擇建立時已有 Task ID，或已明示平台不支援並提供完整啟動指令。
+- 完整交接內容已使用實際路徑顯示。
+- Codex Desktop 使用者已選擇建立新 Task 或暫不執行；選擇建立時已有 Task ID。其他平台已明示不支援自動建立並保留完整可複製內容。
 - 本 Task 未開始實作。

@@ -7,7 +7,7 @@ description: 以繁體中文逐一確認需求、範圍、使用流程、限制�
 
 確認「為什麼做、誰需要、要做到什麼」。不討論如何實作。
 
-Spec 與 Tickets 預設留在本機；遠端 Tracker 只由使用者明確呼叫設定 Skill 啟用。本 Skill 不詢問、不記錄 Tracker 選擇。
+Spec 與 Tickets 固定留在本機 `docs/work/`。本 Skill 不詢問或記錄儲存位置。
 
 ## 流程
 

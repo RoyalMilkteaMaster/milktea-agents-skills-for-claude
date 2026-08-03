@@ -11,11 +11,12 @@ description: 根據已核准需求、現有程式庫與 Milktea 專案結構偏�
 
 1. 讀取 `docs/planning/requirements.md`、專案指令、程式庫、`CONTEXT.md` 與相關 ADR。
 2. 必讀 `references/project-structure-style.md`；確認 Code、Data、Runtime 根目錄與框架例外。
-3. 查清現有資料結構、資料流、模組責任、公開介面與測試模式。
-4. 列出已知架構限制、使用者的實作偏好與未決技術決策。
-5. 依相依順序一次確認一個決策，附推薦、理由與主要代價。
-6. 發現需求衝突時退回需求階段，不自行修改需求。
-7. 摘要架構並取得使用者核准；把完整核准內容寫入 `docs/planning/architecture.md`。新術語、關係或歧義才更新 `CONTEXT.md`；重大決策依規則寫入 ADR。
+3. 只問一次，不得拆成三題：「這個專案會不會有以下任一情況：① 背景 Worker 或排程；② 長時間無人看守的程式；③ Web API 或多人使用系統？如果有，我們才建立正式 Log 系統；如果都沒有，就不建立，以維持系統精簡。」全部為否時，不讀 Logging 參考文件，記錄「正式 Log：不需要」，使用 Console 與 `milktea-skills-debug` 的臨時 Debug Log；任一為是時，才讀取 `references/logging-architecture-style.md` 並確認正式 Logging 方案。
+4. 查清現有資料結構、資料流、模組責任、公開介面與測試模式。
+5. 列出已知架構限制、使用者的實作偏好與未決技術決策。
+6. 依相依順序一次確認一個決策，附推薦、理由與主要代價。
+7. 發現需求衝突時退回需求階段，不自行修改需求。
+8. 摘要架構並取得使用者核准；把完整核准內容寫入 `docs/planning/architecture.md`。新術語、關係或歧義才更新 `CONTEXT.md`；重大決策依規則寫入 ADR。
 
 既有 `architecture.md` 只更新本次核准範圍，保留未受影響內容。
 
@@ -27,6 +28,7 @@ description: 根據已核准需求、現有程式庫與 Milktea 專案結構偏�
 - 受影響模組及其責任。
 - 公開介面、Schema、API contract 與系統整合。
 - 錯誤處理、安全、效能與資源限制。
+- 是否需要長期保存正式 Log；只有符合啟用條件時才設計 Logger、檔案、輪替與清理。
 - 遷移方式、向後相容與回復策略。
 - 最高且既有的測試接縫；必要時才新增接縫。
 - 可獨立驗證的交付邊界。
@@ -61,6 +63,7 @@ description: 根據已核准需求、現有程式庫與 Milktea 專案結構偏�
 - Code Root：
 - Data Root：
 - Runtime Root：
+- 正式 Log：不需要／需要（理由與方案）
 - 目錄與命名：
 - 資料與所有權：
 - 資料流：
@@ -77,6 +80,7 @@ description: 根據已核准需求、現有程式庫與 Milktea 專案結構偏�
 ## 完成條件
 
 - 所有會影響實作的架構決策皆已確認或明確延後。
+- 已確認是否需要正式 Log；不需要時沒有加入 Logging 建置工作。
 - 核准架構與資料流已寫入 `docs/planning/architecture.md`。
 - `CONTEXT.md` 只新增已確認的專有名詞、關係與歧義。
 - 使用者的實作方法已驗證、修正或拒絕，並說明依據。

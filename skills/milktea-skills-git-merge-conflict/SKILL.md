@@ -59,4 +59,4 @@ description: 供執行 Git 整合的臨時開發 Agent 按需載入。當 merge�
 - 測試指令、退出碼與關鍵結果。
 - Stage、Commit、未解事項與目前 Git 狀態。
 
-把回報交給執行協調者追加到對應 Ticket comment；不得另建本機衝突報告或自行修改 tracker，除非 Ticket 明確授權。
+把回報交給執行協調者追加到對應本機 Ticket 的 `## 執行與 Review 紀錄`；不得另建衝突報告或自行修改 Ticket。
