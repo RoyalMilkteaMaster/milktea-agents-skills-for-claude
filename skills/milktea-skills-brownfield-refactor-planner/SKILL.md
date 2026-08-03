@@ -1,6 +1,6 @@
 ---
 name: milktea-skills-brownfield-refactor-planner
-description: 盤點既有專案的用途、架構、資料流、共用依賴、重複內容與廢棄候選，先與使用者確認清理和重建邊界，再產生 Brownfield 重構 Spec、Tickets 及高資訊密度 HTML 架構報告。使用者要求安全清整、簡化、去重、刪除舊資料、改善可讀性或評估局部重建時使用；只規劃與寫文件，不修改來源碼或清除資料。
+description: 協調既有專案的安全重構規劃。先確認盤點範圍與不可破壞的功能，再明確載入 milktea-skills-improve-codebase-architecture 產生唯讀 HTML 架構報告；使用者看完可直接結束，只有決定繼續重構時才確認目標架構、產生 Spec 與 Tickets，最後交給 Brownfield Implement。使用者要求整理混亂架構、去重、清理廢棄內容、改善可讀性或評估局部重建時使用；不修改來源碼或清除資料。
 disable-model-invocation: true
 ---
 
@@ -10,152 +10,100 @@ disable-model-invocation: true
 
 當既有專案架構混亂、重複或廢棄內容增加，或準備進行可能牽動多個既有功能的重構與高風險變更時使用。
 
-新增一般功能使用 `/milktea-agents-army-claude:milktea-skills-grill-me`。如果專案目前已經混亂，新增功能可能繼續放大耦合與維護成本，先建議完成 Brownfield 清整，再另開規劃 Task 使用 `/milktea-agents-army-claude:milktea-skills-grill-me` 規劃新功能。
-
-## 目的
-
-把既有專案整理成一份可核准、可逐票執行、可客觀回歸驗證的重構計畫。全程使用繁體中文；程式識別字保留原文。
+新增一般功能使用 `/milktea-agents-army-claude:milktea-skills-grill-me`。如果專案已經混亂，先完成 Brownfield 清整，再另開規劃 Task 處理新功能。
 
 ## 角色與邊界
 
-啟動後，本 Task 的 Core Agent 進入 `Brownfield Refactor Planner` 角色，直到使用者取消、核准交接或工作確實受阻。
+啟動後，本 Task 的 Core Agent 進入 `Brownfield Refactor Planner` 角色，負責範圍確認、Skill 編排、使用者核准與最後交接。
 
-- 先理解現有行為、資料和限制，再提出整理方案。
-- 只執行唯讀盤點、安全的基準驗證及規劃文件寫入。
+- 先理解現有行為、資料和限制，再開始架構健檢。
+- 不重做 Architecture Auditor 的唯讀盤點或 HTML 報告。
 - 不修改來源碼，不移動、重新命名或刪除專案資料，不安裝依賴，不 Commit 或 Push。
-- 可以唯讀記錄目前 Git SHA 作為分析版本證據；不得要求工作樹乾淨、不得強迫使用者 Commit，也不得把 SHA 當成禁止後續修改的條件。
-- 除非使用者明確要求，不得建立 SHA／Hash Manifest、Checksum Guard、CI／Git Hook 驗證或其他會因檔案內容改變而阻擋修改、Commit、執行或重構的保護機制。
-- 不為了盤點 Checkout、Reset 或還原到指定 SHA。後續正常修改產生新的 SHA 是預期行為，不代表驗證失敗。
-- 搜尋不到使用位置時，只能列為待刪候選；確認不是動態載入、設定引用、外部工具或人工流程使用後，才可以建議刪除。
-- 不在 Planner Task 實作；使用者核准後交給新的 Implement Task。
-- 目前專案目錄內尚未提交的修改，預設視為使用者進行中的工作，不得列為垃圾。舊 Worktree、放棄的實驗分支與對話產物可以列為清理候選，但必須先確認沒有未合併或唯一內容，並經使用者核准後再清理。
+- 工作目錄內尚未提交的修改視為使用者進行中的工作，不得列為垃圾。
+- 搜尋不到使用位置時只能列為候選；不得直接建議刪除。
+- 使用者只需要報告時，不產生 Spec、Tickets 或 Implement 交接。
+- 使用者決定繼續重構後，才進入規劃與派工文件階段；不得在 Planner Task 實作。
 
-## 六階段流程
+## 流程
 
-依序完成，不跳過理解、核准或證據關卡：
+依序完成，不跳過報告決策關卡：
 
-1. 確認清理目標與邊界。
-2. 理解專案用途並固定現況 Snapshot。
-3. 還原架構、資料流與共用使用位置。
-4. 盤點重複、過度設計、廢棄功能與垃圾候選。
-5. 設計目標架構、遷移順序與原有功能確認。
-6. 產生 Spec、Tickets、HTML 報告並取得最終核准。
+1. 確認盤點目標與邊界。
+2. 載入 `/milktea-agents-army-claude:milktea-skills-improve-codebase-architecture` 產生 HTML 架構報告。
+3. 讓使用者看完報告並決定是否繼續。
+4. 只有決定繼續時，確認目標架構與原有功能驗證方式。
+5. 產生並核准 Spec 與 Tickets。
+6. 顯示 Brownfield Implement 交接內容。
 
-### 1. 確認清理目標與邊界
+### 1. 確認盤點目標與邊界
 
-先讀目前對話、專案指令、`AGENTS.md`、`CONTEXT.md`、`docs/planning/requirements.md`、`docs/planning/architecture.md`、相關 ADR 與現有產品行為，再開始提問。
+先讀目前對話、專案指令、`AGENTS.md`、`CONTEXT.md`、`docs/planning/requirements.md`、`docs/planning/architecture.md`、相關 ADR 與現有產品行為。
 
-先簡短重述已確認事實、未知區域與推薦的最小整理方向。只詢問會實際改變計畫的決策，一次一題：
+只詢問會改變盤點或後續計畫的決策；需要補問多項時，一次集中詢問：
 
-- 本次要處理的專案、根目錄、模組與優先順序。
+- 本次處理的專案、根目錄、模組與優先順序。
 - 必須保持相容的功能、使用流程、公開介面與資料。
-- 可以刪除、封存、合併或搬移的內容。
-- 可接受局部重構，或願意比較整段重建方案。
+- 可以列為刪除、封存、合併、搬移或重建候選的範圍。
 - 可使用的測試、人工操作與回滾條件。
 
-能從程式庫與文件確認的事實自行查證，不把盤點工作丟給使用者。問題很小或答案已明確時，省略無用提問。發現某段程式實在難以維護時，在此階段提出「局部整理／整段重建」比較並交由使用者決定，不等到實作階段才詢問。
+能從程式庫與文件確認的事實自行查證。問題很小或答案已明確時，省略無用提問。
 
-### 2. 理解專案用途並固定現況 Snapshot
+### 2. 產生 HTML 架構報告
 
-建立唯讀現況基準：
+明確載入 `/milktea-agents-army-claude:milktea-skills-improve-codebase-architecture`。Skill 不存在時，回報缺少的 Skill 並停止；不得自行模擬另一套報告流程。
 
-- 專案用途、使用者、主要入口與實際使用流程。
-- Code Root、Data Root、Runtime Root、真實解析路徑及其所有權。
-- Git SHA、工作樹狀態、掃描範圍、排除範圍與未知區域。
-- 精簡但完整的文字目錄樹；省略依賴快取、建置輸出與大量重複葉節點。
-- 執行入口、設定、Schema、API、儲存位置、外部整合及測試入口。
-- 現有可安全執行的 Build、Test、Typecheck、Lint、Smoke Test 或關鍵人工流程。
+把下列已確認內容交給 Architecture Auditor：
 
-Git SHA 只代表目前已提交版本，不能包含尚未提交的修改；Snapshot 必須同時記錄工作樹狀態及必要的 Diff 摘要，不得只用 SHA 宣稱已固定完整現況。
+- 專案根目錄與掃描範圍。
+- 必須保留的功能、介面與資料。
+- 可列為清理或重建候選的範圍。
+- 已知 Code／Data／Runtime Root 與專案文件位置。
+- 可安全執行的基準驗證及禁止執行的操作。
+- 使用者已確認的限制、未知與風險。
 
-只執行不會修改正式 Data／Runtime Root 的基準命令。可能寫入、遷移或清除資料的命令先停止並說明風險。把實際命令、版本、結果與未能執行的理由納入 Snapshot；不得用「應該能跑」代替證據。
+Architecture Auditor 負責唯讀 Snapshot、架構與資料流還原、共用位置追蹤、條件式 Logging 盤點、清理候選、方案比較及 HTML 報告。Planner 不重複掃描或維護第二份報告規格。
 
-### 3. 還原架構、資料流與共用使用位置
+### 3. 報告決策關卡
 
-先看資料是什麼、由誰擁有、如何流動與修改，再看模組邊界：
+顯示 HTML 報告的實際路徑與 Architecture Auditor 回報的推薦方案、未知事項及待決策項目。讓使用者選擇：
 
-- 現況模組責任、公開介面、Schema、狀態與資料所有權。
-- 從使用者動作到儲存或外部服務的端到端資料流。
-- Hook、API、component、service、repository、CLI、事件與設定的呼叫位置。
-- 共用元件是否被原始問題以外的頁面、流程或工具使用。
-- 先確認專案是否已有正式 Log，或是否包含背景 Worker／排程、長時間無人看守的程式，或 Web API／多人使用系統。
-- 沒有正式 Log 且不符合上述任一情況時，記錄「正式 Log：不需要」並停止 Logging 盤點；Console 輸出與 `milktea-skills-debug` 的臨時 Debug Log 不算正式 Log。
-- 已有正式 Log 或符合任一情況時，才還原錯誤如何產生、傳遞、轉成使用者訊息並寫入正式紀錄，並檢查 Logger 位置、輸出目的地、格式、必要欄位、error code、追蹤 ID、輪替、保存及機密遮蔽。
-- 高扇入、高扇出、隱性副作用、循環依賴、全域狀態及單點共用水管。
-- 現況與既有架構規範、命名及測試接縫不一致之處。
+1. **只保留報告，到此結束。**
+2. **依報告繼續產生重構 Spec 與 Tickets。**
+3. **先修改同一份報告。**
 
-動態載入、反射、設定驅動、路由註冊、模板引用與外部排程都必須列入引用追蹤。每個重要結論附實際路徑、符號、命令或可重現證據。
+選擇只保留報告時，完成本 Task；不得產生空白或草稿 Spec／Tickets，也不得顯示 Implement 交接。
 
-### 4. 盤點精簡與清理候選
+選擇修改時，把具體回饋交回 `/milktea-agents-army-claude:milktea-skills-improve-codebase-architecture`，更新同一份 HTML；不得建立 `final`、`new` 或 `v2` 副本。更新後重新回到本關卡。
 
-主動尋找：
+只有使用者選擇繼續，才記錄採用的改善候選、拒絕的候選及理由，進入下一階段。
 
-- 可合併的重複程式、重複 Skill、重複文件、設定與 Schema。
-- 違反既有 Milktea 規則的多餘轉接層、過早抽象，以及用途不明的 `utils`、`helpers`、`manager`；有明確驗證、轉換、權限或獨立責任的模組不得只因名稱而列為刪除候選。
-- 放棄的功能、舊版本目錄、實驗分支產物、過期遷移與不再使用的流程。
-- 測試產生的 JSON、fixture、log、cache、export、temporary、build artifact 與錯放的正式資料。
-- 已被替代但仍殘留的檔案、程式入口、Feature Flag、依賴與文件。
+### 4. 確認目標架構與驗證
 
-每個候選分類為：`保留`、`刪除候選`、`封存候選`、`合併候選`、`重建候選` 或 `未知`，並記錄：
+載入 `/milktea-agents-army-claude:milktea-skills-grill-architecture`，只把使用者選定的報告候選整理成正式架構決策；不得重新進行完整健檢、重問報告已完成的正式 Log 判定，或新增報告未提出且使用者未核准的重構範圍。
 
-- 實際位置與用途。
-- 呼叫者、產生者、讀寫者及資料所有者。
-- 判斷證據與仍未知的風險。
-- 是否可重建、如何回復、刪除會破壞什麼。
-- 建議處置及是否需要使用者明確核准。
+規劃至少包含：
 
-搜尋不到使用位置時，只能列為候選。測試資料、動態入口、設定引用、外部腳本、人工流程與未提交工作都要先排除誤判。Planner 只列候選，不執行清理。
+- 目標目錄、模組責任、資料所有權與公開介面。
+- 保留、搬移、合併、新建、封存與移除的內容。
+- 可分段驗證、可回滾的遷移順序。
+- 必須保留的功能清單，以及修改前、修改後使用同一方法確認的證據表。
+- 報告判定需要正式 Log 時，才規劃 Logger 與 Logging Ticket；判定不需要時完全不處理。
 
-### 5. 設計目標架構與驗證
+所有必須保留的功能都要有修改前可重現的驗證方式。無法驗證的項目列為阻擋或交由使用者決定，不得宣稱一定不會壞。
 
-依序遵守：框架強制規則、核准需求與公開契約、現有專案一致性、Milktea 架構偏好、最小可用結構。
+### 5. 產生 Spec 與 Tickets
 
-載入 `/milktea-agents-army-claude:milktea-skills-grill-architecture` 沿用既有架構與命名標準；只補本次 Brownfield 決策，不複製或另建一套架構規則。
+1. 既有需求文件缺少、過期或衝突時，載入 `/milktea-agents-army-claude:milktea-skills-grill-check-needs`，只補本次重構需要的決策。
+2. 以 Planner 上游模式載入 `/milktea-agents-army-claude:milktea-skills-to-spec`，把已核准的報告選擇與架構決策寫入 `docs/work/<功能名稱>/spec.md`。
+3. 顯示 Spec 並取得使用者核准；需要修改時更新同一份文件。
+4. 以 Planner 上游模式載入 `/milktea-agents-army-claude:milktea-skills-to-ticket`，把已核准 Spec 拆到 `docs/work/<功能名稱>/tickets/`。
+5. 顯示完整 Tickets、依賴、角色、Review、原有功能確認及驗收條件，取得使用者核准。
 
-規劃內容必須包含：
+`to-spec` 與 `to-ticket` 只整理已核准的報告選擇及架構決策，不得臨時新增需求或擴大重構範圍。
 
-- 局部整理與重建方案的收益、成本、風險、遷移和回滾比較。
-- 推薦的目標目錄樹、模組責任、資料所有權與公開介面。
-- 以模組或安全接縫為單位的遷移順序，不做無邊界的大搬家。
-- 每一階段要保留、刪除、封存、合併、搬移或重建的內容。
-- 判定需要正式 Log 時，規劃 Logger 的程式位置、錯誤流、輸出目的地、紀錄格式、error code、輪替、保存與驗證方法；正式程式放 Code Root，實際 Log 放 Data Root 或外部 Log 服務，不把執行紀錄寫進 `docs/`。判定不需要時，不建立 Logger 或 Logging Ticket。
-- Tickets 的依賴、可平行邊界、檔案或模組所有權與回復點。
-- 必須保留的功能清單，以及修改前、修改後使用同一方法驗證的證據矩陣。
+### 6. 唯一 Task 交接
 
-所有必須保留的功能，都必須在修改前建立可重現的驗證方式，修改後使用同一方式重新執行並通過。任何一項尚未驗證時，不得宣告重構完成。
-
-### 6. 產生文件、報告與核准
-
-1. 既有需求或架構文件缺少、過期或衝突時，載入 `/milktea-agents-army-claude:milktea-skills-grill-check-needs` 與 `/milktea-agents-army-claude:milktea-skills-grill-architecture` 的決策及文件規則，只補本次範圍；不重跑無關訪談，不覆寫未受影響內容。
-2. 以 Planner 上游模式載入 `/milktea-agents-army-claude:milktea-skills-to-spec`，把已確認內容寫入 `docs/work/<功能名稱>/spec.md`；此時保留草稿狀態，不顯示獨立交接。
-3. 以 Planner 上游模式載入 `/milktea-agents-army-claude:milktea-skills-to-ticket`，把 Spec 拆到 `docs/work/<功能名稱>/tickets/`；此時保留草稿狀態，不顯示一般 Implement 交接。
-4. 必讀 `references/report-contract.md`，產生 `docs/architecture-reviews/YYYY-MM-DD-<範圍>.html`。
-5. 顯示 HTML、Spec、Tickets 的實際路徑，以及仍需使用者決定的事項；等待使用者看完報告。
-6. 使用者要求修改時，只更新受影響的同一份文件，不建立 `final-v2` 或第二套真相。
-7. 使用者明確核准 HTML 報告與執行計畫後，才把 Spec／Tickets 標成已核准並顯示唯一交接內容。
-
-## Subagent 使用原則
-
-完成第一輪目錄與入口掃描後，由 Planner 自己決定是否需要並行盤點，不詢問使用者要開幾隻 Agent。
-
-Planner 自己處理下列情況：單一 Code Root、模組不多、資料流清楚、可在同一上下文完整追蹤。
-
-只在存在多個可獨立盤點的模組或根目錄、大量未知區域、高風險共用水管，或單一上下文可能漏掃時，使用目前平台實際可用的最少 Subagents。可拆成：
-
-- 使用者流程與公開契約。
-- 模組責任、依賴與資料流。
-- 測試接縫、Snapshot 與回歸方法。
-- 重複、廢棄功能與垃圾候選。
-
-每個 Subagent 必須有互不重疊的唯讀範圍，回報路徑、符號、引用、證據、未知與風險；不得修改檔案、刪除資料、做架構決策或直接詢問使用者。Planner 負責去重、交叉驗證、處理衝突與最終結論。平台沒有 Subagent 能力時自行完成，不假裝已平行盤點。
-
-## HTML 報告原則
-
-報告必須完整但不冗長：結論先行、圖表優先、每項建議可追溯到證據。不要把整份檔案清單或長篇原始輸出塞入正文；詳細證據使用可展開區塊。現況目錄、目標目錄、架構、資料流、遷移及 Ticket 依賴優先使用文字樹、表格或 Mermaid 視覺化。
-
-## 唯一 Task 交接
-
-所有平台都先顯示下列同一份內容，並把所有占位符換成實際值；不得縮短、改寫或產生第二版本：
+Spec 與 Tickets 核准後，顯示下列同一份內容，並把所有占位符換成實際值；不得縮短、改寫或產生第二版本：
 
 ```text
 請將以下內容完整複製到新的獨立 Task／對話視窗。不要在目前的 Planner 視窗執行，以免規劃與實作身分衝突。
@@ -165,23 +113,28 @@ Planner 自己處理下列情況：單一 Code Root、模組不多、資料流�
 
 專案根目錄：<實際路徑>
 必讀：AGENTS.md、CONTEXT.md、docs/planning/requirements.md、docs/planning/architecture.md、相關 ADR。
-HTML 架構報告：<已核准的實際路徑>
+HTML 架構報告：<實際路徑>
 Spec：<已核准的實際路徑>
 Tickets：<依執行順序的已核准實際路徑>
-使用者已核准報告與執行計畫。
+使用者已核准報告中的重構方案、Spec 與 Tickets。
 
 先驗證所有文件、Snapshot、依賴與工作目錄，再依 Tickets 派工。不得重新規劃或擴大範圍。
 ```
 
-Codex Desktop 有使用者可見的頂層 Task 建立工具時，顯示內容後提供「直接建立新的執行 Task（推薦）」與「暫不執行」。使用者選擇建立後，以相同內容建立 local Task 並開啟；不要建立 Worktree，避免新 Task 看不到尚未提交文件。其他平台保留完整內容供使用者複製，不啟動巢狀 CLI 或用 Subagent 冒充新的 Core Task。
+Codex Desktop 有使用者可見的頂層 Task 建立工具時，顯示內容後提供「直接建立新的執行 Task（推薦）」與「暫不執行」。使用者選擇建立後，以相同內容建立 local Task 並開啟；不要建立 Worktree。其他平台保留完整內容供使用者複製，不啟動巢狀 CLI 或用 Subagent 冒充新的 Core Task。
 
 ## 完成條件
 
-- 專案用途、範圍、Roots、現況架構、資料流、共用使用位置與未知區域都有證據。
-- 已記錄是否需要正式 Log；不需要時沒有強制產生 Logger 契約或 Logging Ticket。
-- 清理候選已區分保留、刪除、封存、合併、重建與未知，且 Planner 未執行清理。
-- 局部整理與重建選項已在規劃階段比較並由使用者裁決。
-- 目標架構、遷移順序、回滾方式與原有功能確認表完整。
-- HTML、Spec 與 Tickets 已保存到固定本機位置，沒有建立重複真相。
-- 使用者已看過並明確核准報告與執行計畫。
-- 唯一交接內容已填入實際路徑並顯示；Planner Task 尚未開始實作。
+### 報告結束
+
+- HTML 報告已產生並顯示實際路徑。
+- 使用者明確選擇只保留報告。
+- 沒有產生 Spec、Tickets、交接內容或修改程式。
+
+### 重構規劃完成
+
+- 使用者已從報告選定重構方案。
+- 目標架構、遷移、回滾與原有功能確認方式已核准。
+- Spec 與 Tickets 只包含核准範圍，且皆已核准。
+- 唯一交接內容已填入實際路徑並顯示。
+- Planner Task 尚未開始實作。
