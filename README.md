@@ -165,9 +165,9 @@ HTML 架構報告
 
 ## 快速開始
 
-Repository 目前是 Private。使用者必須先取得 GitHub 存取權。
+使用者必須先取得 GitHub 存取權。
 
-### Windows
+### Windows(新手推建)
 
 ```powershell
 git clone https://github.com/RoyalMilkteaMaster/milktea-agents-army-claude.git D:\tools\milktea-agents-army-claude
@@ -176,7 +176,7 @@ cd D:\你的專案
 claude --plugin-dir D:\tools\milktea-agents-army-claude
 ```
 
-### Linux／WSL
+### Linux／WSL(長期開發者推薦)
 
 ```bash
 git clone https://github.com/RoyalMilkteaMaster/milktea-agents-army-claude.git ~/tools/milktea-agents-army-claude
