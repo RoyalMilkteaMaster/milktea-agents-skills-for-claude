@@ -165,49 +165,67 @@ HTML 架構報告
 
 ## 快速開始
 
-使用者必須先取得 GitHub 存取權。
+此 Repository 為 Public，不需要先登入 GitHub。請先安裝 [Claude Code](https://code.claude.com/docs/en/overview)（`claude`）。
 
-### Windows(新手推建)
+請選擇實際要使用 Claude Code 的環境，並在同一個環境完成以下所有步驟。
+
+如果 `claude auth status` 已顯示登入成功，可以略過登入命令。
+
+### Windows（新手推薦）
+
+在 PowerShell 執行：
 
 ```powershell
-git clone https://github.com/RoyalMilkteaMaster/milktea-agents-army-claude.git D:\tools\milktea-agents-army-claude
+claude auth login
+claude auth status
 
-cd D:\你的專案
-claude --plugin-dir D:\tools\milktea-agents-army-claude
+claude plugin marketplace add RoyalMilkteaMaster/milktea-agents-army-claude
+claude plugin install milktea-agents-army-claude@milktea-agents-army-claude --scope user
+claude plugin list
 ```
 
-### Linux／WSL(長期開發者推薦)
+### Linux／WSL（長期開發者推薦）
+
+在 Linux／WSL Terminal 執行：
 
 ```bash
-git clone https://github.com/RoyalMilkteaMaster/milktea-agents-army-claude.git ~/tools/milktea-agents-army-claude
+claude auth login
+claude auth status
 
-cd ~/你的專案
-claude --plugin-dir ~/tools/milktea-agents-army-claude
+claude plugin marketplace add RoyalMilkteaMaster/milktea-agents-army-claude
+claude plugin install milktea-agents-army-claude@milktea-agents-army-claude --scope user
+claude plugin list
 ```
 
-`git clone` 只負責下載檔案；`claude --plugin-dir` 才會在該次 Claude Code 對話載入這包 Plugin。
+Windows 與 WSL 是兩個獨立環境。在 Windows 完成的 Claude Code 登入與 Plugin 安裝，不會自動套用到 WSL；反之亦然。
 
-## 全域共用單一 Skill（選用）
+Plugin 安裝完成後，請重新開啟 Claude Code。Milktea Skills 將套用至該使用者在此環境中的所有專案，不需要 Clone Repository、不需要設定專案路徑，也不需要再次安裝。
 
-這包的主要工作流會互相呼叫其他 Plugin Skills，不適合只把 Grill Me 或 Brownfield Planner 單獨連到全域目錄。
+## 多 Agent 協作（推薦）
 
-如果只想讓沒有跨 Skill 流程的獨立工具在所有專案可用，例如 `check-feasibility`，可以建立全域 Symlink。
+Milktea Skills 支援 Developer、Reviewer A 與 Reviewer B 等多個 Agent 協作。只使用 Claude Code 也能執行；若同時使用不同 AI CLI，通常能獲得更好的交叉驗證，並降低單一模型的盲點。
 
-### Linux／WSL
+建議先選定 **Windows** 或 **Linux／WSL**，再把要使用的 AI CLI 全部安裝並登入在同一個環境。不要把 Claude Code 裝在 Windows、Codex 或 Antigravity CLI 裝在 WSL，因為目前執行工作流的 Terminal 只能使用該環境中可找到的 CLI。
 
-```bash
-mkdir -p ~/.claude/skills
-ln -s ~/tools/milktea-agents-army-claude/skills/milktea-skills-check-feasibility \
-      ~/.claude/skills/milktea-skills-check-feasibility
+若已安裝 [Codex CLI](https://learn.chatgpt.com/docs/codex/cli) 與 [Antigravity CLI](https://antigravity.google/docs/cli-getting-started)，請在剛才同一個 Terminal 執行：
+
+```shell
+# Codex
+codex login
+codex login status
+
+# Antigravity CLI
+agy
 ```
 
-### Windows Command Prompt
+Antigravity CLI 沒有另外的 `auth login` 指令。第一次執行 `agy` 時會開啟 Google 登入流程；完成後可在 Antigravity CLI 輸入 `/exit` 回到 Terminal。
 
-```cmd
-mkdir "%USERPROFILE%\.claude\skills"
-mklink /D "%USERPROFILE%\.claude\skills\milktea-skills-check-feasibility" "D:\tools\milktea-agents-army-claude\skills\milktea-skills-check-feasibility"
+如果電腦上有兩種以上的 AI CLI，建議全部登入。工作流只會使用目前環境中實際可用的 CLI。
+
+完成後，在 Claude Code 對話中使用 Plugin Skill：
+
+```text
+/milktea-agents-army-claude:milktea-skills-grill-me
 ```
 
-優點是 Skill 實體仍留在 Git Repository，更新一處即可同步。Windows 建立連結時可能需要啟用 Developer Mode 或使用系統管理員權限。
-
-以全域 Symlink 載入後，使用 `/milktea-skills-check-feasibility`；以 Plugin 載入時，使用 `/milktea-agents-army-claude:milktea-skills-check-feasibility`。
+Plugin 以使用者範圍安裝後，即可在該環境的所有專案使用，並完整保留工作流需要的相依 Skills。
