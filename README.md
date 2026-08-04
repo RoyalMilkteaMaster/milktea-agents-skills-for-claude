@@ -11,83 +11,6 @@
 後續需要的規劃、實作、測試與 Review Skills 都會由流程接手。
 
 
-## 快速開始
-
-請根據您習慣的開發習慣，選擇實際要使用 Claude Code 的環境，並在同一個環境完成以下所有步驟。
-
-如果 `claude auth status` 已顯示登入成功，可以略過登入命令。
-
-### Windows（新手推薦）
-
-在 PowerShell 執行：
-
-```powershell
-claude auth login
-claude auth status
-
-claude plugin marketplace add RoyalMilkteaMaster/milktea-agents-army-claude
-claude plugin install milktea-agents-army-claude@milktea-agents-army-claude --scope user
-claude plugin list
-```
-
-### Linux／WSL（長期開發者推薦）
-
-在 Linux／WSL Terminal 執行：
-
-```bash
-claude auth login
-claude auth status
-
-claude plugin marketplace add RoyalMilkteaMaster/milktea-agents-army-claude
-claude plugin install milktea-agents-army-claude@milktea-agents-army-claude --scope user
-claude plugin list
-```
-
-Windows 與 WSL 是兩個獨立環境。在 Windows 完成的 Claude Code 登入與 Plugin 安裝，不會自動套用到 WSL；反之亦然。
-
-Plugin 安裝完成後，請重新開啟 Claude Code。Milktea Skills 將套用至該使用者在此環境中的所有專案。
-
-
-完成後，即可在 Claude Code 對話中使用 Plugin Skill：
-
--用法:  
-
-```text
-/milktea-agents-army-claude:milktea-skills-grill-me
-```
-
-Plugin 以使用者範圍安裝後，即可在該環境的所有專案使用，並完整保留工作流需要的相依 Skills。
-
-
-## 多 Agent 協作（推薦）
-
-Milktea Skills 支援 多方 Agent 協作。  
-雖然只使用 Claude Code 也能執行；不過若可以同時使用不同的 AI CLI，通常能獲得更好的交叉驗證，降低單一模型的審查盲點。
-
-建議先選定 **Windows** 或 **Linux／WSL**，再把要使用的 AI CLI 全部安裝並登入在**同一環境內**。  
-不要把 Claude Code 裝在 Windows，卻把 Codex 、 Antigravity CLI 裝在 WSL，因為目前執行工作流的 Terminal 只能使用該環境中可找到的 CLI。
-
-若已擁有 [Codex CLI](https://learn.chatgpt.com/docs/codex/cli) 與 [Antigravity CLI](https://antigravity.google/docs/cli-getting-started) 帳號，請在重開一個與剛剛相同環境的 Terminal 執行：
-
-```shell
-# Codex
-codex login
-codex login status
-```
-
-
-```
-# Antigravity CLI
-agy
-```
-
-Antigravity CLI 沒有另外的 `auth login` 指令。第一次執行 `agy` 時會開啟 Google 登入流程；完成後可在 Antigravity CLI 輸入 `/exit` 回到 Terminal。
-
-如果電腦上有兩種以上的 AI CLI，建議全部登入。工作流只會使用目前環境中實際可用的 CLI。
-
-
-
-
 ## 四種milktea技能該怎麼用?
 
 #先選你現在要做的事
@@ -244,5 +167,80 @@ HTML 架構報告
 ```
 
 </details>
+
+
+## 快速開始
+
+請根據您習慣的開發習慣，選擇實際要使用 Claude Code 的環境，並在同一個環境完成以下所有步驟。
+
+如果 `claude auth status` 已顯示登入成功，可以略過登入命令。
+
+### Windows（新手推薦）
+
+在 PowerShell 執行：
+
+```powershell
+claude auth login
+claude auth status
+
+claude plugin marketplace add RoyalMilkteaMaster/milktea-agents-army-claude
+claude plugin install milktea-agents-army-claude@milktea-agents-army-claude --scope user
+claude plugin list
+```
+
+### Linux／WSL（長期開發者推薦）
+
+在 Linux／WSL Terminal 執行：
+
+```bash
+claude auth login
+claude auth status
+
+claude plugin marketplace add RoyalMilkteaMaster/milktea-agents-army-claude
+claude plugin install milktea-agents-army-claude@milktea-agents-army-claude --scope user
+claude plugin list
+```
+
+Windows 與 WSL 是兩個獨立環境。在 Windows 完成的 Claude Code 登入與 Plugin 安裝，不會自動套用到 WSL；反之亦然。
+
+Plugin 安裝完成後，請重新開啟 Claude Code。Milktea Skills 將套用至該使用者在此環境中的所有專案。
+
+
+完成後，即可在 Claude Code 對話中使用 Plugin Skill：
+
+-用法:  
+
+```text
+/milktea-agents-army-claude:milktea-skills-grill-me
+```
+
+Plugin 以使用者範圍安裝後，即可在該環境的所有專案使用，並完整保留工作流需要的相依 Skills。
+
+
+## 多 Agent 協作（推薦）
+
+Milktea Skills 支援 多方 Agent 協作。  
+雖然只使用 Claude Code 也能執行；不過若可以同時使用不同的 AI CLI，通常能獲得更好的交叉驗證，降低單一模型的審查盲點。
+
+建議先選定 **Windows** 或 **Linux／WSL**，再把要使用的 AI CLI 全部安裝並登入在**同一環境內**。  
+不要把 Claude Code 裝在 Windows，卻把 Codex 、 Antigravity CLI 裝在 WSL，因為目前執行工作流的 Terminal 只能使用該環境中可找到的 CLI。
+
+若已擁有 [Codex CLI](https://learn.chatgpt.com/docs/codex/cli) 與 [Antigravity CLI](https://antigravity.google/docs/cli-getting-started) 帳號，請在重開一個與剛剛相同環境的 Terminal 執行：
+
+```shell
+# Codex
+codex login
+codex login status
+```
+
+
+```
+# Antigravity CLI
+agy
+```
+
+Antigravity CLI 沒有另外的 `auth login` 指令。第一次執行 `agy` 時會開啟 Google 登入流程；完成後可在 Antigravity CLI 輸入 `/exit` 回到 Terminal。
+
+如果電腦上有兩種以上的 AI CLI，建議全部登入。工作流只會使用目前環境中實際可用的 CLI。
 
 
