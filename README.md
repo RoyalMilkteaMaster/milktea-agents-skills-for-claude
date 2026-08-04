@@ -1,12 +1,16 @@
 # Milktea Agents Army for Claude
 
+![Milktea Agents Army](assets/milktea-agents-army.png)
+
+## 專案簡介
+
 這是皇家奶茶大師給 Claude Code 使用的 AI 開發協作 Skills。
 
 你會用到的技能只有四個。
 平常你只需要依照你的需求使用技能或是輸入範本。  
 後續需要的規劃、實作、測試與 Review Skills 都會由流程接手。
 
-![Milktea Agents Army](assets/milktea-agents-army.png)
+
 
 ## 四種milktea技能該怎麼用?
 
