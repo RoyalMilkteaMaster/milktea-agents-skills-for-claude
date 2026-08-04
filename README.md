@@ -90,7 +90,7 @@ HTML 架構報告
 - ＿＿＿＿
 
 請使用：
-/milktea-agents-army-claude:milktea-skills-grill-me
+/milktea-skills-grill-me
 
 先跟我確認需求與架構，再產生 Spec、Tickets 並向 implement 執行交接。
 ```
@@ -117,7 +117,7 @@ HTML 架構報告
 - ＿＿＿＿
 
 請使用：
-/milktea-agents-army-claude:milktea-skills-brownfield-refactor-planner
+/milktea-skills-brownfield-refactor-planner
 
 先盤點現況、架構、資料流與清理風險，產生 HTML 架構報告讓我判斷。等我決定繼續後，才產生重構 Spec 與 Tickets。現在不要直接修改或刪除程式。
 ```
@@ -141,7 +141,7 @@ HTML 架構報告
 - ＿＿＿＿
 
 請使用：
-/milktea-agents-army-claude:milktea-skills-check-feasibility
+/milktea-skills-check-feasibility
 
 查證後評估技術可行性、成本、時間、主要風險與最小驗證方式。不要修改程式。
 ```
@@ -161,7 +161,7 @@ HTML 架構報告
 
 ```text
 請使用：
-/milktea-agents-army-claude:milktea-skills-set-agent-roles
+/milktea-skills-set-agent-roles
 
 幫我設定目前 Task 的 Developer、Reviewer A 與 Reviewer B。
 ```
