@@ -165,9 +165,7 @@ HTML 架構報告
 
 ## 快速開始
 
-此 Repository 為 Public，不需要先登入 GitHub。請先安裝 [Claude Code](https://code.claude.com/docs/en/overview)（`claude`）。
-
-請選擇實際要使用 Claude Code 的環境，並在同一個環境完成以下所有步驟。
+請根據您習慣的開發習慣，選擇實際要使用 Claude Code 的環境，並在同一個環境完成以下所有步驟。
 
 如果 `claude auth status` 已顯示登入成功，可以略過登入命令。
 
@@ -199,13 +197,27 @@ claude plugin list
 
 Windows 與 WSL 是兩個獨立環境。在 Windows 完成的 Claude Code 登入與 Plugin 安裝，不會自動套用到 WSL；反之亦然。
 
-Plugin 安裝完成後，請重新開啟 Claude Code。Milktea Skills 將套用至該使用者在此環境中的所有專案，不需要 Clone Repository、不需要設定專案路徑，也不需要再次安裝。
+Plugin 安裝完成後，請重新開啟 Claude Code。Milktea Skills 將套用至該使用者在此環境中的所有專案。
+
+
+完成後，即可在 Claude Code 對話中使用 Plugin Skill：
+
+-用法:  
+
+```text
+/milktea-agents-army-claude:milktea-skills-grill-me
+```
+
+Plugin 以使用者範圍安裝後，即可在該環境的所有專案使用，並完整保留工作流需要的相依 Skills。
+
 
 ## 多 Agent 協作（推薦）
 
-Milktea Skills 支援 Developer、Reviewer A 與 Reviewer B 等多個 Agent 協作。只使用 Claude Code 也能執行；若同時使用不同 AI CLI，通常能獲得更好的交叉驗證，並降低單一模型的盲點。
+Milktea Skills 支援 多方 Agent 協作。  
+雖然只使用 Claude Code 也能執行；不過若可以同時使用不同的 AI CLI，通常能獲得更好的交叉驗證，降低單一模型的審查盲點。
 
-建議先選定 **Windows** 或 **Linux／WSL**，再把要使用的 AI CLI 全部安裝並登入在同一個環境。不要把 Claude Code 裝在 Windows、Codex 或 Antigravity CLI 裝在 WSL，因為目前執行工作流的 Terminal 只能使用該環境中可找到的 CLI。
+建議先選定 **Windows** 或 **Linux／WSL**，再把要使用的 AI CLI 全部安裝並登入在**同一環境內**。  
+不要把 Claude Code 裝在 Windows，卻把 Codex 、 Antigravity CLI 裝在 WSL，因為目前執行工作流的 Terminal 只能使用該環境中可找到的 CLI。
 
 若已安裝 [Codex CLI](https://learn.chatgpt.com/docs/codex/cli) 與 [Antigravity CLI](https://antigravity.google/docs/cli-getting-started)，請在剛才同一個 Terminal 執行：
 
@@ -222,10 +234,3 @@ Antigravity CLI 沒有另外的 `auth login` 指令。第一次執行 `agy` 時�
 
 如果電腦上有兩種以上的 AI CLI，建議全部登入。工作流只會使用目前環境中實際可用的 CLI。
 
-完成後，在 Claude Code 對話中使用 Plugin Skill：
-
-```text
-/milktea-agents-army-claude:milktea-skills-grill-me
-```
-
-Plugin 以使用者範圍安裝後，即可在該環境的所有專案使用，並完整保留工作流需要的相依 Skills。
