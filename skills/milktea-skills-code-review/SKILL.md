@@ -89,6 +89,6 @@ description: 供 Claude 或 Codex Reviewer 子 Agent 在 Ticket 開發完成後�
 3. 驗證證據：指令、退出碼與關鍵輸出。
 4. 結論：通過／待修正／證據不足。
 
-回報必須標示 Reviewer、模型或後端、Review revision 與 Snapshot，並可直接交給 Coordinator 追加到對應本機 Ticket。
+回報必須標示 Reviewer、後端、實際模型、實際 `model_reasoning_effort` 或模型預設、Review revision 與 Snapshot，並可直接交給 Coordinator 追加到對應本機 Ticket。
 
 不得修改程式、派發 Agent、Commit、Push、寫入 Ticket、彙整其他 Reviewer 報告或宣稱三方共識。

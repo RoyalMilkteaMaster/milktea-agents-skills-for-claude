@@ -54,7 +54,7 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 
 優先讀取本 Task 由 `/milktea-agents-army-claude:milktea-skills-set-agent-roles` 留下的最新完整分工狀態；沒有狀態時，Developer 預設 Claude，兩名 Reviewer 預設 Codex。只能使用實際可用的 CLI；指定 CLI 不可用時改用其他可用 CLI。若只有一個 CLI，三個角色都使用該 CLI 並標示「缺少跨模型獨立性」。沒有可用 CLI 或無法建立兩個隔離 Reviewer 時，列出偵測結果並停止；不得宣稱三方共識。
 
-未指定模型時使用該 CLI 的預設模型。明確指定的模型被 CLI 拒絕時，以同一 CLI 不指定模型重試一次，成功後移除本 Task 狀態中的該模型設定；其他錯誤不得觸發模型回退。首輪 Review 完成前，兩位 Reviewer 不得互看結論。
+未指定模型時使用該 CLI 的預設模型。每個角色的 `model_reasoning_effort` 獨立套用；未指定時使用所選模型或後端的預設值。派工時必須把明確設定傳給對應 Agent，不能只寫在 Task 狀態或委派文字中：平台原生派發工具提供 `reasoning_effort` 時，把 Task 狀態的 `model_reasoning_effort` 映射到該欄位；Codex CLI 使用同名設定鍵 `model_reasoning_effort`。明確指定的推理強度被後端拒絕時，以相同 CLI 與相同模型、不指定推理強度重試一次，成功後只移除本 Task 狀態中該角色的 `model_reasoning_effort`。明確指定的模型被 CLI 拒絕時，才依原規則以同一 CLI 不指定模型重試一次，成功後移除該角色的模型設定；其他錯誤不得觸發回退。首輪 Review 完成前，兩位 Reviewer 不得互看結論。
 
 ## 派工契約
 
@@ -124,4 +124,4 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 - 三個隔離角色明確達成共識；降級情況已標示並取得使用者核准。
 - 依 Ticket 與專案 Git 規則提交；未授權不得 Commit 或 Push。
 
-最後輸出每張 Ticket 狀態、角色後端、測試證據、兩份 Review 結論、共識、原有功能確認結果、未解風險與版本識別。
+最後輸出每張 Ticket 狀態、角色後端、實際模型、實際 `model_reasoning_effort` 或模型預設、測試證據、兩份 Review 結論、共識、原有功能確認結果、未解風險與版本識別。

@@ -9,6 +9,7 @@
 ```text
 你是本 Ticket 的臨時開發 Agent，只負責此 Ticket。
 
+執行配置：實際後端、模型、model_reasoning_effort 或模型預設。
 來源：核准 Spec、Ticket、docs/planning/requirements.md、docs/planning/architecture.md、CONTEXT.md、相關 ADR。
 基準：實際 branch、SHA 或 revision。
 範圍：允許修改的實際檔案或模組。
@@ -32,12 +33,13 @@
 ```text
 你是本 Ticket 的臨時 Reviewer A／B。你不是開發者，也不管理共識；本 Ticket 共識完成後結束。
 
+執行配置：實際後端、模型、model_reasoning_effort 或模型預設。
 載入 /milktea-agents-army-claude:milktea-skills-code-review；不可用時只回報 BLOCKED: CODE_REVIEW_SKILL_UNAVAILABLE。
 
 只審查 Coordinator 提供的固定 Snapshot、Spec、Ticket、兩份 docs/planning/ 文件、CONTEXT.md、ADR 與開發證據。首輪不得查看另一位 Reviewer 的結論。
 同時執行 Standards 與 Spec Review；只回報有證據的 Findings，零 Finding 合法。
 可讀取程式並執行不修改專案的驗證；不得修改檔案、Commit、Push、寫入 Ticket、派 Agent 或宣稱三方共識。
 
-回報 Reviewer 身分、後端、Snapshot、兩軸結果、Findings、驗證指令、退出碼與結論。
+回報 Reviewer 身分、後端、實際模型、實際 model_reasoning_effort 或模型預設、Snapshot、兩軸結果、Findings、驗證指令、退出碼與結論。
 收到修正或反證後重新驗證；正確就關閉或撤回 Finding，錯誤則保留並補充證據。
 ```
