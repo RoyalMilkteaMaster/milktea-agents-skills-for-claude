@@ -13,7 +13,7 @@ description: 供執行 Git 整合的臨時開發 Agent 按需載入。當 merge�
 - 臨時開發 Agent 執行 merge、rebase 或 cherry-pick 並收到衝突後，先載入本 Skill，再修改衝突。
 - Skill 不可用時回報 `BLOCKED: GIT_MERGE_CONFLICT_SKILL_UNAVAILABLE`，不得自行亂解。
 - `implement` 只負責路由、派工與 Review，不親自解衝突。
-- Git 操作完成後才發現程式異常時，改用 `/milktea-agents-army-claude:milktea-skills-debug`。
+- Git 操作完成後才發現程式異常時，改用 `$milktea-skills-debug`。
 
 ## 前提
 

@@ -20,8 +20,31 @@ description: 供 Claude 或 Codex Reviewer 子 Agent 在 Ticket 開發完成後�
 - 固定基準、Review revision、Diff、Commit 與檔案列表。
 - 專案規範、`docs/planning/requirements.md`、`docs/planning/architecture.md`、`CONTEXT.md`、相關 ADR 與必跑指令。
 - 開發 Agent 的變更摘要、測試證據與已知限制。
+- Coordinator 解析後的共同執行環境：OS、WSL distribution、Shell、command prefix 與專案路徑。
+- Coordinator 指定的 `review_engine`；只有 Reviewer B 可收到 `open_code_review_delegate`，其他情況一律為 `native`。
 
 無法確認規格、基準或變更範圍時，回報缺口並停止；不得猜測性審查整個程式庫。
+
+## Review Engine
+
+### Native
+
+`review_engine: native` 時直接依本 Skill 審查 Coordinator 提供的完整固定 Snapshot，不執行或偵測 OCR。
+
+Git、測試與檔案讀取仍必須在 Coordinator 指定的共同執行環境進行，不得自行切換到宿主或另一個 WSL distribution。
+
+### Open Code Review Delegation Mode
+
+只有同時符合下列條件才使用：
+
+- 目前角色是 Reviewer B。
+- Coordinator 明確傳入 `review_engine: open_code_review_delegate`。
+- Task 狀態已記錄 OCR 第一層與第二層所需同意，以及 `delegate_ready: true`。
+- OCR 狀態的 `environment` 與目前共同執行環境相同，且保存該環境內的 OCR 絕對路徑。
+
+符合時必讀 `references/open-code-review-delegate.md`，以 `ocr delegate preview` 決定 Reviewable／Excluded 檔案並取得固定範圍 metadata，再以 `ocr delegate rule` 解析規則。OCR 不負責推理；仍須由目前 Reviewer B 親自完成本 Skill 的 Standards 與 Spec Review。
+
+若 OCR 命令、版本、Git 範圍或輸出在執行階段失效，回報 `OCR_DELEGATE_UNAVAILABLE`、實際指令與錯誤，不自行安裝、不切換 `ocr review`、不要求 API Key。Coordinator 可將同一 Reviewer B 契約改為 `native` 後重試一次。
 
 ## Standards Review
 
@@ -89,6 +112,6 @@ description: 供 Claude 或 Codex Reviewer 子 Agent 在 Ticket 開發完成後�
 3. 驗證證據：指令、退出碼與關鍵輸出。
 4. 結論：通過／待修正／證據不足。
 
-回報必須標示 Reviewer、後端、實際模型、實際 `model_reasoning_effort` 或模型預設、Review revision 與 Snapshot，並可直接交給 Coordinator 追加到對應本機 Ticket。
+回報必須標示 Reviewer、共同執行環境、後端、實際模型、實際 `model_reasoning_effort` 或模型預設、`review_engine`、Review revision 與 Snapshot。使用 Delegation Mode 時另列 OCR 版本、Preview mode、Reviewable 檔案及 Excluded 檔案與理由，並可直接交給 Coordinator 追加到對應本機 Ticket。
 
 不得修改程式、派發 Agent、Commit、Push、寫入 Ticket、彙整其他 Reviewer 報告或宣稱三方共識。

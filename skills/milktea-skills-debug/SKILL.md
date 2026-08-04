@@ -48,7 +48,7 @@ description: 供執行開發任務的 Claude 或 Codex 子 Agent 按需載入。
 ## 修正與驗證
 
 1. 選擇符合既有需求與架構限制的最小修正。
-2. 調用 `/milktea-agents-army-claude:milktea-skills-tdd`，把最小重現轉成 Red 回歸測試。
+2. 調用 `$milktea-skills-tdd`，把最小重現轉成 Red 回歸測試。
 3. 修改程式，使回歸測試通過。
 4. 重跑最小重現、原始情境、相關測試與 Ticket 必跑指令。
 5. 加入臨時觀測的除錯 Agent 必須在回到原任務前，移除所有 Debug 程式碼、暫存 Log 檔案與拋棄式 Harness；只保留正式回歸測試。

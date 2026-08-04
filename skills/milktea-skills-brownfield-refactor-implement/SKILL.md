@@ -1,7 +1,6 @@
 ---
 name: milktea-skills-brownfield-refactor-implement
 description: 執行使用者從 Brownfield Refactor Planner 交接的 HTML、Spec 與 Tickets。以 Brownfield Refactor Implement Coordinator 身分完整執行開發 Agent、雙 Reviewer、TDD、Debug、證據紀錄與三方共識流程；不重新規劃或擴大範圍，只有存在 Logging Ticket 時才處理正式 Logging，全部修改完成後確認 Planner 列出的原有功能仍然正常。使用者把 Brownfield Planner 交接內容貼到新的執行 Task 時使用。
-disable-model-invocation: true
 ---
 
 # Milktea Skills Brownfield Refactor Implement
@@ -30,21 +29,25 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 
 實作前快速檢查，不建立環境：
 
-1. 顯示目前 OS、Shell，以及是否位於 WSL 或 Container；終端機品牌不作為判定依據。
-2. 只有 Python 專案才檢查專案指定的 Python、`.venv`、`VIRTUAL_ENV`、`CONDA_PREFIX`、`sys.prefix` 與 `sys.base_prefix`。
-3. 未偵測到隔離環境時提醒使用者；不阻擋唯讀工作。
-4. 不得自動建立、啟用、切換、更新環境或把套件裝進系統 Python。
-5. 執行缺少環境或套件時，請使用者先準備，再重新驗證。
+1. 只讀取本 Task 由 `$milktea-skills-set-agent-roles` 留下的最新 `settings_update: execution_environment`；不要求同一筆狀態同時包含角色或 OCR。沒有環境更新時沿用目前可讀寫專案的 PowerShell 或 WSL，記錄 `source: auto_current`；不要在 Implement 流程臨時打斷使用者重選。
+2. 重新驗證解析後的 OS、WSL distribution、Shell、command prefix 與專案路徑；終端機品牌不作為判定依據。
+3. 環境不可用或專案不可讀寫時回報 `BLOCKED: EXECUTION_ENVIRONMENT_UNAVAILABLE`；不得偷偷切到宿主或另一個 WSL distribution。
+4. Developer、Reviewer A、Reviewer B、Git、測試與 OCR 全部使用同一環境。從 Windows 宿主選擇 WSL 時，Agent 本身可留在宿主，但所有專案命令必須使用記錄的 `wsl.exe -d <distribution> --` 前綴。
+5. 只有 Python 專案才在該環境內檢查專案指定的 Python、`.venv`、`VIRTUAL_ENV`、`CONDA_PREFIX`、`sys.prefix` 與 `sys.base_prefix`。
+6. 未偵測到隔離環境時提醒使用者；不阻擋唯讀工作。
+7. 不得自動建立、啟用、切換、更新環境或把套件裝進系統 Python。
+8. 執行缺少環境或套件時，請使用者先準備，再於同一環境重新驗證。
+9. 環境變更只從下一張尚未派發的 Ticket 生效。若某張 Ticket 必須使用另一 OS，先取得使用者明確核准；該 Ticket 的三個角色仍共同使用同一例外環境，完成後回到 Task 設定。
 
 ## 後端偵測
 
 派工前只做一次唯讀偵測：
 
 1. 盤點目前可用的子 Agent、Task、MCP 與 AI CLI 工具。
-2. 優先讀取專案明確指定的命令、路徑、模式或 WSL distribution。
-3. 找不到設定時，使用目前 Shell 的命令查找能力檢查 `PATH`；Windows 可使用 `Get-Command`，Linux 或 WSL 可使用 `command -v`。
+2. 優先讀取專案明確指定的命令與路徑，但不得讓專案設定無聲覆蓋 Task 已選定的 execution environment。
+3. 找不到命令設定時，只在選定環境的 `PATH` 檢查；Windows PowerShell 使用 `Get-Command`，Linux 或 WSL 使用 `command -v`，第三選項解析成 cmd 時使用 `where`。
 4. 只有安全的版本或能力探測成功，且能確認可派工時，才判定對應 CLI 可用。
-5. WSL 模式必須確認 distribution、Linux 工作目錄及專案可讀寫；Windows 路徑以 `wslpath` 轉換。
+5. WSL 模式必須使用 Task 記錄的確切 distribution、Linux 工作目錄及 command prefix；不得自行猜 `/mnt/<drive>`。
 
 不得遞迴掃描磁碟、擅自安裝工具、修改環境或把推測當成可用結果。
 
@@ -52,9 +55,11 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 
 每張 Ticket 固定使用一個臨時 Developer 與兩個臨時 Reviewer；三個角色必須彼此隔離，Coordinator 不算在三方共識內。
 
-優先讀取本 Task 由 `/milktea-agents-army-claude:milktea-skills-set-agent-roles` 留下的最新完整分工狀態；沒有狀態時，Developer 預設 Claude，兩名 Reviewer 預設 Codex。只能使用實際可用的 CLI；指定 CLI 不可用時改用其他可用 CLI。若只有一個 CLI，三個角色都使用該 CLI 並標示「缺少跨模型獨立性」。沒有可用 CLI 或無法建立兩個隔離 Reviewer 時，列出偵測結果並停止；不得宣稱三方共識。
+Developer、Reviewer A、Reviewer B 各自讀取本 Task 最新一次包含該角色的 `settings_update: roles`；三個角色不必來自同一筆更新。沒有該角色的更新時，Developer 預設 Claude，Reviewer A 與 Reviewer B 預設 Codex。只能使用選定環境內實際可用的 CLI；指定 CLI 不可用時只能在同一環境改用其他可用 CLI。若只有一個 CLI，三個角色都使用該 CLI 並標示「缺少跨模型獨立性」。沒有可用 CLI 或無法建立兩個隔離 Reviewer 時，列出偵測結果並停止；不得宣稱三方共識。
 
 未指定模型時使用該 CLI 的預設模型。每個角色的 `model_reasoning_effort` 獨立套用；未指定時使用所選模型或後端的預設值。派工時必須把明確設定傳給對應 Agent，不能只寫在 Task 狀態或委派文字中：平台原生派發工具提供 `reasoning_effort` 時，把 Task 狀態的 `model_reasoning_effort` 映射到該欄位；Codex CLI 使用同名設定鍵 `model_reasoning_effort`。明確指定的推理強度被後端拒絕時，以相同 CLI 與相同模型、不指定推理強度重試一次，成功後只移除本 Task 狀態中該角色的 `model_reasoning_effort`。明確指定的模型被 CLI 拒絕時，才依原規則以同一 CLI 不指定模型重試一次，成功後移除該角色的模型設定；其他錯誤不得觸發回退。首輪 Review 完成前，兩位 Reviewer 不得互看結論。
+
+Open Code Review 是 Task 級可選項，不是必要後端。只讀取最新 `settings_update: open_code_review`；沒有該更新、`enabled` 不為 true、`delegate_ready` 不為 true、缺少已驗證的 OCR 絕對路徑、OCR 的 `environment` 不等於目前解析環境，或 `cli_status` 不是 installed 時，Reviewer B 使用 `review_engine: native`，不得自行偵測或安裝。只有該分區的最新狀態指定 `review_engine: open_code_review_delegate` 時，才把該值、共同執行環境與 OCR 在該環境內的絕對路徑交給 Reviewer B；Reviewer A 永遠使用 `native`。Delegation Mode 只增加檔案篩選與規則解析，不增加 Reviewer 數量，也不得呼叫 OCR 自帶 LLM。
 
 ## 派工契約
 
@@ -63,7 +68,9 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 - 不建立永久 Developer 或 Reviewer Profile。
 - 每張 Ticket 建立一個一般臨時開發 Agent 與兩個一般臨時 Reviewer，分別保留 ID 到共識完成。
 - Coordinator 透過委派訊息明確指定 `Developer`、`Reviewer A` 或 `Reviewer B`；不得依靠 Agent 自己猜。
-- 兩位 Reviewer 都載入 `/milktea-agents-army-claude:milktea-skills-code-review`；不可用時回報 `BLOCKED: CODE_REVIEW_SKILL_UNAVAILABLE`，不得自行模擬。
+- 每份委派都包含同一份解析環境、WSL distribution、Shell、command prefix 與專案路徑；Agent 不得自行切換。
+- 兩位 Reviewer 都載入 `$milktea-skills-code-review`；不可用時回報 `BLOCKED: CODE_REVIEW_SKILL_UNAVAILABLE`，不得自行模擬。
+- 每份 Reviewer 契約都明寫 `review_engine`。Reviewer A 固定為 `native`；Reviewer B 只依本 Task 最新的 OCR 分區狀態選擇 `native` 或 `open_code_review_delegate`。
 - 每次委派都要明寫角色、Ticket、固定 Snapshot、輸入、權限、禁止事項與回報格式。
 
 ## Ticket 流程
@@ -72,18 +79,20 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 
 1. 確認依賴完成，記錄基準版本、工作範圍與開發 Agent 識別。
 2. 依派工契約，把 Ticket、必要文件、允許修改範圍及驗收指令交給臨時開發 Agent。
-3. 要求開發 Agent 在適用時按需載入 `/milktea-agents-army-claude:milktea-skills-tdd`；不適用時記錄理由與替代驗證。
-4. 告知開發 Agent：不得預載 `/milktea-agents-army-claude:milktea-skills-git-merge-conflict`；只有 merge、rebase 或 cherry-pick 實際回報衝突時才載入。Skill 不可用時回報 `BLOCKED: GIT_MERGE_CONFLICT_SKILL_UNAVAILABLE`。
+3. 要求開發 Agent 在適用時按需載入 `$milktea-skills-tdd`；不適用時記錄理由與替代驗證。
+4. 告知開發 Agent：不得預載 `$milktea-skills-git-merge-conflict`；只有 merge、rebase 或 cherry-pick 實際回報衝突時才載入。Skill 不可用時回報 `BLOCKED: GIT_MERGE_CONFLICT_SKILL_UNAVAILABLE`。
 5. 把 Ticket 狀態更新為「執行中」。告知開發 Agent：完成實作或衝突解決後只能回報 `Ready for Review`；未達三方共識前不得標記完成、接下一張 Ticket 或釋放可續談識別。
 6. 收到 `Ready for Review` 後，把 Ticket 狀態更新為「Review 中」，固定 Review snapshot：基準、revision、Diff、檔案列表與必跑證據；在收到 Findings 或 Coordinator 指示前，開發 Agent 不得繼續修改。
-7. 依 Reviewer 契約平行派出兩個一般臨時 Agent，分別指定為 Reviewer A 與 Reviewer B；提供相同 snapshot、Spec、Ticket、兩份 `docs/planning/` 文件、`CONTEXT.md`、ADR 與開發證據。
-8. 要求兩位 Reviewer 各自按需載入 `/milktea-agents-army-claude:milktea-skills-code-review`，獨立完成 Standards 與 Spec 兩軸 Review。
+7. 依 Reviewer 契約平行派出兩個一般臨時 Agent，分別指定為 Reviewer A 與 Reviewer B；提供相同 snapshot、Spec、Ticket、兩份 `docs/planning/` 文件、`CONTEXT.md`、ADR 與開發證據。Reviewer A 的 `review_engine` 固定為 `native`；Reviewer B 依 Task 狀態取得引擎。
+8. 要求兩位 Reviewer 各自按需載入 `$milktea-skills-code-review`，獨立完成 Standards 與 Spec 兩軸 Review。
 9. 把兩份完整報告交給開發 Agent；不得合併成模糊結論。
 10. 開發 Agent 逐項重現並驗證 Finding：正確則修正與重驗；錯誤則以程式、測試或文件反駁。
 11. 把修正、反證與新 snapshot 交回原 Reviewer 複查。
 12. 同一爭議完成一次證據交換仍無法解決時，交由使用者裁決，不無限消耗 Token。
 13. 所有阻擋與重要 Finding 關閉，且開發者與兩位 Reviewer 明確同意後，才把 Ticket 狀態更新為「完成」。
 14. 保存最終證據後結束該開發 Agent 與兩位 Reviewer；下一張 Ticket 建立全新實例。
+
+Reviewer B 回報 `OCR_DELEGATE_UNAVAILABLE` 時，Coordinator 保存錯誤證據，將同一固定 Snapshot 的 Reviewer B 契約改為 `review_engine: native` 後重試一次。此回退不得觸發安裝、更新、API Key 詢問或改派 Reviewer A；原生 Review 成功時把降級原因寫入 Ticket。
 
 適用 Ticket 缺少 TDD，或缺少 Code Review Skill 時停止並回報；不得自行模擬或跳過。
 
@@ -93,10 +102,10 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 
 依序保存：
 
-1. 開始執行：基準版本、開發角色、範圍與必跑指令。
+1. 開始執行：execution environment、基準版本、開發角色、範圍與必跑指令。
 2. `Ready for Review`：Snapshot、變更摘要與測試證據。
 3. 實際發生時：Debug 根因與回歸測試、Git 衝突取捨與驗證。
-4. 每輪 Review：兩份獨立完整報告、開發者修正或反證、Reviewer 複查。
+4. 每輪 Review：兩份獨立完整報告、各自的 `review_engine`、OCR Delegation 證據或降級原因、開發者修正或反證、Reviewer 複查。
 5. 完成：最終 Snapshot、必跑結果、共識與未解風險。
 
 只追加，不覆寫既有紀錄。寫入失敗時保留完整內容並回報；補寫前不得把 Ticket 標記完成。
@@ -107,7 +116,7 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 - 只有平台發出 Context 警告、壓縮造成必要資訊不足，或已無法安全繼續時，才提出延續 Task。
 - 先完成目前可安全收尾的最小工作、保存狀態與證據，再詢問使用者。
 - 使用者核准後，平台有頂層 Task 工具時必須實際建立並回報 Task ID；不可用時才提供可直接貼上的啟動指令。兩種情況都不得留在舊 Task 繼續。
-- 新需求不得沿用執行 Task，必須重新從 `/milktea-agents-army-claude:milktea-skills-grill-me` 開始。
+- 新需求不得沿用執行 Task，必須重新從 `$milktea-skills-grill-me` 開始。
 
 ## 原有功能確認
 
@@ -124,4 +133,4 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 - 三個隔離角色明確達成共識；降級情況已標示並取得使用者核准。
 - 依 Ticket 與專案 Git 規則提交；未授權不得 Commit 或 Push。
 
-最後輸出每張 Ticket 狀態、角色後端、實際模型、實際 `model_reasoning_effort` 或模型預設、測試證據、兩份 Review 結論、共識、原有功能確認結果、未解風險與版本識別。
+最後輸出每張 Ticket 的 execution environment、狀態、角色後端、實際模型、實際 `model_reasoning_effort` 或模型預設、兩位 Reviewer 的 `review_engine`、OCR Delegation 證據或降級原因、測試證據、兩份 Review 結論、共識、原有功能確認結果、未解風險與版本識別。

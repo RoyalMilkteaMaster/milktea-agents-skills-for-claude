@@ -1,6 +1,6 @@
-# Milktea Agents Army for Claude
+# Milktea Agents Skills for Claude
 
-![Milktea Agents Army](assets/milktea-agents-army.png)
+![Milktea Agents Skills](assets/milktea-agents-skills.png)
 
 ## 專案簡介
 
@@ -73,7 +73,7 @@ HTML 架構報告
 
 ### 1. 開始新專案或新增功能(grill-me)
 
-使用 `/milktea-skills-grill-me`。
+使用 `/milktea-agents-skills-for-claude:milktea-skills-grill-me`。
 
 它會依序跟你確認需求與架構，再寫成 Spec、拆成 Tickets。它只負責規劃，不會在同一個對話直接寫程式。
 
@@ -90,7 +90,7 @@ HTML 架構報告
 - ＿＿＿＿
 
 請使用：
-/milktea-skills-grill-me
+/milktea-agents-skills-for-claude:milktea-skills-grill-me
 
 先跟我確認需求與架構，再產生 Spec、Tickets 並向 implement 執行交接。
 ```
@@ -99,7 +99,7 @@ HTML 架構報告
 
 ### 2. 整理或重構既有專案
 
-使用 `/milktea-skills-brownfield-refactor-planner`。
+使用 `/milktea-agents-skills-for-claude:milktea-skills-brownfield-refactor-planner`。
 
 適合情境:當你面對架構混亂、重複程式增加、舊功能殘留，你想進行清整，或你還不確定這個專案是否值得重構。
 
@@ -117,7 +117,7 @@ HTML 架構報告
 - ＿＿＿＿
 
 請使用：
-/milktea-skills-brownfield-refactor-planner
+/milktea-agents-skills-for-claude:milktea-skills-brownfield-refactor-planner
 
 先盤點現況、架構、資料流與清理風險，產生 HTML 架構報告讓我判斷。等我決定繼續後，才產生重構 Spec 與 Tickets。現在不要直接修改或刪除程式。
 ```
@@ -126,7 +126,7 @@ HTML 架構報告
 
 ### 3. 先確認想法能不能做
 
-使用 `/milktea-skills-check-feasibility`。
+使用 `/milktea-agents-skills-for-claude:milktea-skills-check-feasibility`。
 
 適合在投入開發前，先確認技術能力、外部依賴、成本、時間、風險與成功機率。它只產生評估報告，不會自動開始規劃或實作。
 
@@ -141,29 +141,69 @@ HTML 架構報告
 - ＿＿＿＿
 
 請使用：
-/milktea-skills-check-feasibility
+/milktea-agents-skills-for-claude:milktea-skills-check-feasibility
 
 查證後評估技術可行性、成本、時間、主要風險與最小驗證方式。不要修改程式。
 ```
 
 </details>
 
-### 4. 更換 Developer 與 Reviewer
+### 4. 快速調整 Task 設定
 
-使用 `/milktea-skills-set-agent-roles`。
+使用 `/milktea-agents-skills-for-claude:milktea-skills-set-agent-roles`。
 
-只有想改變預設分工時才需要。它只設定目前 Task 的 Developer、Reviewer A 與 Reviewer B，不會開始派工，也不會影響其他 Task。
+只有想改變目前 Task 的環境、角色或 Reviewer B OCR 時才需要。它不會開始派工，也不會影響其他 Task。
 
 請在實際執行 Tickets 的 Task 中使用，並在下一張 Ticket 尚未派發前完成設定。
+
+進入後只問這次要調整哪一項：
+
+1. 開發環境
+2. 角色設定
+3. Reviewer B OCR
+
+只執行選中的分支，完成後立即結束；不會接著追問另外兩項。使用者若已直接說「改成 WSL」、「Reviewer A 改成 Codex low」或「關閉 OCR」，會跳過選單。角色設定以一份批次表單收集，不會依序詢問三個角色；未填的角色保持原設定。
+
+選擇「開發環境」後才會提供 Windows PowerShell、WSL、其他已安裝 CLI 的環境三個子選項。WSL 會讀取實際 distribution，不假設一定是 Ubuntu；其他環境才由 AI 唯讀尋找 cmd、Git Bash、Container 等已可用環境。偵測不會替你安裝或登入工具。選定後，Developer、兩位 Reviewer、Git、測試與可選 OCR 都使用同一個環境。
 
 <details>
 <summary>可直接複製的用法</summary>
 
 ```text
 請使用：
-/milktea-skills-set-agent-roles
+/milktea-agents-skills-for-claude:milktea-skills-set-agent-roles
 
-幫我設定目前 Task 的 Developer、Reviewer A 與 Reviewer B。
+讓我選這次只調整開發環境、角色設定或 Reviewer B OCR；完成後立即結束。
+```
+
+</details>
+
+
+### Reviewer B 可選使用 Open Code Review
+
+[Alibaba Open Code Review](https://github.com/alibaba/open-code-review) 是外部開源 CLI，**不是圖片文字辨識 OCR**。Milktea 不會把它包進專案，也不會讓所有 Reviewer 強制使用：
+
+- 預設關閉；Reviewer A 永遠維持原生 Review。
+- 只有 Reviewer B 可選擇 Delegation Mode，讓 OCR 先整理 Git 變更檔案與 Review 規則，再由原本的 Codex／Claude 模型判斷。
+- Delegation Mode 不使用 OCR 自己的 LLM，因此不需要另外提供 OCR API Key。
+- 一般 implement 與 brownfield refactor implement 都支援；小問題不想增加規則內容時保持關閉即可。
+- Windows 與 WSL 分開安裝；Windows CLI 在目前 npm 全域目錄，Linux／WSL CLI 在使用者的 `~/.local`，執行狀態在 `~/.opencodereview/`，不會因安裝而進入 Git 專案。
+
+只有選擇「Reviewer B OCR」時才會進入兩層確認：
+
+1. 是否為 Reviewer B 開啟 OCR，並先解釋功能、資料邊界與 API Key 行為。
+2. 只有已開啟但目前環境沒有可用 `ocr` 時，才再詢問是否安裝；同意後才執行固定版本的 npm 全域安裝並驗證。
+
+安裝前會檢查 OCR 官方需求 Git ≥ 2.41、Node.js ≥ 18 與 npm。Milktea 不會擅自安裝或升級這三個系統工具。拒絕安裝、條件不足或 OCR 執行失敗時，Reviewer B 會安全回退到原生 Review。
+
+<details>
+<summary>可直接複製的測試用法</summary>
+
+```text
+請使用：
+/milktea-agents-skills-for-claude:milktea-skills-set-agent-roles
+
+只調整 Reviewer B OCR。先說明功能與資料邊界；如果本機沒有 OCR，請先說明安裝會寫到哪裡，再經過第二次確認才安裝。完成後立即結束。
 ```
 
 </details>
@@ -183,8 +223,8 @@ HTML 架構報告
 claude auth login
 claude auth status
 
-claude plugin marketplace add RoyalMilkteaMaster/milktea-agents-army-claude
-claude plugin install milktea-agents-army-claude@milktea-agents-army-claude --scope user
+claude plugin marketplace add RoyalMilkteaMaster/milktea-agents-skills-for-claude
+claude plugin install milktea-agents-skills-for-claude@milktea-agents-skills-for-claude --scope user
 claude plugin list
 ```
 
@@ -196,8 +236,8 @@ claude plugin list
 claude auth login
 claude auth status
 
-claude plugin marketplace add RoyalMilkteaMaster/milktea-agents-army-claude
-claude plugin install milktea-agents-army-claude@milktea-agents-army-claude --scope user
+claude plugin marketplace add RoyalMilkteaMaster/milktea-agents-skills-for-claude
+claude plugin install milktea-agents-skills-for-claude@milktea-agents-skills-for-claude --scope user
 claude plugin list
 ```
 
@@ -211,7 +251,7 @@ Plugin 安裝完成後，請重新開啟 Claude Code。Milktea Skills 將套用�
 -用法:  
 
 ```text
-/milktea-skills-grill-me
+/milktea-agents-skills-for-claude:milktea-skills-grill-me
 ```
 
 Plugin 以使用者範圍安裝後，即可在該環境的所有專案使用，並完整保留工作流需要的相依 Skills。
@@ -222,8 +262,7 @@ Plugin 以使用者範圍安裝後，即可在該環境的所有專案使用，�
 Milktea Skills 支援 多方 Agent 協作。  
 雖然只使用 Claude Code 也能執行；不過若可以同時使用不同的 AI CLI，通常能獲得更好的交叉驗證，降低單一模型的審查盲點。
 
-建議先選定 **Windows** 或 **Linux／WSL**，再把要使用的 AI CLI 全部安裝並登入在**同一環境內**。  
-不要把 Claude Code 裝在 Windows，卻把 Codex 、 Antigravity CLI 裝在 WSL，因為目前執行工作流的 Terminal 只能使用該環境中可找到的 CLI。
+建議先把要協作的 AI CLI 安裝並登入在同一個 **Windows PowerShell** 或 **Linux／WSL** 環境。`/milktea-agents-skills-for-claude:milktea-skills-set-agent-roles` 會把三個角色固定在同一個選定環境；Windows 與 WSL 的登入及安裝狀態彼此獨立，不能把另一邊已登入誤當成目前環境可用。
 
 若已擁有 [Codex CLI](https://learn.chatgpt.com/docs/codex/cli) 與 [Antigravity CLI](https://antigravity.google/docs/cli-getting-started) 帳號，請在重開一個與剛剛相同環境的 Terminal 執行：
 
@@ -242,5 +281,3 @@ agy
 Antigravity CLI 沒有另外的 `auth login` 指令。第一次執行 `agy` 時會開啟 Google 登入流程；完成後可在 Antigravity CLI 輸入 `/exit` 回到 Terminal。
 
 如果電腦上有兩種以上的 AI CLI，建議全部登入。工作流只會使用目前環境中實際可用的 CLI。
-
-
