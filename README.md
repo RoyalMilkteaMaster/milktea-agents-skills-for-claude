@@ -219,13 +219,16 @@ Milktea Skills 支援 多方 Agent 協作。
 建議先選定 **Windows** 或 **Linux／WSL**，再把要使用的 AI CLI 全部安裝並登入在**同一環境內**。  
 不要把 Claude Code 裝在 Windows，卻把 Codex 、 Antigravity CLI 裝在 WSL，因為目前執行工作流的 Terminal 只能使用該環境中可找到的 CLI。
 
-若已安裝 [Codex CLI](https://learn.chatgpt.com/docs/codex/cli) 與 [Antigravity CLI](https://antigravity.google/docs/cli-getting-started)，請在剛才同一個 Terminal 執行：
+若已擁有 [Codex CLI](https://learn.chatgpt.com/docs/codex/cli) 與 [Antigravity CLI](https://antigravity.google/docs/cli-getting-started) 帳號，請在重開一個與剛剛相同環境的 Terminal 執行：
 
 ```shell
 # Codex
 codex login
 codex login status
+```
 
+
+```
 # Antigravity CLI
 agy
 ```
