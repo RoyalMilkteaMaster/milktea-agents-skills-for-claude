@@ -268,6 +268,7 @@ Milktea Skills 支援 多方 Agent 協作。
 
 ```shell
 # Codex
+npm install -g @openai/codex
 codex login
 codex login status
 ```
