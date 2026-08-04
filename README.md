@@ -73,7 +73,7 @@ HTML 架構報告
 
 ### 1. 開始新專案或新增功能(grill-me)
 
-使用 `/milktea-agents-army-claude:milktea-skills-grill-me`。
+使用 `/milktea-agents-skills-for-claude:milktea-skills-grill-me`。
 
 它會依序跟你確認需求與架構，再寫成 Spec、拆成 Tickets。它只負責規劃，不會在同一個對話直接寫程式。
 
@@ -90,7 +90,7 @@ HTML 架構報告
 - ＿＿＿＿
 
 請使用：
-/milktea-agents-army-claude:milktea-skills-grill-me
+/milktea-agents-skills-for-claude:milktea-skills-grill-me
 
 先跟我確認需求與架構，再產生 Spec、Tickets 並向 implement 執行交接。
 ```
@@ -99,7 +99,7 @@ HTML 架構報告
 
 ### 2. 整理或重構既有專案
 
-使用 `/milktea-agents-army-claude:milktea-skills-brownfield-refactor-planner`。
+使用 `/milktea-agents-skills-for-claude:milktea-skills-brownfield-refactor-planner`。
 
 適合情境:當你面對架構混亂、重複程式增加、舊功能殘留，你想進行清整，或你還不確定這個專案是否值得重構。
 
@@ -117,7 +117,7 @@ HTML 架構報告
 - ＿＿＿＿
 
 請使用：
-/milktea-agents-army-claude:milktea-skills-brownfield-refactor-planner
+/milktea-agents-skills-for-claude:milktea-skills-brownfield-refactor-planner
 
 先盤點現況、架構、資料流與清理風險，產生 HTML 架構報告讓我判斷。等我決定繼續後，才產生重構 Spec 與 Tickets。現在不要直接修改或刪除程式。
 ```
@@ -126,7 +126,7 @@ HTML 架構報告
 
 ### 3. 先確認想法能不能做
 
-使用 `/milktea-agents-army-claude:milktea-skills-check-feasibility`。
+使用 `/milktea-agents-skills-for-claude:milktea-skills-check-feasibility`。
 
 適合在投入開發前，先確認技術能力、外部依賴、成本、時間、風險與成功機率。它只產生評估報告，不會自動開始規劃或實作。
 
@@ -141,7 +141,7 @@ HTML 架構報告
 - ＿＿＿＿
 
 請使用：
-/milktea-agents-army-claude:milktea-skills-check-feasibility
+/milktea-agents-skills-for-claude:milktea-skills-check-feasibility
 
 查證後評估技術可行性、成本、時間、主要風險與最小驗證方式。不要修改程式。
 ```
@@ -150,7 +150,7 @@ HTML 架構報告
 
 ### 4. 更換 Developer 與 Reviewer
 
-使用 `/milktea-agents-army-claude:milktea-skills-set-agent-roles`。
+使用 `/milktea-agents-skills-for-claude:milktea-skills-set-agent-roles`。
 
 只有想改變預設分工時才需要。它只設定目前 Task 的 Developer、Reviewer A 與 Reviewer B，不會開始派工，也不會影響其他 Task。
 
@@ -161,7 +161,7 @@ HTML 架構報告
 
 ```text
 請使用：
-/milktea-agents-army-claude:milktea-skills-set-agent-roles
+/milktea-agents-skills-for-claude:milktea-skills-set-agent-roles
 
 幫我設定目前 Task 的 Developer、Reviewer A 與 Reviewer B。
 ```
@@ -183,8 +183,8 @@ HTML 架構報告
 claude auth login
 claude auth status
 
-claude plugin marketplace add RoyalMilkteaMaster/milktea-agents-army-claude
-claude plugin install milktea-agents-army-claude@milktea-agents-army-claude --scope user
+claude plugin marketplace add RoyalMilkteaMaster/milktea-agents-skills-for-claude
+claude plugin install milktea-agents-skills-for-claude@milktea-agents-skills-for-claude --scope user
 claude plugin list
 ```
 
@@ -196,8 +196,8 @@ claude plugin list
 claude auth login
 claude auth status
 
-claude plugin marketplace add RoyalMilkteaMaster/milktea-agents-army-claude
-claude plugin install milktea-agents-army-claude@milktea-agents-army-claude --scope user
+claude plugin marketplace add RoyalMilkteaMaster/milktea-agents-skills-for-claude
+claude plugin install milktea-agents-skills-for-claude@milktea-agents-skills-for-claude --scope user
 claude plugin list
 ```
 
@@ -211,7 +211,7 @@ Plugin 安裝完成後，請重新開啟 Claude Code。Milktea Skills 將套用�
 -用法:  
 
 ```text
-/milktea-agents-army-claude:milktea-skills-grill-me
+/milktea-agents-skills-for-claude:milktea-skills-grill-me
 ```
 
 Plugin 以使用者範圍安裝後，即可在該環境的所有專案使用，並完整保留工作流需要的相依 Skills。
@@ -242,5 +242,3 @@ agy
 Antigravity CLI 沒有另外的 `auth login` 指令。第一次執行 `agy` 時會開啟 Google 登入流程；完成後可在 Antigravity CLI 輸入 `/exit` 回到 Terminal。
 
 如果電腦上有兩種以上的 AI CLI，建議全部登入。工作流只會使用目前環境中實際可用的 CLI。
-
-

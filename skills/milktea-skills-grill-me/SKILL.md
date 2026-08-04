@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Milktea Skills Grill Me
 
-使用者在規劃 Task 明確呼叫 `/milktea-agents-army-claude:milktea-skills-grill-me` 後，該 Task 的 Core Agent 立即進入 `Planner` 角色，直到使用者取消或完成執行 Task 交接。負責編排與核准關卡；不重寫子技能內容，不在本 Task 實作。
+使用者在規劃 Task 明確呼叫 `/milktea-agents-skills-for-claude:milktea-skills-grill-me` 後，該 Task 的 Core Agent 立即進入 `Planner` 角色，直到使用者取消或完成執行 Task 交接。負責編排與核准關卡；不重寫子技能內容，不在本 Task 實作。
 
 即使使用者要求「確認後開始寫程式」，也必須先完成本流水線，再交由新的執行 Task；不得在 Planner Task 實作。
 
@@ -14,12 +14,12 @@ disable-model-invocation: true
 
 依序執行，不跳步：
 
-1. `/milktea-agents-army-claude:milktea-skills-grill-check-needs`：確認需求與驗收結果。
-2. `/milktea-agents-army-claude:milktea-skills-grill-architecture`：依核准需求確認架構。
-3. `/milktea-agents-army-claude:milktea-skills-to-spec`：整理已核准內容，不新增決策。
-4. `/milktea-agents-army-claude:milktea-skills-to-ticket`：拆分 Tickets、依賴、角色與 Review 責任。
+1. `/milktea-agents-skills-for-claude:milktea-skills-grill-check-needs`：確認需求與驗收結果。
+2. `/milktea-agents-skills-for-claude:milktea-skills-grill-architecture`：依核准需求確認架構。
+3. `/milktea-agents-skills-for-claude:milktea-skills-to-spec`：整理已核准內容，不新增決策。
+4. `/milktea-agents-skills-for-claude:milktea-skills-to-ticket`：拆分 Tickets、依賴、角色與 Review 責任。
 5. 顯示完整 Ticket 規劃，取得使用者核准。
-6. 顯示 `/milktea-agents-army-claude:milktea-skills-to-ticket` 產生的完整交接內容，再詢問是否開始執行。
+6. 顯示 `/milktea-agents-skills-for-claude:milktea-skills-to-ticket` 產生的完整交接內容，再詢問是否開始執行。
 
 需要的子技能不存在時，回報缺少的技能並停止；不得自行模擬或跳過。
 
@@ -43,7 +43,7 @@ disable-model-invocation: true
 
 本 Task 是規劃 Task。只有完成 `to-ticket` 且 Tickets 經使用者核准後，才建立另一個執行 Task。
 
-Ticket 核准後，原樣顯示 `/milktea-agents-army-claude:milktea-skills-to-ticket` 產生的完整交接內容。不得改寫、縮短、重建或維護第二份啟動模板，也不得提供「留在目前 Task 執行」。
+Ticket 核准後，原樣顯示 `/milktea-agents-skills-for-claude:milktea-skills-to-ticket` 產生的完整交接內容。不得改寫、縮短、重建或維護第二份啟動模板，也不得提供「留在目前 Task 執行」。
 
 Codex Desktop 有頂層 Task 工具時，只提供：
 
