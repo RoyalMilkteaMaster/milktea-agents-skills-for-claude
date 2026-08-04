@@ -1,5 +1,7 @@
 # Milktea Agents Army for Claude
 
+![Milktea Agents Army](assets/milktea-agents-army.png)
+
 這是皇家奶茶大師給 Claude Code 使用的 AI 開發協作 Skills。
 
 你會用到的技能只有四個。
