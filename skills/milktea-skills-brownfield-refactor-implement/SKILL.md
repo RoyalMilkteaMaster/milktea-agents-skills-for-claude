@@ -52,7 +52,7 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 
 每張 Ticket 固定使用一個臨時 Developer 與兩個臨時 Reviewer；三個角色必須彼此隔離，Coordinator 不算在三方共識內。
 
-優先讀取本 Task 由 `/milktea-agents-army-claude:milktea-skills-set-agent-roles` 留下的最新完整分工狀態；沒有狀態時，Developer 預設 Claude，兩名 Reviewer 預設 Codex。只能使用實際可用的 CLI；指定 CLI 不可用時改用其他可用 CLI。若只有一個 CLI，三個角色都使用該 CLI 並標示「缺少跨模型獨立性」。沒有可用 CLI 或無法建立兩個隔離 Reviewer 時，列出偵測結果並停止；不得宣稱三方共識。
+優先讀取本 Task 由 `/milktea-agents-skills-for-claude:milktea-skills-set-agent-roles` 留下的最新完整分工狀態；沒有狀態時，Developer 預設 Claude，兩名 Reviewer 預設 Codex。只能使用實際可用的 CLI；指定 CLI 不可用時改用其他可用 CLI。若只有一個 CLI，三個角色都使用該 CLI 並標示「缺少跨模型獨立性」。沒有可用 CLI 或無法建立兩個隔離 Reviewer 時，列出偵測結果並停止；不得宣稱三方共識。
 
 未指定模型時使用該 CLI 的預設模型。每個角色的 `model_reasoning_effort` 獨立套用；未指定時使用所選模型或後端的預設值。派工時必須把明確設定傳給對應 Agent，不能只寫在 Task 狀態或委派文字中：平台原生派發工具提供 `reasoning_effort` 時，把 Task 狀態的 `model_reasoning_effort` 映射到該欄位；Codex CLI 使用同名設定鍵 `model_reasoning_effort`。明確指定的推理強度被後端拒絕時，以相同 CLI 與相同模型、不指定推理強度重試一次，成功後只移除本 Task 狀態中該角色的 `model_reasoning_effort`。明確指定的模型被 CLI 拒絕時，才依原規則以同一 CLI 不指定模型重試一次，成功後移除該角色的模型設定；其他錯誤不得觸發回退。首輪 Review 完成前，兩位 Reviewer 不得互看結論。
 
@@ -63,7 +63,7 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 - 不建立永久 Developer 或 Reviewer Profile。
 - 每張 Ticket 建立一個一般臨時開發 Agent 與兩個一般臨時 Reviewer，分別保留 ID 到共識完成。
 - Coordinator 透過委派訊息明確指定 `Developer`、`Reviewer A` 或 `Reviewer B`；不得依靠 Agent 自己猜。
-- 兩位 Reviewer 都載入 `/milktea-agents-army-claude:milktea-skills-code-review`；不可用時回報 `BLOCKED: CODE_REVIEW_SKILL_UNAVAILABLE`，不得自行模擬。
+- 兩位 Reviewer 都載入 `/milktea-agents-skills-for-claude:milktea-skills-code-review`；不可用時回報 `BLOCKED: CODE_REVIEW_SKILL_UNAVAILABLE`，不得自行模擬。
 - 每次委派都要明寫角色、Ticket、固定 Snapshot、輸入、權限、禁止事項與回報格式。
 
 ## Ticket 流程
@@ -72,12 +72,12 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 
 1. 確認依賴完成，記錄基準版本、工作範圍與開發 Agent 識別。
 2. 依派工契約，把 Ticket、必要文件、允許修改範圍及驗收指令交給臨時開發 Agent。
-3. 要求開發 Agent 在適用時按需載入 `/milktea-agents-army-claude:milktea-skills-tdd`；不適用時記錄理由與替代驗證。
-4. 告知開發 Agent：不得預載 `/milktea-agents-army-claude:milktea-skills-git-merge-conflict`；只有 merge、rebase 或 cherry-pick 實際回報衝突時才載入。Skill 不可用時回報 `BLOCKED: GIT_MERGE_CONFLICT_SKILL_UNAVAILABLE`。
+3. 要求開發 Agent 在適用時按需載入 `/milktea-agents-skills-for-claude:milktea-skills-tdd`；不適用時記錄理由與替代驗證。
+4. 告知開發 Agent：不得預載 `/milktea-agents-skills-for-claude:milktea-skills-git-merge-conflict`；只有 merge、rebase 或 cherry-pick 實際回報衝突時才載入。Skill 不可用時回報 `BLOCKED: GIT_MERGE_CONFLICT_SKILL_UNAVAILABLE`。
 5. 把 Ticket 狀態更新為「執行中」。告知開發 Agent：完成實作或衝突解決後只能回報 `Ready for Review`；未達三方共識前不得標記完成、接下一張 Ticket 或釋放可續談識別。
 6. 收到 `Ready for Review` 後，把 Ticket 狀態更新為「Review 中」，固定 Review snapshot：基準、revision、Diff、檔案列表與必跑證據；在收到 Findings 或 Coordinator 指示前，開發 Agent 不得繼續修改。
 7. 依 Reviewer 契約平行派出兩個一般臨時 Agent，分別指定為 Reviewer A 與 Reviewer B；提供相同 snapshot、Spec、Ticket、兩份 `docs/planning/` 文件、`CONTEXT.md`、ADR 與開發證據。
-8. 要求兩位 Reviewer 各自按需載入 `/milktea-agents-army-claude:milktea-skills-code-review`，獨立完成 Standards 與 Spec 兩軸 Review。
+8. 要求兩位 Reviewer 各自按需載入 `/milktea-agents-skills-for-claude:milktea-skills-code-review`，獨立完成 Standards 與 Spec 兩軸 Review。
 9. 把兩份完整報告交給開發 Agent；不得合併成模糊結論。
 10. 開發 Agent 逐項重現並驗證 Finding：正確則修正與重驗；錯誤則以程式、測試或文件反駁。
 11. 把修正、反證與新 snapshot 交回原 Reviewer 複查。
@@ -107,7 +107,7 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 - 只有平台發出 Context 警告、壓縮造成必要資訊不足，或已無法安全繼續時，才提出延續 Task。
 - 先完成目前可安全收尾的最小工作、保存狀態與證據，再詢問使用者。
 - 使用者核准後，平台有頂層 Task 工具時必須實際建立並回報 Task ID；不可用時才提供可直接貼上的啟動指令。兩種情況都不得留在舊 Task 繼續。
-- 新需求不得沿用執行 Task，必須重新從 `/milktea-agents-army-claude:milktea-skills-grill-me` 開始。
+- 新需求不得沿用執行 Task，必須重新從 `/milktea-agents-skills-for-claude:milktea-skills-grill-me` 開始。
 
 ## 原有功能確認
 

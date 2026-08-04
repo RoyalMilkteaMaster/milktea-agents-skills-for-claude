@@ -66,7 +66,7 @@ Spec 缺少時停止，不猜測。
 - Developer：負責實作、驗證、修正或以證據反駁 Findings
 - Reviewer A：使用隔離上下文執行 Review
 - Reviewer B：使用另一個隔離上下文執行 Review
-- Reviewer 標準：兩者都載入 `/milktea-agents-army-claude:milktea-skills-code-review`，並同時執行 Standards 與 Spec Review
+- Reviewer 標準：兩者都載入 `/milktea-agents-skills-for-claude:milktea-skills-code-review`，並同時執行 Standards 與 Spec Review
 - CLI 與模型：由執行 Task 的 Coordinator 依目前 Task 分工與實際可用能力決定
 
 ## 完成規則
@@ -99,13 +99,13 @@ Spec 缺少時停止，不猜測。
 
 ## 執行 Task 交接
 
-Tickets 核准後，先以實際資料填完下列模板；不得留下尖括號、改寫文字或產生第二種版本。無論由本 Skill 單獨執行，或經 `/milktea-agents-army-claude:milktea-skills-grill-me` 調用，都必須顯示同一份完整內容：
+Tickets 核准後，先以實際資料填完下列模板；不得留下尖括號、改寫文字或產生第二種版本。無論由本 Skill 單獨執行，或經 `/milktea-agents-skills-for-claude:milktea-skills-grill-me` 調用，都必須顯示同一份完整內容：
 
 ````markdown
 請開啟一個新的 Task，並將以下內容完整貼上。不要在目前的規劃 Task 繼續實作，以免 Planner 與 Implement Coordinator 身分衝突，也避免規劃對話占用實作上下文。
 
 ```text
-/milktea-agents-army-claude:milktea-skills-implement
+/milktea-agents-skills-for-claude:milktea-skills-implement
 
 這是一個全新的執行 Task。你是 Core Agent；載入 Skill 後立即成為 Implement Coordinator，只負責派工、傳遞證據、協調 Review 與完成關卡，不親自實作或審查。
 
@@ -120,7 +120,7 @@ Tickets（依執行順序）：<已核准的實際路徑>
 ```
 ````
 
-把填妥後的完整交接內容原樣交回 `/milktea-agents-army-claude:milktea-skills-grill-me`。本 Skill 單獨執行時，顯示內容後結束；不建立 Task，也不啟動實作。
+把填妥後的完整交接內容原樣交回 `/milktea-agents-skills-for-claude:milktea-skills-grill-me`。本 Skill 單獨執行時，顯示內容後結束；不建立 Task，也不啟動實作。
 
 ## 完成條件
 
@@ -133,4 +133,4 @@ Tickets（依執行順序）：<已核准的實際路徑>
 - 完整交接內容已填入實際路徑並顯示。
 - 尚未開始實作。
 
-核准後把實際 Spec 路徑、Ticket 路徑、執行順序與完整交接內容交回 `/milktea-agents-army-claude:milktea-skills-grill-me`。
+核准後把實際 Spec 路徑、Ticket 路徑、執行順序與完整交接內容交回 `/milktea-agents-skills-for-claude:milktea-skills-grill-me`。
