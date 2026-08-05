@@ -179,30 +179,7 @@ HTML 架構報告
 </details>
 
 
-### Open Code Review審查助手(可選項、非必要)
 
-[Alibaba Open Code Review](https://github.com/alibaba/open-code-review) 是外部開源 AI 代碼審查助手。  
-
-相較於通用型 Agent 審查，Open Code Review 在使用相同底層模型的情況下，展現出更高的準確率（Precision）與 F1 綜合得分。此外，相較於未採用 Open Code Review 的通用 Agent，其 Token 消耗僅約為九分之一，審查速度也更快。
-
-
-Milktea 不會把它包進專案，也不會讓所有 Reviewer 強制使用。
-
-只有透過:
-
-```text
-
-/milktea-agents-skills-for-claude:milktea-skills-set-agent-roles
-
-```
-
-選擇 Reviewer B 開啟 OCR 時，才會進入兩層確認：
-
-1. 是否為 Reviewer B 開啟 OCR，並先解釋功能、資料邊界與 API Key 行為。
-2. 只有已開啟但目前環境沒有可用 `ocr` 時，才再詢問是否安裝；同意後才執行固定版本的 npm 全域安裝並驗證。
-
-安裝前會檢查 OCR 官方需求 Git ≥ 2.41、Node.js ≥ 18 與 npm。Milktea 不會擅自安裝或升級這三個系統工具。  
-拒絕安裝、條件不足或 OCR 執行失敗時，Reviewer B 會安全回退到原生 Review。
 
 
 ## 快速開始
@@ -298,3 +275,29 @@ agy
 Antigravity CLI 沒有另外的 `auth login` 指令。第一次執行 `agy` 時會開啟 Google 登入流程；完成後可在 Antigravity CLI 輸入 `/exit` 回到 Terminal。
 
 如果電腦上有兩種以上的 AI CLI，建議全部登入。工作流只會使用目前環境中實際可用的 CLI。
+
+
+### Open Code Review審查助手(可選項、非必要)
+
+[Alibaba Open Code Review](https://github.com/alibaba/open-code-review) 是外部開源 AI 代碼審查助手。  
+
+相較於通用型 Agent 審查，Open Code Review 在使用相同底層模型的情況下，展現出更高的準確率（Precision）與 F1 綜合得分。此外，相較於未採用 Open Code Review 的通用 Agent，其 Token 消耗僅約為九分之一，審查速度也更快。
+
+
+Milktea 不會把它包進專案，也不會讓所有 Reviewer 強制使用。
+
+只有透過:
+
+```text
+
+/milktea-agents-skills-for-claude:milktea-skills-set-agent-roles
+
+```
+
+選擇 Reviewer B 開啟 OCR 時，才會進入兩層確認：
+
+1. 是否為 Reviewer B 開啟 OCR，並先解釋功能、資料邊界與 API Key 行為。
+2. 只有已開啟但目前環境沒有可用 `ocr` 時，才再詢問是否安裝；同意後才執行固定版本的 npm 全域安裝並驗證。
+
+安裝前會檢查 OCR 官方需求 Git ≥ 2.41、Node.js ≥ 18 與 npm。Milktea 不會擅自安裝或升級這三個系統工具。  
+拒絕安裝、條件不足或 OCR 執行失敗時，Reviewer B 會安全回退到原生 Review。
