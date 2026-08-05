@@ -213,10 +213,18 @@ Milktea 不會把它包進專案，也不會讓所有 Reviewer 強制使用。
 
 ### Windows（新手推薦）
 
+下載 Claude CLI
+
+```powershell
+
+irm https://claude.ai/install.ps1 | iex
+
+```
+
 在 PowerShell 執行：
 
 ```powershell
-irm https://claude.ai/install.ps1 | iex
+
 claude auth login
 claude auth status
 
@@ -229,8 +237,16 @@ claude plugin list
 
 在 Linux／WSL Terminal 執行：
 
+
+下載 Claude CLI
 ```bash
+
 curl -fsSL https://claude.ai/install.sh | bash
+
+```
+
+```bash
+
 claude auth login
 claude auth status
 
