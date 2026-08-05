@@ -179,34 +179,30 @@ HTML 架構報告
 </details>
 
 
-### Reviewer B 可選使用 Open Code Review
+### Open Code Review審查助手(可選項、非必要)
 
-[Alibaba Open Code Review](https://github.com/alibaba/open-code-review) 是外部開源 CLI，**不是圖片文字辨識 OCR**。Milktea 不會把它包進專案，也不會讓所有 Reviewer 強制使用：
+[Alibaba Open Code Review](https://github.com/alibaba/open-code-review) 是外部開源 AI 代碼審查助手。  
 
-- 預設關閉；Reviewer A 永遠維持原生 Review。
-- 只有 Reviewer B 可選擇 Delegation Mode，讓 OCR 先整理 Git 變更檔案與 Review 規則，再由原本的 Codex／Claude 模型判斷。
-- Delegation Mode 不使用 OCR 自己的 LLM，因此不需要另外提供 OCR API Key。
-- 一般 implement 與 brownfield refactor implement 都支援；小問題不想增加規則內容時保持關閉即可。
-- Windows 與 WSL 分開安裝；Windows CLI 在目前 npm 全域目錄，Linux／WSL CLI 在使用者的 `~/.local`，執行狀態在 `~/.opencodereview/`，不會因安裝而進入 Git 專案。
+相較於通用型 Agent 審查，Open Code Review 在使用相同底層模型的情況下，展現出更高的準確率（Precision）與 F1 綜合得分。此外，相較於未採用 Open Code Review 的通用 Agent，其 Token 消耗僅約為九分之一，審查速度也更快。
 
-只有選擇「Reviewer B OCR」時才會進入兩層確認：
+
+Milktea 不會把它包進專案，也不會讓所有 Reviewer 強制使用。
+
+只有透過:
+
+```text
+
+/milktea-agents-skills-for-claude:milktea-skills-set-agent-roles
+
+```
+
+選擇 Reviewer B 開啟 OCR 時，才會進入兩層確認：
 
 1. 是否為 Reviewer B 開啟 OCR，並先解釋功能、資料邊界與 API Key 行為。
 2. 只有已開啟但目前環境沒有可用 `ocr` 時，才再詢問是否安裝；同意後才執行固定版本的 npm 全域安裝並驗證。
 
-安裝前會檢查 OCR 官方需求 Git ≥ 2.41、Node.js ≥ 18 與 npm。Milktea 不會擅自安裝或升級這三個系統工具。拒絕安裝、條件不足或 OCR 執行失敗時，Reviewer B 會安全回退到原生 Review。
-
-<details>
-<summary>可直接複製的測試用法</summary>
-
-```text
-請使用：
-/milktea-agents-skills-for-claude:milktea-skills-set-agent-roles
-
-只調整 Reviewer B OCR。先說明功能與資料邊界；如果本機沒有 OCR，請先說明安裝會寫到哪裡，再經過第二次確認才安裝。完成後立即結束。
-```
-
-</details>
+安裝前會檢查 OCR 官方需求 Git ≥ 2.41、Node.js ≥ 18 與 npm。Milktea 不會擅自安裝或升級這三個系統工具。  
+拒絕安裝、條件不足或 OCR 執行失敗時，Reviewer B 會安全回退到原生 Review。
 
 
 ## 快速開始
@@ -220,6 +216,7 @@ HTML 架構報告
 在 PowerShell 執行：
 
 ```powershell
+irm https://claude.ai/install.ps1 | iex
 claude auth login
 claude auth status
 
@@ -233,6 +230,7 @@ claude plugin list
 在 Linux／WSL Terminal 執行：
 
 ```bash
+curl -fsSL https://claude.ai/install.sh | bash
 claude auth login
 claude auth status
 
