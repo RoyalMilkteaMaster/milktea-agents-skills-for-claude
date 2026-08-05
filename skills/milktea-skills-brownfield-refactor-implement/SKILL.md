@@ -1,6 +1,6 @@
 ---
 name: milktea-skills-brownfield-refactor-implement
-description: 執行使用者從 Brownfield Refactor Planner 交接的 HTML、Spec 與 Tickets。以 Brownfield Refactor Implement Coordinator 身分完整執行開發 Agent、雙 Reviewer、TDD、Debug、證據紀錄與三方共識流程；不重新規劃或擴大範圍，只有存在 Logging Ticket 時才處理正式 Logging，全部修改完成後確認 Planner 列出的原有功能仍然正常。使用者把 Brownfield Planner 交接內容貼到新的執行 Task 時使用。
+description: 執行使用者從 Brownfield Refactor Planner 交接的 HTML、Spec 與 Tickets。以最大安全並行方式派發互不衝突的開發 Agent，並為每張 Ticket 完整執行雙 Reviewer、TDD、Debug、證據紀錄與三方共識流程；不重新規劃或擴大範圍，只有存在 Logging Ticket 時才處理正式 Logging，全部修改完成後確認 Planner 列出的原有功能仍然正常。使用者把 Brownfield Planner 交接內容貼到新的執行 Task 時使用。
 ---
 
 # Milktea Skills Brownfield Refactor Implement
@@ -61,6 +61,18 @@ Developer、Reviewer A、Reviewer B 各自讀取本 Task 最新一次包含該�
 
 Open Code Review 是 Task 級可選項，不是必要後端。只讀取最新 `settings_update: open_code_review`；沒有該更新、`enabled` 不為 true、`delegate_ready` 不為 true、缺少已驗證的 OCR 絕對路徑、OCR 的 `environment` 不等於目前解析環境，或 `cli_status` 不是 installed 時，Reviewer B 使用 `review_engine: native`，不得自行偵測或安裝。只有該分區的最新狀態指定 `review_engine: open_code_review_delegate` 時，才把該值、共同執行環境與 OCR 在該環境內的絕對路徑交給 Reviewer B；Reviewer A 永遠使用 `native`。Delegation Mode 只增加檔案篩選與規則解析，不增加 Reviewer 數量，也不得呼叫 OCR 自帶 LLM。
 
+## 安全並行排程
+
+首次派工前讀取全部未完成 Tickets，建立依賴圖、Ready Queue、寫入所有權與共用資源鎖。排程目標是使用平台目前實際可用的 Agent slots，以最短總完成時間執行所有可安全並行的工作；不得硬編固定 Agent 數量，也不得為填滿 slots 派出沒有獨立工作的 Agent。
+
+- 只有依賴已完成、`Dispatch: parallel-safe`、`Exclusive write scope` 明確且互不重疊、`Shared resource locks` 不衝突的 Tickets 可同時派發 Developer。
+- 舊 Ticket 缺少並行欄位時，可從明確的依賴與檔案或模組範圍保守判定；任何一項不明確就串行，不阻擋整個 Task。
+- 相同檔案或模組、Schema、Migration、Lockfile、正式 Data／Runtime Root、GPU、Blender、ComfyUI、共用建置輸出、全專案測試與 Git 寫入一律串行。
+- 每個並行 Developer 只擁有其 Ticket 的確切寫入範圍；共享工作樹中的 Review snapshot 必須使用該 Ticket 的 path-scoped Diff，並標示同時存在的其他 Ticket 變更。
+- Ticket 進入 `Ready for Review` 後，優先保留兩個可用 slots 同時派 Reviewer A 與 Reviewer B；其他互不衝突的 Developer 可在剩餘 slots 繼續執行。
+- Coordinator 獨占 Ticket 紀錄、狀態更新、共用檔案整合、全專案驗證及任何已授權的 Git 寫入；這些操作不得由並行 Agent 執行。
+- 平台或後端只允許較低並行度時，自動縮小 active set；只剩單一可用 Agent 時安全退化為串行流程，以兩個不同實例依序完成 Reviewer A 與 Reviewer B，並記錄未能平行的原因。
+
 ## 派工契約
 
 首次派工前必讀 `references/delegation-contracts.md`。
@@ -73,24 +85,22 @@ Open Code Review 是 Task 級可選項，不是必要後端。只讀取最新 `s
 - 每份 Reviewer 契約都明寫 `review_engine`。Reviewer A 固定為 `native`；Reviewer B 只依本 Task 最新的 OCR 分區狀態選擇 `native` 或 `open_code_review_delegate`。
 - 每次委派都要明寫角色、Ticket、固定 Snapshot、輸入、權限、禁止事項與回報格式。
 
-## Ticket 流程
+## Ticket 狀態機
 
-依順序逐張處理：
+持續補滿安全可用 slots，直到所有核准 Tickets 完成：
 
-1. 確認依賴完成，記錄基準版本、工作範圍與開發 Agent 識別。
-2. 依派工契約，把 Ticket、必要文件、允許修改範圍及驗收指令交給臨時開發 Agent。
+1. 從 Ready Queue 取出目前可安全並行的 Tickets，記錄各自的並行批次、基準版本、確切寫入範圍、資源鎖與開發 Agent 識別。
+2. 依派工契約，把每張 Ticket、必要文件、允許修改範圍及驗收指令分別交給新的臨時開發 Agent。
 3. 要求開發 Agent 在適用時按需載入 `$milktea-skills-tdd`；不適用時記錄理由與替代驗證。
 4. 告知開發 Agent：不得預載 `$milktea-skills-git-merge-conflict`；只有 merge、rebase 或 cherry-pick 實際回報衝突時才載入。Skill 不可用時回報 `BLOCKED: GIT_MERGE_CONFLICT_SKILL_UNAVAILABLE`。
-5. 把 Ticket 狀態更新為「執行中」。告知開發 Agent：完成實作或衝突解決後只能回報 `Ready for Review`；未達三方共識前不得標記完成、接下一張 Ticket 或釋放可續談識別。
-6. 收到 `Ready for Review` 後，把 Ticket 狀態更新為「Review 中」，固定 Review snapshot：基準、revision、Diff、檔案列表與必跑證據；在收到 Findings 或 Coordinator 指示前，開發 Agent 不得繼續修改。
-7. 依 Reviewer 契約平行派出兩個一般臨時 Agent，分別指定為 Reviewer A 與 Reviewer B；提供相同 snapshot、Spec、Ticket、兩份 `docs/planning/` 文件、`CONTEXT.md`、ADR 與開發證據。Reviewer A 的 `review_engine` 固定為 `native`；Reviewer B 依 Task 狀態取得引擎。
-8. 要求兩位 Reviewer 各自按需載入 `$milktea-skills-code-review`，獨立完成 Standards 與 Spec 兩軸 Review。
-9. 把兩份完整報告交給開發 Agent；不得合併成模糊結論。
-10. 開發 Agent 逐項重現並驗證 Finding：正確則修正與重驗；錯誤則以程式、測試或文件反駁。
-11. 把修正、反證與新 snapshot 交回原 Reviewer 複查。
-12. 同一爭議完成一次證據交換仍無法解決時，交由使用者裁決，不無限消耗 Token。
-13. 所有阻擋與重要 Finding 關閉，且開發者與兩位 Reviewer 明確同意後，才把 Ticket 狀態更新為「完成」。
-14. 保存最終證據後結束該開發 Agent 與兩位 Reviewer；下一張 Ticket 建立全新實例。
+5. 由 Coordinator 依序把各 Ticket 狀態更新為「執行中」。開發 Agent 完成實作或衝突解決後只能回報 `Ready for Review`；未達三方共識前不得標記完成、接另一張 Ticket 或釋放可續談識別。
+6. 收到任一 Ticket 的 `Ready for Review` 後，由 Coordinator 把該 Ticket 更新為「Review 中」，固定 path-scoped Review snapshot：基準、revision、Diff、檔案列表、並行工作樹狀態與必跑證據；在收到 Findings 或 Coordinator 指示前，該開發 Agent 不得繼續修改。
+7. 有兩個可用 slots 時，依 Reviewer 契約同時派出 Reviewer A 與 Reviewer B；提供相同 snapshot、Spec、Ticket、兩份 `docs/planning/` 文件、`CONTEXT.md`、ADR 與開發證據。Reviewer A 的 `review_engine` 固定為 `native`；Reviewer B 依 Task 狀態取得引擎。
+8. 要求兩位 Reviewer 各自按需載入 `$milktea-skills-code-review`，獨立完成 Standards 與 Spec 兩軸 Review；不得檢查或評論其他並行 Ticket 的變更。
+9. 把兩份完整報告交給原開發 Agent；不得合併成模糊結論。開發 Agent 逐項重現，正確則在原所有權範圍內修正與重驗，錯誤則以程式、測試或文件反駁。
+10. 把修正、反證與新 path-scoped snapshot 交回原 Reviewer 複查。同一爭議完成一次證據交換仍無法解決時，交由使用者裁決，不無限消耗 Token。
+11. 所有阻擋與重要 Finding 關閉，且開發者與兩位 Reviewer 明確同意後，Coordinator 才把該 Ticket 更新為「完成」、保存最終證據並結束三個 Agent。
+12. 每當 Ticket 完成、阻擋或釋放資源鎖時，重新計算 Ready Queue 並立即補派下一批安全工作；相依 Ticket 只有在上游三方共識完成後才可進入 Ready Queue。
 
 Reviewer B 回報 `OCR_DELEGATE_UNAVAILABLE` 時，Coordinator 保存錯誤證據，將同一固定 Snapshot 的 Reviewer B 契約改為 `review_engine: native` 後重試一次。此回退不得觸發安裝、更新、API Key 詢問或改派 Reviewer A；原生 Review 成功時把降級原因寫入 Ticket。
 
@@ -102,7 +112,7 @@ Reviewer B 回報 `OCR_DELEGATE_UNAVAILABLE` 時，Coordinator 保存錯誤證�
 
 依序保存：
 
-1. 開始執行：execution environment、基準版本、開發角色、範圍與必跑指令。
+1. 開始執行：execution environment、並行批次、排程判定、基準版本、開發角色、確切寫入範圍、資源鎖與必跑指令。
 2. `Ready for Review`：Snapshot、變更摘要與測試證據。
 3. 實際發生時：Debug 根因與回歸測試、Git 衝突取捨與驗證。
 4. 每輪 Review：兩份獨立完整報告、各自的 `review_engine`、OCR Delegation 證據或降級原因、開發者修正或反證、Reviewer 複查。
@@ -133,4 +143,4 @@ Reviewer B 回報 `OCR_DELEGATE_UNAVAILABLE` 時，Coordinator 保存錯誤證�
 - 三個隔離角色明確達成共識；降級情況已標示並取得使用者核准。
 - 依 Ticket 與專案 Git 規則提交；未授權不得 Commit 或 Push。
 
-最後輸出每張 Ticket 的 execution environment、狀態、角色後端、實際模型、實際 `model_reasoning_effort` 或模型預設、兩位 Reviewer 的 `review_engine`、OCR Delegation 證據或降級原因、測試證據、兩份 Review 結論、共識、原有功能確認結果、未解風險與版本識別。
+最後輸出每張 Ticket 的 execution environment、並行批次、排程判定、狀態、角色後端、實際模型、實際 `model_reasoning_effort` 或模型預設、兩位 Reviewer 的 `review_engine`、OCR Delegation 證據或降級原因、測試證據、兩份 Review 結論、共識、原有功能確認結果、未解風險與版本識別。

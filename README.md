@@ -46,7 +46,7 @@ Grill Me
   ↓
 貼到新的 Claude Code 對話
   ↓
-Implement → Developer 實作 → Reviewer A + Reviewer B 獨立審查
+Implement → 安全並行 Developers → 每票 Reviewer A + Reviewer B 獨立審查
 ```
 
 ### 整理既有專案(brownfield-refactor-planner)
@@ -66,8 +66,10 @@ HTML 架構報告
        ↓
      產生執行交接文字
        ↓
-     貼到新的 Claude Code 對話執行重構
+     貼到新的 Claude Code 對話，以最大安全並行執行重構
 ```
+
+Implement 會先讀取全部 Tickets，依相依關係、寫入範圍與共享資源鎖建立 Ready Queue，再把互不衝突的 Tickets 同時派給多個 Developer。相同檔案或模組、Schema、Migration、Lockfile、正式 Data／Runtime、GPU、Blender、ComfyUI、全專案測試與 Git 寫入會自動改為串行。
 
 ## 具體操作範本(可以直接複製貼上)
 
@@ -103,7 +105,7 @@ HTML 架構報告
 
 適合情境:當你面對架構混亂、重複程式增加、舊功能殘留，你想進行清整，或你還不確定這個專案是否值得重構。
 
-它會先呼叫內部的架構健檢 Skill，用唯讀方式盤點現況並產生 HTML 報告。你可以拿到報告就結束；也可以選擇請Agents繼續根據報告，產生重構 Spec 與 Tickets。
+它會先呼叫內部的架構健檢 Skill，用唯讀方式盤點現況並產生詳細 HTML 報告。完成後聊天框只顯示可點擊的 HTML 絕對路徑，以及「只保留報告／繼續進入 to-spec／修改報告」三個選項，不會在聊天框重述整份報告。你可以拿到報告就結束；也可以選擇請 Agents 繼續根據報告產生重構 Spec 與 Tickets。
 
 <details>
 <summary>可直接複製的用法</summary>

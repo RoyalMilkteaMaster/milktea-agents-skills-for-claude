@@ -1,6 +1,6 @@
 ---
 name: milktea-skills-to-ticket
-description: 將已核准中文規格拆成可獨立派工、驗證與 Review 的 Tickets，固定每票寫入 docs/work/功能名稱/tickets/，並在核准後產生可交給新執行 Task 的共用啟動內容。標示依賴、順序、Agent 角色、驗收條件與三角色共識規則。由 milktea-skills-grill-me 在拆票階段調用，或在使用者要求把規格拆成 Tickets 時使用；不開始實作。
+description: 將已核准中文規格拆成可獨立派工、驗證與 Review 的 Tickets，固定每票寫入 docs/work/功能名稱/tickets/，並在核准後產生可交給新執行 Task 的共用啟動內容。標示依賴、安全並行、寫入所有權、Agent 角色、驗收條件與三角色共識規則。由 milktea-skills-grill-me 在拆票階段調用，或在使用者要求把規格拆成 Tickets 時使用；不開始實作。
 ---
 
 # Milktea Skills To Ticket
@@ -61,6 +61,13 @@ Spec 缺少時停止，不猜測。
 - Depends on：無／Ticket
 - Blocks：無／Ticket
 
+## 並行與所有權
+
+- Dispatch：parallel-safe／serialized
+- Exclusive write scope：實際檔案或模組
+- Shared resource locks：無／實際資源
+- Can run with：無／Ticket
+
 ## Agent 分工
 
 - Developer：負責實作、驗證、修正或以證據反駁 Findings
@@ -85,6 +92,7 @@ Spec 缺少時停止，不猜測。
 - 每張 Ticket 必須有明確驗收條件，不以「完成實作」作為驗收。
 - 優先建立能端到端驗證的最小切片，再逐步擴充。
 - 不把相依工作偽裝成可平行；平行 Tickets 必須有清楚的檔案或模組所有權。
+- `parallel-safe` 只用於依賴已滿足、寫入範圍互不重疊且不共用可變 Runtime、Data、Schema、Migration、Lockfile、GPU 或全專案測試資源的 Tickets；其餘標為 `serialized`。
 - Ticket 只引用已核准決策；發現缺口時退回對應階段。
 
 ## Review 共識
@@ -114,9 +122,9 @@ $milktea-skills-implement
 專案根目錄：<實際路徑>
 必讀：AGENTS.md、CONTEXT.md、docs/planning/requirements.md、docs/planning/architecture.md、相關 ADR。
 Spec：<已核准的實際路徑>
-Tickets（依執行順序）：<已核准的實際路徑>
+Tickets（已核准清單）：<已核准的實際路徑>
 
-先驗證環境、可用後端與 Ticket 依賴，再從第一張未完成 Ticket 開始。
+先驗證環境、可用後端、Ticket 依賴、寫入所有權與共用資源鎖，再建立 Ready Queue，以最大安全並行方式派發所有可同時執行的 Tickets。
 ```
 ````
 
@@ -125,7 +133,7 @@ Tickets（依執行順序）：<已核准的實際路徑>
 ## 完成條件
 
 - 每項 Spec 驗收條件至少由一張 Ticket 覆蓋。
-- 所有 Tickets 皆有依賴、角色、驗收、測試與證據要求。
+- 所有 Tickets 皆有依賴、安全並行、寫入所有權、角色、驗收、測試與證據要求。
 - Review 共識規則已納入每張 Ticket 或父規格。
 - 執行、Debug、Git 衝突與 Review 證據的保存位置已寫入 Ticket。
 - Tickets 已逐票寫入固定目錄。
