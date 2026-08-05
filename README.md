@@ -221,7 +221,7 @@ irm https://claude.ai/install.ps1 | iex
 
 ```
 
-在 PowerShell 執行：
+在 PowerShell 登入 Claude ：
 
 ```powershell
 
@@ -244,6 +244,8 @@ claude plugin list
 curl -fsSL https://claude.ai/install.sh | bash
 
 ```
+
+在 Linux 登入 Claude :
 
 ```bash
 
