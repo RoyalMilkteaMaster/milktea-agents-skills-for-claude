@@ -114,4 +114,4 @@ Git、測試與檔案讀取仍必須在 Coordinator 指定的共同執行環境�
 
 回報必須標示 Reviewer、共同執行環境、後端、實際模型、實際 `model_reasoning_effort` 或模型預設、`review_engine`、Review revision 與 Snapshot。使用 Delegation Mode 時另列 OCR 版本、Preview mode、Reviewable 檔案及 Excluded 檔案與理由，並可直接交給 Coordinator 追加到對應本機 Ticket。
 
-不得修改程式、派發 Agent、Commit、Push、寫入 Ticket、彙整其他 Reviewer 報告或宣稱三方共識。
+不得修改程式、派發 Agent、Commit、Push、寫入 Ticket、彙整其他 Reviewer 報告或宣稱整體共識。

@@ -1,6 +1,6 @@
 # 執行環境選擇契約
 
-執行環境是目前 Task 的共同工作位置。Developer、Reviewer A、Reviewer B、Git、測試與可選 OCR 必須使用同一個已解析環境。
+執行環境是目前 Task 的共同工作位置。Developer、所有啟用 Reviewer、Git、測試與可選 OCR 必須使用同一個已解析環境。
 
 ## 固定三個選項
 
@@ -39,8 +39,8 @@ Windows PowerShell 的 `distribution` 為 `null`，`command_prefix` 記錄實際
 
 - WSL 從 Windows 啟動時，所有專案命令都使用已記錄的 `wsl.exe -d <distribution> --` 前綴與 Linux 專案路徑。
 - PowerShell 選項只使用 Windows 工具與 Windows 專案路徑。
-- 第三項只能使用已解析的單一環境，不得讓三個角色各自找不同位置。
+- 第三項只能使用已解析的單一環境，不得讓啟用角色各自找不同位置。
 - 派工前重新驗證環境仍可用；失效時停止，不得偷偷換環境。
 - 設定從下一張尚未派發的 Ticket 生效；進行中的 Ticket 不換環境。
 
-若某張 Ticket 必須使用另一 OS，先取得使用者核准。該 Ticket 的三個角色、測試與 OCR 仍共同使用同一個例外環境，完成後下一張 Ticket 回到 Task 設定。
+若某張 Ticket 必須使用另一 OS，先取得使用者核准。該 Ticket 的所有啟用角色、測試與 OCR 仍共同使用同一個例外環境，完成後下一張 Ticket 回到 Task 設定。

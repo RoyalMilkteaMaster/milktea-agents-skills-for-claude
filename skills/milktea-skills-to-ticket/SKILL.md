@@ -1,6 +1,6 @@
 ---
 name: milktea-skills-to-ticket
-description: 將已核准中文規格拆成可獨立派工、驗證與 Review 的 Tickets，固定每票寫入 docs/work/功能名稱/tickets/，並在核准後產生可交給新執行 Task 的共用啟動內容。標示依賴、安全並行、寫入所有權、Agent 角色、驗收條件與三角色共識規則。由 milktea-skills-grill-me 在拆票階段調用，或在使用者要求把規格拆成 Tickets 時使用；不開始實作。
+description: 將已核准中文規格拆成可獨立派工、驗證與 Review 的 Tickets，固定每票寫入 docs/work/功能名稱/tickets/，並在核准後產生可交給新執行 Task 的共用啟動內容。標示依賴、安全並行、寫入所有權、Agent 角色、驗收條件與啟用角色共識規則。由 milktea-skills-grill-me 在拆票階段調用，或在使用者要求把規格拆成 Tickets 時使用；不開始實作。
 ---
 
 # Milktea Skills To Ticket
@@ -24,7 +24,7 @@ Spec 缺少時停止，不猜測。
 1. 讀取 Spec、`docs/planning/requirements.md`、`docs/planning/architecture.md`、專案指令、`CONTEXT.md`、ADR 與程式庫現況。
 2. 依使用者價值切成可獨立驗證的 Tickets；避免純分層或模糊雜務票。
 3. 標示依賴、阻擋關係、建議順序與可安全平行的工作。
-4. 為每張 Ticket 指定執行角色、兩個隔離 Reviewer 與驗收證據；實際後端由執行階段偵測。
+4. 為每張 Ticket 指定執行角色、一或兩個隔離 Reviewer 與驗收證據；實際 Reviewer 名單由執行 Task 的 `reviewer_mode` 決定，實際後端由執行階段偵測。
 5. 逐票寫入固定目錄。
 6. 顯示完整拆分、關係與實際路徑，要求使用者核准；核准後把狀態改為「已核准」，不派工、不實作。
 
@@ -71,16 +71,17 @@ Spec 缺少時停止，不猜測。
 ## Agent 分工
 
 - Developer：負責實作、驗證、修正或以證據反駁 Findings
-- Reviewer A：使用隔離上下文執行 Review
-- Reviewer B：使用另一個隔離上下文執行 Review
-- Reviewer 標準：兩者都載入 `$milktea-skills-code-review`，並同時執行 Standards 與 Spec Review
+- Reviewer A：啟用時使用隔離上下文執行 Review
+- Reviewer B：啟用時使用另一個隔離上下文執行 Review
+- Reviewer 模式：由執行 Task 最新 `settings_update: reviewers` 決定；預設 `both`，Ticket 不自行固定或搜尋設定
+- Reviewer 標準：每位啟用 Reviewer 都載入 `$milktea-skills-code-review`，並同時執行 Standards 與 Spec Review
 - CLI 與模型：由執行 Task 的 Coordinator 依目前 Task 分工與實際可用能力決定
 
 ## 完成規則
 
-- 三個角色已處理所有可重現且有證據的問題。
+- Developer 與所有啟用 Reviewer 已處理所有可重現且有證據的問題。
 - 沒有未解決的正確性、可執行性、可讀性、架構或衍生風險。
-- 三個角色對完成狀態達成共識。
+- Developer 與所有啟用 Reviewer 對完成狀態達成共識。
 
 ## 執行與 Review 紀錄
 ```
@@ -100,10 +101,10 @@ Spec 缺少時停止，不猜測。
 - Reviewer 的目標是驗證能跑、符合 Spec、可讀、架構清楚且無明顯衍生問題，不是強迫找錯。
 - 開發 Agent 不得照單全收 Reviewer 建議；必須重現、查證或以測試驗證。
 - 建議不正確時，開發 Agent 應提出證據並維持立場；Reviewer 也必須依證據修正判斷。
-- 有合理分歧時繼續交換證據，直到三個角色同意修改、接受現況或明確回報使用者裁決。
+- 有合理分歧時繼續交換證據，直到 Developer 與所有啟用 Reviewer 同意修改、接受現況或明確回報使用者裁決。
 - 未達共識前，Ticket 不得標記完成，開發 Agent 不得休息或接下一張 Ticket。
 
-只有單一 CLI 可用時，三個角色仍須彼此隔離並明示缺少跨模型獨立性；不得因此跳過 Review。
+只有單一 CLI 可用時，所有啟用角色仍須彼此隔離並明示缺少跨模型獨立性；不得因此跳過 Review。
 
 ## 執行 Task 交接
 

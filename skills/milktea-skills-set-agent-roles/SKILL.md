@@ -1,6 +1,6 @@
 ---
 name: milktea-skills-set-agent-roles
-description: 由使用者明確呼叫的快速 Task 設定器。入口先讓使用者只選一項要調整的功能：共同執行環境、Developer／Reviewer 角色與模型、或 Reviewer B 的 Open Code Review；只載入所選分支、批次收集該分支需要的答案，完成後立即退出。使用者直接說出要改的項目與值時跳過選單。只更新目前 Task 的設定，不派工；OCR 安裝仍須兩層確認。
+description: 由使用者明確呼叫的快速 Task 設定器。入口先讓使用者只選一項要調整的功能：共同執行環境、Developer／Reviewer 角色與模型、Reviewer A／B 開關，或 Reviewer B 的 Open Code Review；只載入所選分支、批次收集該分支需要的答案，完成後立即退出。使用者直接說出要改的項目與值時跳過選單。只更新目前 Task 的設定，不派工；Reviewer 預設雙開且至少保留一位，OCR 安裝仍須兩層確認。
 ---
 
 # Milktea Skills Set Agent Roles
@@ -15,17 +15,20 @@ description: 由使用者明確呼叫的快速 Task 設定器。入口先讓使�
 
 1. **開發環境** — PowerShell、WSL 或其他已安裝 CLI 的環境
 2. **角色設定** — Developer、Reviewer A／B、模型與推理強度
-3. **Reviewer B OCR** — 開啟、關閉或安裝 Open Code Review
+3. **Reviewer A ＋ B（預設）** — 兩位都開啟
+4. **只開 Reviewer A** — 關閉 Reviewer B
+5. **只開 Reviewer B** — 關閉 Reviewer A
+6. **Reviewer B OCR** — 開啟、關閉或安裝 Open Code Review
 
-平台沒有原生選項介面時，直接用一則短訊息顯示上述 `1／2／3` 選單並等待一次回答；不得因此停止、載入其他資料或改成逐題詢問。
+平台沒有原生選項介面時，直接用一則短訊息顯示上述 `1／2／3／4／5／6` 選單並等待一次回答；不得因此停止、載入其他資料或改成逐題詢問。
 
 在使用者選擇前，不得：
 
 - 讀取任何 `references/`。
 - 掃描專案文件、磁碟、WSL、CLI 或 OCR。
-- 詢問角色、模型、推理強度或 OCR。
+- 詢問角色、模型、推理強度、Reviewer 開關或 OCR。
 
-使用者已明說「改成 WSL」、「把 Reviewer A 改成 Codex low」或「關閉 OCR」等具體要求時，跳過入口選單，直接執行對應分支。
+使用者已明說「改成 WSL」、「把 Reviewer A 改成 Codex low」、「只開 Reviewer A」或「關閉 OCR」等具體要求時，跳過入口選單，直接執行對應分支。
 
 一次只執行一個分支。完成後輸出變更摘要並立即結束，不詢問是否還要調整其他項目。
 
@@ -78,13 +81,29 @@ Reviewer B: <cli> | <model 或 default> | <effort 或 default>
 - 不讀專案 README／AGENTS，不遞迴掃描磁碟，不找任意名稱的 CLI，不安裝或登入工具。
 - 使用者提供精確 CLI 路徑時可驗證該路徑；不得接受未經驗證的任意命令字串。
 
-只有一個後端可用時允許三個角色共用，但標示缺少跨模型獨立性。執行時仍建立隔離 Agent。
+只有一個後端可用時允許三個可設定角色共用，但標示缺少跨模型獨立性。執行時只為 Developer 與啟用 Reviewer 建立隔離 Agent。
 
 模型 ID 按使用者原文記錄，不猜測或改寫。`model_reasoning_effort` 可記錄 `low`、`medium`、`high`、`xhigh`、`max`、`ultra` 或使用者給的精確值，留待派工時由後端驗證；它是推理強度，不是 Token 上限。
 
 只更新使用者填寫的角色，其他角色保持不變。完成後退出。
 
-## C. Reviewer B OCR
+## C. Reviewer 開關
+
+本分支不讀任何 reference，不偵測 CLI 或 OCR。快速入口的三個 Reviewer 選項直接對應：
+
+- 快速入口 `3`：**Reviewer A ＋ B（預設）** — `both`
+- 快速入口 `4`：**只開 Reviewer A** — `a_only`
+- 快速入口 `5`：**只開 Reviewer B** — `b_only`
+
+使用者在快速入口點選後立即記錄對應的 `reviewer_mode` 並退出，不顯示第二層選單、不追加問題。
+
+只接受 `both`、`a_only`、`b_only`。不要改成兩個布林開關；單一模式必須從資料結構保證至少一位 Reviewer 啟用。沒有本分區更新時預設 `both`。
+
+停用 Reviewer 只停止後續派工，不刪除該角色既有的 CLI、模型、`model_reasoning_effort` 或 OCR 設定；重新啟用時直接沿用。設定從下一張尚未派發的 Ticket 生效，已派發 Ticket 的 Reviewer 名單保持不變。
+
+完成後退出。
+
+## D. Reviewer B OCR
 
 使用者已明確要求關閉時，直接記錄 `enabled: false`、`review_engine: native`、`cli_status: not_checked` 與 `delegate_ready: false`；不讀 reference、不做偵測，然後退出。
 
@@ -107,7 +126,7 @@ Reviewer B: <cli> | <model 或 default> | <effort 或 default>
 每次只輸出本次更新的分區；未輸出的分區沿用本 Task 先前值，沒有先前值時由 Implement 使用預設。每個分區最後一次更新取代該分區舊值。
 
 ```yaml
-settings_update: execution_environment | roles | open_code_review
+settings_update: execution_environment | roles | reviewers | open_code_review
 ```
 
 角色更新可只包含一個角色：
@@ -118,6 +137,13 @@ reviewer_a:
   cli: codex
   model: gpt-5.6-luna
   model_reasoning_effort: low
+```
+
+Reviewer 開關只輸出單一合法模式：
+
+```yaml
+settings_update: reviewers
+reviewer_mode: a_only
 ```
 
 最後只回報：更新了什麼、其他分區未變，以及設定從下一張尚未派發的 Ticket 生效。
