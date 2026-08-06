@@ -1,6 +1,6 @@
 ---
 name: milktea-skills-brownfield-refactor-implement
-description: 執行使用者從 Brownfield Refactor Planner 交接的 HTML、Spec 與 Tickets。以最大安全並行方式派發互不衝突的開發 Agent，並依目前 Task 設定為每張 Ticket 執行一或兩個獨立 Reviewer、TDD、Debug、證據紀錄與啟用角色共識流程；不重新規劃或擴大範圍，只有存在 Logging Ticket 時才處理正式 Logging，全部修改完成後確認 Planner 列出的原有功能仍然正常。使用者把 Brownfield Planner 交接內容貼到新的執行 Task 時使用。
+description: 執行使用者從 Brownfield Refactor Planner 交接的 HTML、Spec 與 Tickets。依 Ticket 指定的 Developer 模型與推理強度派工，必要時升級至 Opus 5／xhigh；安全並行執行互不衝突的重構，把 Spec 與 Standards 分給獨立 Reviewer，完成定向複驗後再確認 Planner 列出的原有功能。使用者把 Brownfield Planner 交接內容貼到新的執行 Task 時使用。
 ---
 
 # Milktea Skills Brownfield Refactor Implement
@@ -55,13 +55,32 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 
 每張 Ticket 固定使用一個臨時 Developer，以及 `reviewer_mode` 啟用的 Reviewer。Coordinator 不算在共識內。
 
-每張 Ticket 首次派工前，Coordinator 只讀取本 Task 最新 `settings_update: reviewers`：沒有更新時使用 `both`；`both` 啟用 Reviewer A 與 B，`a_only` 只啟用 A，`b_only` 只啟用 B。其他值回報 `BLOCKED: INVALID_REVIEWER_MODE`，不得猜測。Reviewer 名單在該 Ticket 派工時固定到共識完成；Coordinator 必須把 `reviewer_mode` 與啟用名單直接寫入派工契約，Developer 與 Reviewer 不得自行搜尋設定。停用角色的既有設定保留，但不偵測、不派工、不產生 Review 證據。
+每張 Ticket 首次派工前，Coordinator 只讀取本 Task 最新 `settings_update: reviewers`：沒有更新時使用 `both`；`both` 啟用 Reviewer A 與 B，`a_only` 只啟用 A，`b_only` 只啟用 B。其他值回報 `BLOCKED: INVALID_REVIEWER_MODE`，不得猜測。Reviewer 名單在該 Ticket 派工時固定到共識完成；Coordinator 必須把 `reviewer_mode`、啟用名單與下列 `review_axis` 直接寫入派工契約，Developer 與 Reviewer 不得自行搜尋設定：
 
-Coordinator 讀取本 Task 最新一次包含 Developer 或各啟用 Reviewer 的 `settings_update: roles`；各角色不必來自同一筆更新。沒有該角色的更新時，Developer 預設 Claude，啟用 Reviewer 預設 Codex。只能使用選定環境內實際可用的 CLI；指定 CLI 不可用時只能在同一環境改用其他可用 CLI。若只有一個 CLI，所有啟用角色可共用該 CLI，但每個角色仍使用隔離 Agent 並標示「缺少跨模型獨立性」。沒有可用 CLI 或無法建立所有啟用 Reviewer 的隔離 Agent 時，列出偵測結果並停止；不得宣稱共識。
+- `both`：Reviewer A = `spec`；Reviewer B = `standards`。
+- `a_only`：Reviewer A = `both`。
+- `b_only`：Reviewer B = `both`。
 
-未指定模型時使用該 CLI 的預設模型。每個啟用角色的 `model_reasoning_effort` 獨立套用；未指定時使用所選模型或後端的預設值。派工時必須把明確設定傳給對應 Agent，不能只寫在 Task 狀態或委派文字中：平台原生派發工具提供 `reasoning_effort` 時，把 Task 狀態的 `model_reasoning_effort` 映射到該欄位；Codex CLI 使用同名設定鍵 `model_reasoning_effort`。明確指定的推理強度被後端拒絕時，以相同 CLI 與相同模型、不指定推理強度重試一次，成功後只移除本 Task 狀態中該角色的 `model_reasoning_effort`。明確指定的模型被 CLI 拒絕時，才依原規則以同一 CLI 不指定模型重試一次，成功後移除該角色的模型設定；其他錯誤不得觸發回退。啟用兩位 Reviewer 時，首輪 Review 完成前兩者不得互看結論。
+停用角色的既有設定保留，但不偵測、不派工、不產生 Review 證據。
 
-Reviewer B 未啟用時，不讀取或檢查 Open Code Review 設定。Reviewer B 啟用時，Open Code Review 是 Task 級可選項，不是必要後端：只讀取最新 `settings_update: open_code_review`；沒有該更新、`enabled` 不為 true、`delegate_ready` 不為 true、缺少已驗證的 OCR 絕對路徑、OCR 的 `environment` 不等於目前解析環境，或 `cli_status` 不是 installed 時，Reviewer B 使用 `review_engine: native`，不得自行偵測或安裝。只有該分區的最新狀態指定 `review_engine: open_code_review_delegate` 時，才把該值、共同執行環境與 OCR 在該環境內的絕對路徑交給 Reviewer B；Reviewer A 永遠使用 `native`。Delegation Mode 只增加檔案篩選與規則解析，不增加 Reviewer 數量，也不得呼叫 OCR 自帶 LLM。
+Coordinator 讀取本 Task 最新一次包含 Developer 或各啟用 Reviewer 的 `settings_update: roles`；各角色不必來自同一筆更新。Reviewer 沒有角色更新時預設 Codex。只能使用選定環境內實際可用且相容於指定模型的 CLI；若只有一個 CLI，所有啟用角色可共用該 CLI，但每個角色仍使用隔離 Agent 並標示「缺少跨模型獨立性」。沒有相容 CLI 或無法建立所有啟用 Reviewer 的隔離 Agent 時，列出偵測結果並停止；不得宣稱共識。
+
+Developer 的初始模型與推理強度以已核准 Ticket 的 `## 初始執行配置` 為準，Task 角色設定只提供 CLI 偏好，不得無聲覆蓋 Ticket。舊 Ticket 缺少此區時，先使用使用者明確設定且符合本段限制的 Developer 模型；否則安全回退為 `claude-opus-5`／`high`。不得派發任何 Haiku；Sonnet 的推理強度不得低於 `high`。自動路由不得使用 `low`、`medium` 或 `max`，`max` 只在使用者針對該 Ticket 明確核准後使用。
+
+每個 Reviewer 的模型與 `model_reasoning_effort` 仍獨立套用 Task 角色設定；未指定時使用所選後端的預設值，但不得使用 Haiku，Sonnet 不得低於 `high`。派工時必須把明確設定傳給對應 Agent，不能只寫在 Task 狀態或委派文字中：平台原生派發工具提供 `reasoning_effort` 時，把 `model_reasoning_effort` 映射到該欄位；Codex CLI 使用同名設定鍵。Reviewer 的明確推理強度被後端拒絕時，以相同 CLI 與模型、不指定推理強度重試一次；明確模型被拒絕時，才以同一 CLI 不指定模型重試一次。Ticket 指定的 Developer 模型或強度被拒絕時回報 `BLOCKED: DEVELOPER_MODEL_UNAVAILABLE`，不得偷偷改用較低配置。啟用兩位 Reviewer 時，首輪 Review 完成前兩者不得互看結論。
+
+### Developer 升級
+
+下列任一條件成立時，以新的 Developer Agent 接手相同 Ticket、Snapshot 與既有證據，升級為 `claude-opus-5`／`xhigh`；這是能力升級，不是新增投票者：
+
+- Developer 提供可重現的能力不足證據，而非只表示工作困難。
+- 一個阻擋 Finding 證明核心實作方法無效。
+- 同一輪出現三個以上有獨立證據的重要 Findings。
+- 同一個有效 Finding 經兩輪修正仍未解決。
+
+若目前已是 `claude-opus-5`／`xhigh`，不得自動升到 `max`。保存觸發條件、原配置、新配置與交接證據。
+
+Reviewer B 未啟用時，不讀取或檢查 Open Code Review 設定。Reviewer B 啟用時，Open Code Review 是 Task 級可選項，不是必要後端：只讀取最新 `settings_update: open_code_review`；沒有該更新、`enabled` 不為 true、`delegate_ready` 不為 true、缺少已驗證的 OCR 絕對路徑、OCR 的 `environment` 不等於目前解析環境，或 `cli_status` 不是 installed 時，Reviewer B 使用 `review_engine: native`，不得自行偵測或安裝。只有該分區的最新狀態指定 `review_engine: open_code_review_delegate`，且 Reviewer B 的 `review_axis` 包含 `standards` 時，才把該值、共同執行環境與 OCR 絕對路徑交給 Reviewer B。Delegation Mode 只輔助 Standards Review 的檔案篩選與規則解析；不處理 Spec Review、不增加 Reviewer 數量，也不得呼叫 OCR 自帶 LLM。
 
 ## 安全並行排程
 
@@ -84,7 +103,7 @@ Reviewer B 未啟用時，不讀取或檢查 Open Code Review 設定。Reviewer 
 - Coordinator 透過委派訊息明確指定 `Developer`、`Reviewer A` 或 `Reviewer B`；不得依靠 Agent 自己猜。
 - 每份委派都包含同一份解析環境、WSL distribution、Shell、command prefix 與專案路徑；Agent 不得自行切換。
 - 每位啟用 Reviewer 都載入 `$milktea-skills-code-review`；不可用時回報 `BLOCKED: CODE_REVIEW_SKILL_UNAVAILABLE`，不得自行模擬。
-- 每份 Reviewer 契約都明寫 `reviewer_mode`、啟用名單與 `review_engine`。Reviewer A 固定為 `native`；Reviewer B 只依本 Task 最新的 OCR 分區狀態選擇 `native` 或 `open_code_review_delegate`。
+- 每份 Reviewer 契約都明寫 `reviewer_mode`、啟用名單、`review_axis` 與 `review_engine`。Reviewer A 固定為 `native`；Reviewer B 只有在負責 Standards 時才依本 Task 最新的 OCR 分區狀態選擇 `native` 或 `open_code_review_delegate`。
 - 每次委派都要明寫角色、Ticket、固定 Snapshot、輸入、權限、禁止事項與回報格式。
 
 ## Ticket 狀態機
@@ -95,14 +114,15 @@ Reviewer B 未啟用時，不讀取或檢查 Open Code Review 設定。Reviewer 
 2. 依派工契約，把每張 Ticket、必要文件、允許修改範圍及驗收指令分別交給新的臨時開發 Agent。
 3. 要求開發 Agent 在適用時按需載入 `$milktea-skills-tdd`；不適用時記錄理由與替代驗證。
 4. 告知開發 Agent：不得預載 `$milktea-skills-git-merge-conflict`；只有 merge、rebase 或 cherry-pick 實際回報衝突時才載入。Skill 不可用時回報 `BLOCKED: GIT_MERGE_CONFLICT_SKILL_UNAVAILABLE`。
-5. 由 Coordinator 依序把各 Ticket 狀態更新為「執行中」。開發 Agent 完成實作或衝突解決後只能回報 `Ready for Review`；未達所有啟用角色共識前不得標記完成、接另一張 Ticket 或釋放可續談識別。
-6. 收到任一 Ticket 的 `Ready for Review` 後，由 Coordinator 把該 Ticket 更新為「Review 中」，固定 path-scoped Review snapshot：基準、revision、Diff、檔案列表、並行工作樹狀態與必跑證據；在收到 Findings 或 Coordinator 指示前，該開發 Agent 不得繼續修改。
-7. 依 Reviewer 契約派出所有啟用 Reviewer；提供相同 snapshot、Spec、Ticket、兩份 `docs/planning/` 文件、`CONTEXT.md`、ADR 與開發證據。啟用兩位且 slots 足夠時同時派發；Reviewer A 的 `review_engine` 固定為 `native`，Reviewer B 依 Task 狀態取得引擎。
-8. 要求每位啟用 Reviewer 按需載入 `$milktea-skills-code-review`，獨立完成 Standards 與 Spec 兩軸 Review；不得檢查或評論其他並行 Ticket 的變更。
-9. 把所有啟用 Reviewer 的完整報告交給原開發 Agent；不得合併成模糊結論。開發 Agent 逐項重現，正確則在原所有權範圍內修正與重驗，錯誤則以程式、測試或文件反駁。
-10. 把修正、反證與新 path-scoped snapshot 交回原 Reviewer 複查。同一爭議完成一次證據交換仍無法解決時，交由使用者裁決，不無限消耗 Token。
-11. 所有阻擋與重要 Finding 關閉，且開發者與所有啟用 Reviewer 明確同意後，Coordinator 才把該 Ticket 更新為「完成」、保存最終證據並結束本 Ticket 的 Agent。
-12. 每當 Ticket 完成、阻擋或釋放資源鎖時，重新計算 Ready Queue 並立即補派下一批安全工作；相依 Ticket 只有在上游所有啟用角色達成共識後才可進入 Ready Queue。
+5. 由 Coordinator 依序把各 Ticket 狀態更新為「執行中」。Developer 在迭代期自行執行最小相關檢查；只有首次準備 Review 時才執行一次 Ticket 的完整驗收並回報 `Ready for Review`。未達各 Finding Owner 共識前不得標記完成、接另一張 Ticket 或釋放可續談識別。
+6. 收到 `Ready for Review` 後，由 Coordinator 把 Ticket 更新為「Review 中」，確認完整驗收證據後固定 path-scoped Review snapshot：基準、revision、Diff、檔案列表、並行工作樹狀態與驗收證據；在收到 Findings 或 Coordinator 指示前，Developer 不得繼續修改。
+7. 依 Reviewer 契約派出所有啟用 Reviewer；提供相同 snapshot、Spec、Ticket、兩份 `docs/planning/` 文件、`CONTEXT.md`、ADR 與開發證據。啟用兩位且 slots 足夠時同時派發，並依 `reviewer_mode` 指定各自唯一的 `review_axis`；Reviewer B 只有 Standards 軸可使用 OCR。
+8. 要求每位啟用 Reviewer 載入 `$milktea-skills-code-review`，只完成指定軸；不得檢查另一軸或評論其他並行 Ticket 的變更。單 Reviewer 模式才執行兩軸。
+9. Coordinator 把 Reviewer 報告並列交給原 Developer，只追蹤各 Finding 的 `open`、`fixed`、`withdrawn` 與 Owner；不得合併、重新評級或裁決。Developer 逐項重現，正確則在原所有權範圍內修正，錯誤則以程式、測試、正式文件或研究證據反駁。
+10. Findings 修正後，Coordinator 依實際影響明確指定要重跑的驗收；不得因修改行數少就省略高風險驗證，也不得預設重跑全套。把每個 Finding 的修正、反證與新 snapshot 只交回提出它的原 Reviewer 定向複驗；除非變更使原 Review 範圍或證據失效，不重新執行完整 Review。
+11. Developer 與 Finding Owner 有分歧時，持續使用最小辨別測試、第一手來源或 `$milktea-skills-research` 補證，直到 Owner 關閉或撤回 Finding。只有缺少產品價值、公開契約、不可逆資料處置或安全接受程度等關鍵決策時才交給使用者；不得因一次交換未果就上交，也不得用模型升級投票。
+12. 所有阻擋與重要 Finding 都由 Owner 關閉或撤回後，Coordinator 才把 Ticket 更新為「完成」、保存最終證據並結束本 Ticket 的 Agent；建議級 Finding 不得單獨阻擋完成。
+13. 每當 Ticket 完成、阻擋或釋放資源鎖時，重新計算 Ready Queue 並立即補派下一批安全工作；相依 Ticket 只有在上游完成後才可進入 Ready Queue。
 
 Reviewer B 回報 `OCR_DELEGATE_UNAVAILABLE` 時，Coordinator 保存錯誤證據，將同一固定 Snapshot 的 Reviewer B 契約改為 `review_engine: native` 後重試一次。此回退不得觸發安裝、更新、API Key 詢問或改派 Reviewer A；原生 Review 成功時把降級原因寫入 Ticket。
 
@@ -117,8 +137,8 @@ Reviewer B 回報 `OCR_DELEGATE_UNAVAILABLE` 時，Coordinator 保存錯誤證�
 1. 開始執行：execution environment、並行批次、排程判定、基準版本、開發角色、確切寫入範圍、資源鎖與必跑指令。
 2. `Ready for Review`：Snapshot、變更摘要與測試證據。
 3. 實際發生時：Debug 根因與回歸測試、Git 衝突取捨與驗證。
-4. 每輪 Review：所有啟用 Reviewer 的獨立完整報告、各自的 `review_engine`、OCR Delegation 證據或降級原因、開發者修正或反證、Reviewer 複查。
-5. 完成：最終 Snapshot、必跑結果、共識與未解風險。
+4. Review：各 Reviewer 的指定軸報告、Finding Owner 與狀態、各自的 `review_engine`、OCR Delegation 證據或降級原因、Developer 修正或反證、Owner 定向複驗。
+5. 完成：最終 Snapshot、首次完整驗收、Findings 後指定重驗、共識與未解風險。
 
 只追加，不覆寫既有紀錄。寫入失敗時保留完整內容並回報；補寫前不得把 Ticket 標記完成。
 
@@ -141,8 +161,8 @@ Reviewer B 回報 `OCR_DELEGATE_UNAVAILABLE` 時，Coordinator 保存錯誤證�
 - 所有核准 Tickets 與驗收條件均有可重現證據。
 - Planner 列出的所有必須保留功能均已依指定方式確認正常。
 - 必跑指令成功；失敗或未執行項目已明示。
-- 所有有效 Findings 已修正，錯誤 Findings 已由證據推翻。
-- Developer 與所有啟用 Reviewer 以隔離角色明確達成共識；降級情況已標示並取得使用者核准。
+- 所有阻擋與重要 Findings 已由原 Owner 關閉或撤回，建議級事項未被誤用為阻擋。
+- Developer 與各 Finding Owner 已依證據達成共識；Coordinator 未替雙方裁決或用模型投票。
 - 依 Ticket 與專案 Git 規則提交；未授權不得 Commit 或 Push。
 
-最後輸出每張 Ticket 的 execution environment、`reviewer_mode`、啟用 Reviewer、並行批次、排程判定、狀態、角色後端、實際模型、實際 `model_reasoning_effort` 或模型預設、啟用 Reviewer 的 `review_engine`、OCR Delegation 證據或降級原因、測試證據、各 Review 結論、共識、原有功能確認結果、未解風險與版本識別。
+最後輸出每張 Ticket 的 execution environment、初始與最終 Developer 配置、升級原因、`reviewer_mode`、Reviewer 的 `review_axis`、並行批次、排程判定、狀態、角色後端、實際模型與推理強度、`review_engine`、OCR Delegation 證據或降級原因、首次完整驗收、指定重驗、各 Finding 狀態、共識、原有功能確認結果、未解風險與版本識別。

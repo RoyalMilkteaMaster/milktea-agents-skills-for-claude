@@ -28,7 +28,7 @@ description: 由使用者明確呼叫的快速 Task 設定器。入口先讓使�
 - 掃描專案文件、磁碟、WSL、CLI 或 OCR。
 - 詢問角色、模型、推理強度、Reviewer 開關或 OCR。
 
-使用者已明說「改成 WSL」、「把 Reviewer A 改成 Codex low」、「只開 Reviewer A」或「關閉 OCR」等具體要求時，跳過入口選單，直接執行對應分支。
+使用者已明說「改成 WSL」、「把 Reviewer A 改成 Codex high」、「只開 Reviewer A」或「關閉 OCR」等具體要求時，跳過入口選單，直接執行對應分支。
 
 一次只執行一個分支。完成後輸出變更摘要並立即結束，不詢問是否還要調整其他項目。
 
@@ -83,7 +83,9 @@ Reviewer B: <cli> | <model 或 default> | <effort 或 default>
 
 只有一個後端可用時允許三個可設定角色共用，但標示缺少跨模型獨立性。執行時只為 Developer 與啟用 Reviewer 建立隔離 Agent。
 
-模型 ID 按使用者原文記錄，不猜測或改寫。`model_reasoning_effort` 可記錄 `low`、`medium`、`high`、`xhigh`、`max`、`ultra` 或使用者給的精確值，留待派工時由後端驗證；它是推理強度，不是 Token 上限。
+模型 ID 按使用者原文記錄，不猜測或改寫。不得為任何角色設定 Haiku；Sonnet 的 `model_reasoning_effort` 必須是 `high`、`xhigh`、`max` 或更高的使用者明確值。`max` 只在使用者明確指定時記錄。其他模型的推理強度可依使用者原文保存，留待派工時由後端驗證；它是推理強度，不是 Token 上限。
+
+新格式 Ticket 的 Developer 模型與推理強度由 Ticket 的「初始執行配置」控制；本分支的 Developer 設定只作為 CLI 偏好與舊 Ticket 的明確回退。要更改已核准 Ticket 的模型時，必須更新該 Ticket，不得用 Task 設定無聲覆蓋。
 
 只更新使用者填寫的角色，其他角色保持不變。完成後退出。
 
@@ -109,7 +111,7 @@ Reviewer B: <cli> | <model 或 default> | <effort 或 default>
 
 其他情況先用白話說明：
 
-> Open Code Review（OCR）不是圖片文字辨識。它可以替 Reviewer B 整理 Git 變更檔案與 Review 規則，真正判斷仍由 Reviewer B 的 Claude／Codex 完成；Delegation Mode 不需要 OCR 的 LLM API Key。要為目前 Task 開啟嗎？
+> Open Code Review（OCR）不是圖片文字辨識。它可以替 Reviewer B 的 Standards Review 整理 Git 變更檔案與 Review 規則，真正判斷仍由 Reviewer B 的 Claude／Codex 完成；Spec Review 不交給 OCR，Delegation Mode 也不需要 OCR 的 LLM API Key。要為目前 Task 開啟嗎？
 
 提供「維持／改為關閉（建議）」與「開啟」。未取得肯定回答，不得偵測或安裝。
 
@@ -136,7 +138,7 @@ settings_update: roles
 reviewer_a:
   cli: codex
   model: gpt-5.6-luna
-  model_reasoning_effort: low
+  model_reasoning_effort: high
 ```
 
 Reviewer 開關只輸出單一合法模式：

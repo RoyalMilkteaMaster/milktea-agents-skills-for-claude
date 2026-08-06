@@ -23,6 +23,8 @@ description: 協調既有專案的安全重構規劃。先確認盤點範圍與�
 - 使用者只需要報告時，不產生 Spec、Tickets 或 Implement 交接。
 - 使用者決定繼續重構後，才進入規劃與派工文件階段；不得在 Planner Task 實作。
 
+先以本地程式碼、Runtime、文件與 Architecture Auditor 還原現況。使用者明確要求研究，或外部框架、API、標準等未驗證事實會實質影響報告或重構判斷時，才按需載入 `$milktea-skills-research`；它不取代本地盤點，也不是固定前置階段。研究進行時可繼續不依賴答案的工作。
+
 ## 流程
 
 依序完成，不跳過報告決策關卡：

@@ -46,7 +46,7 @@ Grill Me
   ↓
 貼到新的 Claude Code 對話
   ↓
-Implement → 安全並行 Developers → 每票 Reviewer A + Reviewer B 獨立審查
+Implement → 依 Ticket 模型安全並行 Developers → Reviewer A 審 Spec + Reviewer B 審 Standards
 ```
 
 ### 整理既有專案(brownfield-refactor-planner)
@@ -152,37 +152,36 @@ Implement 會先讀取全部 Tickets，依相依關係、寫入範圍與共享�
 
 ### 4. 快速調整 Task 設定
 
-使用 `/milktea-agents-skills-for-claude:milktea-skills-set-agent-roles`。
+使用 `/milktea-skills-set-agent-roles`。
 
-只有想改變目前 Task 的環境、角色或 Reviewer B OCR 時才需要。它不會開始派工，也不會影響其他 Task。
+他是 milktea-skill 專案的設定功能。
 
+當想要改變目前的開發環境(windows/linus)、模型角色(寫程式交給claude/codex/gemini)或開始 Reviewer B OCR 時才會使用到他。
+它不具派工功能，也不會影響其他 Task。
+
+進行到一半的任務不受更改後的設定影響。
 請在實際執行 Tickets 的 Task 中使用，並在下一張 Ticket 尚未派發前完成設定。
 
+/milktea-skills-set-agent-roles
 進入後只問這次要調整哪一項：
 
 1. 開發環境
 2. 角色設定
-3. Reviewer B OCR
-
-只執行選中的分支，完成後立即結束；不會接著追問另外兩項。使用者若已直接說「改成 WSL」、「Reviewer A 改成 Codex low」或「關閉 OCR」，會跳過選單。角色設定以一份批次表單收集，不會依序詢問三個角色；未填的角色保持原設定。
-
-選擇「開發環境」後才會提供 Windows PowerShell、WSL、其他已安裝 CLI 的環境三個子選項。WSL 會讀取實際 distribution，不假設一定是 Ubuntu；其他環境才由 AI 唯讀尋找 cmd、Git Bash、Container 等已可用環境。偵測不會替你安裝或登入工具。選定後，Developer、兩位 Reviewer、Git、測試與可選 OCR 都使用同一個環境。
+3. Reviewer A ＋ B
+4. 只開 Reviewer A
+5. 只開 Reviewer B
+6. Reviewer B OCR
 
 <details>
 <summary>可直接複製的用法</summary>
 
 ```text
 請使用：
-/milktea-agents-skills-for-claude:milktea-skills-set-agent-roles
+/milktea-skills-set-agent-roles
 
-讓我選這次只調整開發環境、角色設定或 Reviewer B OCR；完成後立即結束。
 ```
 
 </details>
-
-
-
-
 
 ## 快速開始
 
@@ -281,7 +280,7 @@ Antigravity CLI 沒有另外的 `auth login` 指令。第一次執行 `agy` 時�
 
 ### Open Code Review審查助手(可選項、非必要)
 
-[Alibaba Open Code Review](https://github.com/alibaba/open-code-review) 是外部開源 AI 代碼審查助手。  
+[Alibaba Open Code Review](https://github.com/alibaba/open-code-review) 是外部開源 AI 代碼審查助手。
 
 相較於通用型 Agent 審查，Open Code Review 在使用相同底層模型的情況下，展現出更高的準確率（Precision）與 F1 綜合得分。此外，相較於未採用 Open Code Review 的通用 Agent，其 Token 消耗僅約為九分之一，審查速度也更快。
 
@@ -296,10 +295,10 @@ Milktea 不會把它包進專案，也不會讓所有 Reviewer 強制使用。
 
 ```
 
-選擇 Reviewer B 開啟 OCR 時，才會進入兩層確認：
+選擇 Reviewer B 開啟 OCR 時，才會進入兩層確認。OCR 只輔助 Reviewer B 的 Standards Review；Spec Review 仍由原生 Reviewer 執行：
 
 1. 是否為 Reviewer B 開啟 OCR，並先解釋功能、資料邊界與 API Key 行為。
 2. 只有已開啟但目前環境沒有可用 `ocr` 時，才再詢問是否安裝；同意後才執行固定版本的 npm 全域安裝並驗證。
 
-安裝前會檢查 OCR 官方需求 Git ≥ 2.41、Node.js ≥ 18 與 npm。Milktea 不會擅自安裝或升級這三個系統工具。  
+安裝前會檢查 OCR 官方需求 Git ≥ 2.41、Node.js ≥ 18 與 npm。Milktea 不會擅自安裝或升級這三個系統工具。<br>
 拒絕安裝、條件不足或 OCR 執行失敗時，Reviewer B 會安全回退到原生 Review。

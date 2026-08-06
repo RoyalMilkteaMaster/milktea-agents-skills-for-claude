@@ -1,6 +1,6 @@
 ---
 name: milktea-skills-to-ticket
-description: 將已核准中文規格拆成可獨立派工、驗證與 Review 的 Tickets，固定每票寫入 docs/work/功能名稱/tickets/，並在核准後產生可交給新執行 Task 的共用啟動內容。標示依賴、安全並行、寫入所有權、Agent 角色、驗收條件與啟用角色共識規則。由 milktea-skills-grill-me 在拆票階段調用，或在使用者要求把規格拆成 Tickets 時使用；不開始實作。
+description: 將已核准中文規格拆成可獨立派工、驗證與 Review 的 Tickets，為每票選擇 Sonnet 5／high 或 Opus 5／high 及升級路徑，並標示依賴、安全並行、寫入所有權、分層驗收、Agent 角色與雙軸 Review。固定寫入 docs/work/功能名稱/tickets/，核准後產生新執行 Task 的共用啟動內容；不開始實作。
 ---
 
 # Milktea Skills To Ticket
@@ -28,6 +28,15 @@ Spec 缺少時停止，不猜測。
 5. 逐票寫入固定目錄。
 6. 顯示完整拆分、關係與實際路徑，要求使用者核准；核准後把狀態改為「已核准」，不派工、不實作。
 
+## Developer 模型路由
+
+每張 Ticket 都必須指定初始 Developer 模型、`model_reasoning_effort`、理由與升級路徑。不得使用 Haiku；自動路由只使用下列兩種起點：
+
+- 只有在工作明確、局部、低風險，已有相鄰實作可沿用及秒級驗證，且不涉及跨模組設計、Schema、Migration、權限、安全、資料風險或公開介面時，使用 `claude-sonnet-5`／`high`。典型工作是文件、註解、固定格式轉換、局部文案或已有模式的小修改。
+- 其他工作一律使用 `claude-opus-5`／`high`。不確定是否簡單時也使用此配置。
+
+固定升級路徑為 `claude-opus-5`／`xhigh`。`max` 只能由使用者針對該 Ticket 明確核准；不得自動選擇 `low`、`medium` 或 `max`。Reviewer 的模型仍由執行 Task 的角色設定獨立控制。
+
 ## Ticket 格式
 
 ```markdown
@@ -52,8 +61,10 @@ Spec 缺少時停止，不猜測。
 ## 測試與證據
 
 - 測試接縫：
-- 必跑指令：
-- 必交證據：測試結果、必要的執行輸出與變更摘要。
+- 迭代期快速檢查：秒級、與目前修改直接相關的測試、型別、lint 或 validator。
+- Ready for Review 完整驗收：只在首次準備 Review 前執行一次的指令。
+- Findings 修正後：由 Coordinator 依影響範圍指定要重跑的指令，不預設重跑全套。
+- 必交證據：Ready for Review 的完整驗收結果、退出碼、必要執行輸出與變更摘要。
 - 保存位置：本 Ticket 的「執行與 Review 紀錄」。
 
 ## 依賴
@@ -68,20 +79,28 @@ Spec 缺少時停止，不猜測。
 - Shared resource locks：無／實際資源
 - Can run with：無／Ticket
 
+## 初始執行配置
+
+- Developer model：`claude-sonnet-5`／`claude-opus-5`
+- model_reasoning_effort：`high`
+- 路由理由：符合的具體條件
+- 升級路徑：`claude-opus-5`／`xhigh`；`max` 需使用者明確核准
+- Research 證據：無／實際 Markdown 路徑
+
 ## Agent 分工
 
 - Developer：負責實作、驗證、修正或以證據反駁 Findings
-- Reviewer A：啟用時使用隔離上下文執行 Review
-- Reviewer B：啟用時使用另一個隔離上下文執行 Review
+- Reviewer A：`both` 時只執行 Spec Review；`a_only` 時執行 Spec 與 Standards
+- Reviewer B：`both` 時只執行 Standards Review；`b_only` 時執行 Spec 與 Standards
 - Reviewer 模式：由執行 Task 最新 `settings_update: reviewers` 決定；預設 `both`，Ticket 不自行固定或搜尋設定
-- Reviewer 標準：每位啟用 Reviewer 都載入 `$milktea-skills-code-review`，並同時執行 Standards 與 Spec Review
-- CLI 與模型：由執行 Task 的 Coordinator 依目前 Task 分工與實際可用能力決定
+- Reviewer 標準：每位啟用 Reviewer 都載入 `$milktea-skills-code-review`，只執行 Coordinator 指定的 `review_axis`
+- CLI 與模型：Developer 初始模型與推理強度以上述配置為準；Reviewer 由執行 Task 的角色設定獨立決定
 
 ## 完成規則
 
-- Developer 與所有啟用 Reviewer 已處理所有可重現且有證據的問題。
-- 沒有未解決的正確性、可執行性、可讀性、架構或衍生風險。
-- Developer 與所有啟用 Reviewer 對完成狀態達成共識。
+- Developer 與各 Finding 的原 Reviewer 已處理所有可重現且有證據的問題。
+- 沒有未解決的阻擋或重要正確性、可執行性、可讀性、架構或衍生風險。
+- Developer 與各 Finding Owner 對關閉或撤回事由達成共識。
 
 ## 執行與 Review 紀錄
 ```
@@ -99,9 +118,12 @@ Spec 缺少時停止，不猜測。
 ## Review 共識
 
 - Reviewer 的目標是驗證能跑、符合 Spec、可讀、架構清楚且無明顯衍生問題，不是強迫找錯。
+- `both` 模式由 Reviewer A 審 Spec、Reviewer B 審 Standards；單 Reviewer 模式才由該 Reviewer 覆蓋兩軸，避免重複審查。
 - 開發 Agent 不得照單全收 Reviewer 建議；必須重現、查證或以測試驗證。
-- 建議不正確時，開發 Agent 應提出證據並維持立場；Reviewer 也必須依證據修正判斷。
-- 有合理分歧時繼續交換證據，直到 Developer 與所有啟用 Reviewer 同意修改、接受現況或明確回報使用者裁決。
+- 每個 Finding 由提出它的原 Reviewer 擁有；Developer 修正或反駁後，只交回該 Owner 定向複驗。Coordinator 不重排嚴重度、不合併成裁決，也不用另一個模型投票。
+- 建議不正確時，Developer 應提出證據並維持立場；Finding Owner 也必須依證據關閉、降級或撤回。
+- 證據依序採信：可重現失敗與安全／資料風險、核准 Spec 與驗收條件、ADR／正式標準／公開契約、測試與型別證據、經驗法則、個人偏好。
+- 有合理分歧時使用最小辨別測試、第一手來源或 `$milktea-skills-research` 繼續查證，直到雙方同意。只有缺少產品價值、公開契約、不可逆資料處置或安全接受程度等關鍵決策時才交給使用者。
 - 未達共識前，Ticket 不得標記完成，開發 Agent 不得休息或接下一張 Ticket。
 
 只有單一 CLI 可用時，所有啟用角色仍須彼此隔離並明示缺少跨模型獨立性；不得因此跳過 Review。

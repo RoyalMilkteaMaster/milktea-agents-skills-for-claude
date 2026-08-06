@@ -1,6 +1,6 @@
 {
   "name": "milktea-agents-skills-for-claude",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "description": "給 Claude Code 使用的繁體中文 AI 開發協作 Skills。",
   "author": {
     "name": "Milktea"

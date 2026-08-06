@@ -55,9 +55,10 @@ Preview 與 Coordinator 的固定檔案列表或 revision 不一致時停止並�
 
 使用 `--` 分隔 revision 與路徑，避免路徑被解讀為 option。所有命令都必須在同一 repo 與固定 Snapshot 上執行。
 
-## 4. Milktea Review
+## 4. Milktea Standards Review
 
-- 對每個 Reviewable 檔案，以解析到的 Rule Group 作為額外清單，再完整執行 `milktea-skills-code-review` 的 Standards 與 Spec Review。
+- 對每個 Reviewable 檔案，以解析到的 Rule Group 作為額外清單，只輔助 `milktea-skills-code-review` 的 Standards Review。
+- `review_axis: both` 時，Spec Review 仍由 Reviewer B 依原生固定 Snapshot 執行，不使用 OCR 規則判斷規格是否達成。
 - Excluded 檔案不做逐行 OCR Review，但仍列在報告；若它對驗收、資料流或 Reviewable 檔案的行為有必要影響，可唯讀檢查上下文。
 - OCR 規則不得蓋過 Spec、Ticket、專案規範或安全要求。
 - 使用 Milktea 原有的阻擋／重要／建議嚴重度與 Finding 格式，不把 OCR 腳手架描述成另一個模型的結論。

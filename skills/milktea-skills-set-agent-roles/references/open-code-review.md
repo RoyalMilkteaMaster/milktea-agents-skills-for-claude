@@ -5,7 +5,7 @@
 ## 固定邊界
 
 - 預設關閉；只有使用者在目前 Task 明確開啟才生效。
-- 只提供 Reviewer B 使用；Reviewer A 永遠使用原生 Review。
+- 只提供 Reviewer B 的 Standards Review 使用；Reviewer A 與所有 Spec Review 永遠使用原生流程。
 - 只使用 Delegation Mode：`ocr delegate preview` 與 `ocr delegate rule`。
 - OCR 只負責 Git 變更檔案篩選、排除原因與 Review 規則解析；實際推理與 Findings 由 Reviewer B 的宿主模型完成。
 - 不執行 `ocr review`、`ocr scan`、`ocr llm test` 或 `ocr config set`，不索取、不儲存 LLM API Key。
@@ -18,7 +18,7 @@
 
 先用白話說明：
 
-> Open Code Review 可以替 Reviewer B 整理這次 Git 變更中應審查與被排除的檔案，並解析適用的 Review 規則。真正讀程式、判斷問題及產生報告的仍是 Reviewer B，因此不需要另外提供 OCR 的 LLM API Key。要為目前 Task 開啟嗎？
+> Open Code Review 可以替 Reviewer B 的 Standards Review 整理這次 Git 變更中應審查與被排除的檔案，並解析適用的 Review 規則。真正讀程式、判斷問題及產生報告的仍是 Reviewer B；Spec Review 不交給 OCR，因此不需要另外提供 OCR 的 LLM API Key。要為目前 Task 開啟嗎？
 
 未取得肯定回答時停止 OCR 流程，不得連偵測命令都執行。
 

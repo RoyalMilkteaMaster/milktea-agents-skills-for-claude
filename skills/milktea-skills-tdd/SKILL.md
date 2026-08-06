@@ -1,6 +1,6 @@
 ---
 name: milktea-skills-tdd
-description: 供臨時開發 Agent 依已核准 Ticket 與測試接縫按需載入。採用單一垂直切片的 Red、Green、Refactor 循環，測試公開行為、先重現 Bug、避免耦合實作細節，並回報可重現證據。Implement Coordinator 只要求使用與接收證據，不親自執行 TDD。
+description: 供臨時開發 Agent 依已核准 Ticket 與測試接縫按需載入。以最小垂直切片執行 Red、Green 與必要時 Refactor，測試公開行為、先重現 Bug，內部迭代不逐次回報，只在 Ready for Review 提交精簡可重現證據。Implement Coordinator 不親自執行 TDD。
 ---
 
 # Milktea Skills TDD
@@ -39,7 +39,7 @@ description: 供臨時開發 Agent 依已核准 Ticket 與測試接縫按需載�
 
 1. **Red**：透過公開介面新增一個測試；執行並確認它因預期原因失敗。
 2. **Green**：只寫足以通過該測試的程式；執行目標測試。
-3. **Refactor**：改善命名、重複與結構，不改行為；重新執行目標測試。
+3. **Refactor（必要時）**：只有目前切片出現明確重複、命名或結構問題時才做最小整理；不為了形式擴大重構。執行後重新跑目標測試。
 4. 通過後再選下一個行為。
 
 測試一開始就通過時，先確認需求是否已存在、測試是否無效或 Bug 是否未重現；不得假裝完成 Red。
@@ -56,12 +56,11 @@ description: 供臨時開發 Agent 依已核准 Ticket 與測試接縫按需載�
 
 ## 回報
 
-每個切片回報：
+Red／Green／Refactor 是 Developer 的內部迭代，不逐切片回報 Coordinator。保留必要輸出，首次準備 `Ready for Review` 時一次交付：
 
-- 行為與測試接縫。
-- Red 失敗原因。
-- Green／Refactor 後的測試結果。
-- 變更檔案與指令退出碼。
+- 完成的行為與測試接縫。
+- 能證明 Red 因預期原因失敗的最小證據。
+- 最終目標測試的指令、退出碼與關鍵輸出。
 - 既有失敗、跳過項目與理由。
 
-完成後把證據交回 Implement Coordinator；完整測試與 Review 仍由執行流水線負責。
+完整驗收只由 Implement 的 Ready for Review 關卡執行一次；Findings 修正後依 Coordinator 指定的影響範圍重跑，不在每個 TDD 切片重跑全套。
