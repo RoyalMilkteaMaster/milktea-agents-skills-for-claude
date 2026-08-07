@@ -1,9 +1,9 @@
 ---
 name: milktea-skills-brownfield-refactor-planner
-description: 協調既有專案的安全重構規劃。先確認盤點範圍與不可破壞的功能，再明確載入 milktea-skills-improve-codebase-architecture 產生唯讀 HTML 架構報告；使用者看完可直接結束，只有決定繼續重構時才確認目標架構、產生 Spec 與 Tickets，最後交給 Brownfield Implement。使用者要求整理混亂架構、去重、清理廢棄內容、改善可讀性或評估局部重建時使用；不修改來源碼或清除資料。
+description: 協調既有專案的安全重構規劃。先確認盤點範圍與不可破壞的功能，載入 milktea-skills-improve-codebase-architecture 完成唯讀盤點，再以 brownfield-planner 固定識別呼叫共用 HTML 報告技能產生架構健檢決策報告；使用者看完可直接結束，只有決定繼續重構時才確認目標架構、產生 Spec 與 Tickets，最後交給 Brownfield Implement。
 ---
 
-# Milktea Skills Brownfield Refactor Planner
+# Milktea 既有系統重構規劃
 
 ## 使用時機
 
@@ -16,7 +16,7 @@ description: 協調既有專案的安全重構規劃。先確認盤點範圍與�
 啟動後，本 Task 的 Core Agent 進入 `Brownfield Refactor Planner` 角色，負責範圍確認、Skill 編排、使用者核准與最後交接。
 
 - 先理解現有行為、資料和限制，再開始架構健檢。
-- 不重做 Architecture Auditor 的唯讀盤點或 HTML 報告。
+- 不重做 Architecture Auditor 的唯讀盤點；HTML 只依它回傳的證據產生。
 - 不修改來源碼，不移動、重新命名或刪除專案資料，不安裝依賴，不 Commit 或 Push。
 - 工作目錄內尚未提交的修改視為使用者進行中的工作，不得列為垃圾。
 - 搜尋不到使用位置時只能列為候選；不得直接建議刪除。
@@ -30,11 +30,12 @@ description: 協調既有專案的安全重構規劃。先確認盤點範圍與�
 依序完成，不跳過報告決策關卡：
 
 1. 確認盤點目標與邊界。
-2. 載入 `$milktea-skills-improve-codebase-architecture` 產生 HTML 架構報告。
-3. 讓使用者看完報告並決定是否繼續。
-4. 只有決定繼續時，確認目標架構與原有功能驗證方式。
-5. 產生並核准 Spec 與 Tickets。
-6. 顯示 Brownfield Implement 交接內容。
+2. 載入 `$milktea-skills-improve-codebase-architecture` 完成唯讀架構盤點。
+3. 以呼叫者識別 `brownfield-planner` 載入 `$milktea-skills-html-report` 產生架構健檢決策報告。
+4. 讓使用者看完報告並決定是否繼續。
+5. 只有決定繼續時，確認目標架構與原有功能驗證方式。
+6. 產生並核准 Spec 與 Tickets。
+7. 顯示 Brownfield Implement 交接內容。
 
 ### 1. 確認盤點目標與邊界
 
@@ -49,9 +50,9 @@ description: 協調既有專案的安全重構規劃。先確認盤點範圍與�
 
 能從程式庫與文件確認的事實自行查證。問題很小或答案已明確時，省略無用提問。
 
-### 2. 產生 HTML 架構報告
+### 2. 完成唯讀架構盤點
 
-明確載入 `$milktea-skills-improve-codebase-architecture`。Skill 不存在時，回報缺少的 Skill 並停止；不得自行模擬另一套報告流程。
+明確載入 `$milktea-skills-improve-codebase-architecture`。Skill 不存在時，回報缺少的 Skill 並停止；不得自行模擬另一套盤點流程。
 
 把下列已確認內容交給 Architecture Auditor：
 
@@ -62,9 +63,22 @@ description: 協調既有專案的安全重構規劃。先確認盤點範圍與�
 - 可安全執行的基準驗證及禁止執行的操作。
 - 使用者已確認的限制、未知與風險。
 
-Architecture Auditor 負責唯讀 Snapshot、架構與資料流還原、共用位置追蹤、條件式 Logging 盤點、清理候選、方案比較及 HTML 報告。Planner 不重複掃描或維護第二份報告規格。
+Architecture Auditor 負責唯讀 Snapshot、架構與資料流還原、共用位置追蹤、條件式 Logging 盤點、清理候選、方案比較與原有功能基準。Planner 不重複掃描。
 
-### 3. 報告決策關卡
+### 3. 產生架構健檢決策報告
+
+完整收到 Architecture Auditor 的盤點證據後，載入 `$milktea-skills-html-report`，明確傳入：
+
+- 呼叫者識別：`brownfield-planner`。
+- 觸發階段：唯讀架構盤點完成，等待使用者決定是否繼續。
+- 專案名稱、掃描範圍與輸出路徑。
+- Architecture Auditor 的完整盤點證據與實際來源。
+
+固定使用 Brownfield Planner 專屬規格與模板，寫入 `docs/architecture-reviews/YYYY-MM-DD-<範圍>.html`。不得讀取或混用 Grill-me、Implement 或 Brownfield Implement 的規格。
+
+共用 HTML 報告技能不存在時回報 `BLOCKED: HTML_REPORT_SKILL_UNAVAILABLE`；驗證未通過時修正同一份報告，通過前不得進入決策關卡。
+
+### 4. 報告決策關卡
 
 先驗證 HTML 報告存在，再只用下列兩行格式交付；把占位符換成可直接點擊的實際絕對路徑，路徑含空格時在 Markdown 連結目標外加角括號，不在聊天框重述報告結論、候選、風險、未知、命令或證據：
 
@@ -82,11 +96,11 @@ HTML 報告：[開啟架構健檢報告](<實際絕對路徑>)
 
 選擇只保留報告時，完成本 Task；不得產生空白或草稿 Spec／Tickets，也不得顯示 Implement 交接。
 
-選擇修改時，把具體回饋交回 `$milktea-skills-improve-codebase-architecture`，更新同一份 HTML；不得建立 `final`、`new` 或 `v2` 副本。更新後重新回到本關卡。
+選擇修改時，若回饋涉及盤點事實就交回 `$milktea-skills-improve-codebase-architecture` 補證；再以相同呼叫者識別交給 `$milktea-skills-html-report` 更新同一份 HTML。不得建立 `final`、`new` 或 `v2` 副本。更新後重新回到本關卡。
 
 只有使用者選擇繼續，才記錄採用的改善候選、拒絕的候選及理由，進入下一階段。
 
-### 4. 確認目標架構與驗證
+### 5. 確認目標架構與驗證
 
 載入 `$milktea-skills-grill-architecture`，只把使用者選定的報告候選整理成正式架構決策；不得重新進行完整健檢、重問報告已完成的正式 Log 判定，或新增報告未提出且使用者未核准的重構範圍。
 
@@ -100,7 +114,7 @@ HTML 報告：[開啟架構健檢報告](<實際絕對路徑>)
 
 所有必須保留的功能都要有修改前可重現的驗證方式。無法驗證的項目列為阻擋或交由使用者決定，不得宣稱一定不會壞。
 
-### 5. 產生 Spec 與 Tickets
+### 6. 產生 Spec 與 Tickets
 
 1. 既有需求文件缺少、過期或衝突時，載入 `$milktea-skills-grill-check-needs`，只補本次重構需要的決策。
 2. 以 Planner 上游模式載入 `$milktea-skills-to-spec`，把已核准的報告選擇與架構決策寫入 `docs/work/<功能名稱>/spec.md`。
@@ -110,7 +124,7 @@ HTML 報告：[開啟架構健檢報告](<實際絕對路徑>)
 
 `to-spec` 與 `to-ticket` 只整理已核准的報告選擇及架構決策，不得臨時新增需求或擴大重構範圍。
 
-### 6. 唯一 Task 交接
+### 7. 唯一 Task 交接
 
 Spec 與 Tickets 核准後，顯示下列同一份內容，並把所有占位符換成實際值；不得縮短、改寫或產生第二版本：
 
@@ -136,7 +150,7 @@ Codex Desktop 有使用者可見的頂層 Task 建立工具時，顯示內容後
 
 ### 報告結束
 
-- HTML 報告已產生並顯示實際路徑。
+- HTML 報告已使用呼叫者識別 `brownfield-planner` 產生、通過驗證並顯示實際路徑。
 - 使用者明確選擇只保留報告。
 - 沒有產生 Spec、Tickets、交接內容或修改程式。
 

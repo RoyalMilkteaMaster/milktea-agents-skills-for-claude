@@ -1,9 +1,9 @@
 ---
 name: milktea-skills-brownfield-refactor-implement
-description: 執行使用者從 Brownfield Refactor Planner 交接的 HTML、Spec 與 Tickets。依 Ticket 指定的 Developer 模型與推理強度派工，必要時升級至 Opus 5／xhigh；安全並行執行互不衝突的重構，把 Spec 與 Standards 分給獨立 Reviewer，完成定向複驗後再確認 Planner 列出的原有功能。使用者把 Brownfield Planner 交接內容貼到新的執行 Task 時使用。
+description: 執行 Brownfield Refactor Planner 交接的 HTML、Spec 與 Tickets，安全並行完成重構、獨立 Review、定向複驗及原有功能確認；整個 Task 的所有 Tickets、相容性與最終總驗收完成後，才以 brownfield-implement 固定識別呼叫共用 HTML 報告技能產生一次重構完成與相容性驗收報告。
 ---
 
-# Milktea Skills Brownfield Refactor Implement
+# Milktea 既有系統重構實作
 
 啟動後，本 Task 的 Core Agent 立即進入 `Brownfield Refactor Implement Coordinator` 角色，直到所有核准 Tickets 完成、使用者停止或工作確實受阻。
 
@@ -165,4 +165,25 @@ Reviewer B 回報 `OCR_DELEGATE_UNAVAILABLE` 時，Coordinator 保存錯誤證�
 - Developer 與各 Finding Owner 已依證據達成共識；Coordinator 未替雙方裁決或用模型投票。
 - 依 Ticket 與專案 Git 規則提交；未授權不得 Commit 或 Push。
 
-最後輸出每張 Ticket 的 execution environment、初始與最終 Developer 配置、升級原因、`reviewer_mode`、Reviewer 的 `review_axis`、並行批次、排程判定、狀態、角色後端、實際模型與推理強度、`review_engine`、OCR Delegation 證據或降級原因、首次完整驗收、指定重驗、各 Finding 狀態、共識、原有功能確認結果、未解風險與版本識別。
+## 最終 HTML 驗收報告
+
+只有上述完成規則全部成立，且再次確認整個 Task 沒有執行中、Review 中、修正中、受阻或未完成的 Ticket，Planner 報告列出的必須保留功能也全部通過後，才載入 `$milktea-skills-html-report`，並明確傳入：
+
+- 呼叫者識別：`brownfield-implement`。
+- 觸發階段：全部重構 Tickets、Review、修正、複驗、原有功能確認與最終總驗收均已完成。
+- 功能名稱與輸出路徑：`docs/work/<功能名稱>/completion-report.html`。
+- Planner HTML、核准方案、Spec、全部 Tickets、實際 Diff、清理處置、架構與資料流差異、修改前後基準、回歸測試、Reviewer、Finding、風險與版本證據。
+
+固定使用 Brownfield Implement 專屬規格與模板；不得讀取或混用另外三種報告。每張 Ticket 的 execution environment、Developer 配置、升級原因、`reviewer_mode`、`review_axis`、並行批次、`review_engine`、驗收、重驗與 Finding 證據寫入報告的收合區，不在聊天框逐票列出。
+
+單張 Ticket 完成、單次 Review、修正、複驗或原有功能單項確認時禁止產生或更新 HTML。任一 Ticket 或必須保留功能未通過時只回報阻擋，待全部完成後才產生一次。
+
+共用 HTML 報告技能不存在時回報 `BLOCKED: HTML_REPORT_SKILL_UNAVAILABLE`。報告驗證失敗時修正同一檔案，通過前不得宣稱重構已完整交付。
+
+驗證通過後聊天框只顯示：
+
+```markdown
+重構與相容性驗收通過。
+
+HTML 報告：[開啟重構完成與相容性驗收報告](<實際絕對路徑>)
+```

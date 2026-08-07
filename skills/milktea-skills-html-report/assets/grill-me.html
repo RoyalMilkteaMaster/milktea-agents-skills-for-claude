@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-Hant" data-report-profile="grill-me" data-report-status="ready-for-approval">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{功能名稱}}｜實作藍圖核准報告</title>
+  <style>
+    :root {
+      --靛藍: #3432a8;
+      --深紫: #211d58;
+      --青色: #17a7b8;
+      --格線: rgba(75, 78, 170, .08);
+      --淡紫: #f1f0ff;
+      --白色: #ffffff;
+      --文字: #191b3a;
+      --淡字: #636786;
+      --線條: #d8d9ec;
+      --警示: #c16b1a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--文字);
+      background-color: #f7f7fc;
+      background-image:
+        linear-gradient(var(--格線) 1px, transparent 1px),
+        linear-gradient(90deg, var(--格線) 1px, transparent 1px);
+      background-size: 24px 24px;
+      font-family: "Microsoft JhengHei", system-ui, sans-serif;
+      line-height: 1.6;
+    }
+    .頁面 { width: min(1240px, calc(100% - 36px)); margin: 0 auto; padding: 30px 0 64px; }
+    .藍圖頁首 { position: relative; overflow: hidden; padding: 46px; border-radius: 24px; color: white; background: linear-gradient(120deg, var(--深紫), var(--靛藍) 62%, #177b9c); box-shadow: 0 20px 48px rgba(40, 36, 108, .2); }
+    .藍圖頁首::after { content: ""; position: absolute; right: -70px; top: -110px; width: 310px; height: 310px; border: 45px solid rgba(255,255,255,.08); border-radius: 50%; }
+    .眉題 { margin: 0 0 8px; color: #9ce5ee; font-weight: 800; letter-spacing: .15em; }
+    h1 { margin: 0; max-width: 850px; font-size: clamp(2rem, 5vw, 4rem); line-height: 1.08; }
+    .摘要 { max-width: 800px; color: #d9dcff; font-size: 1.08rem; }
+    .藍圖指標 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 26px; }
+    .藍圖指標 div { padding: 14px; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; background: rgba(255,255,255,.09); backdrop-filter: blur(8px); }
+    .藍圖指標 small { display: block; color: #c4c7f6; }
+    .藍圖指標 strong { display: block; margin-top: 3px; }
+    main { display: grid; gap: 18px; margin-top: 20px; }
+    section { position: relative; padding: 30px; border: 1px solid var(--線條); border-radius: 16px; background: rgba(255,255,255,.96); box-shadow: 0 10px 25px rgba(39, 37, 91, .06); }
+    section::before { content: attr(data-step); position: absolute; right: 22px; top: 18px; color: #dbdcf1; font-size: 2.5rem; font-weight: 900; }
+    h2 { margin: 0 0 18px; color: var(--深紫); font-size: 1.55rem; }
+    .指標列, .雙欄, .泳道 { display: grid; gap: 14px; }
+    .指標列 { grid-template-columns: repeat(4, 1fr); }
+    .雙欄 { grid-template-columns: repeat(2, 1fr); }
+    .卡片 { padding: 17px; border: 1px solid var(--線條); border-radius: 12px; background: var(--白色); }
+    .卡片 strong { display: block; color: var(--靛藍); font-size: 1.2rem; }
+    .票券列 { display: flex; gap: 12px; overflow-x: auto; padding: 8px 2px 15px; }
+    .票券 { flex: 0 0 230px; min-height: 135px; padding: 16px; border-top: 5px solid var(--青色); border-radius: 12px; background: var(--淡紫); }
+    .票券 small { color: var(--淡字); }
+    .票券 strong { display: block; margin: 5px 0; }
+    .依賴線 { color: var(--靛藍); font-weight: 900; align-self: center; }
+    .矩陣 { overflow-x: auto; border: 1px solid var(--線條); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; background: white; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--線條); text-align: left; vertical-align: top; }
+    th { color: var(--深紫); background: #eeeefd; }
+    .警示 { padding: 16px; border-left: 5px solid var(--警示); border-radius: 8px; background: #fff6e9; }
+    details { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--線條); }
+    summary { color: var(--靛藍); cursor: pointer; font-weight: 800; }
+    .核准列 { display: flex; flex-wrap: wrap; gap: 10px; }
+    .核准項目 { padding: 12px 17px; border: 2px solid var(--靛藍); border-radius: 9px; color: var(--靛藍); background: white; font-weight: 800; }
+    footer { padding: 22px 4px; color: var(--淡字); }
+    @media (max-width: 820px) { .藍圖指標, .指標列, .雙欄 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="頁面">
+    <header class="藍圖頁首">
+      <p class="眉題">實作藍圖｜核准前</p>
+      <h1>{{功能名稱}}<br>實作藍圖核准報告</h1>
+      <p class="摘要">{{首屏摘要}}</p>
+      <div class="藍圖指標">
+        <div><small>需求數</small><strong>{{需求數}}</strong></div>
+        <div><small>Ticket 數</small><strong>{{Ticket數}}</strong></div>
+        <div><small>並行批次</small><strong>{{並行批次}}</strong></div>
+        <div><small>最大風險</small><strong>{{最大風險}}</strong></div>
+        <div><small>設計輔助</small><strong id="design-assist">{{設計輔助}}</strong></div>
+      </div>
+    </header>
+
+    <main>
+      <section id="原始需求與範圍" data-step="01">
+        <h2>原始需求與規劃覆蓋</h2>
+        {{需求內容}}
+      </section>
+      <section id="目標架構與資料流" data-step="02">
+        <h2>目標架構與資料流</h2>
+        {{目標設計內容}}
+      </section>
+      <section id="Ticket執行藍圖" data-step="03">
+        <h2>Ticket 執行藍圖</h2>
+        {{Ticket藍圖內容}}
+      </section>
+      <section id="Agent與驗收設計" data-step="04">
+        <h2>Agent 分工與驗收關卡</h2>
+        {{驗收設計內容}}
+      </section>
+      <section id="風險與核准" data-step="05">
+        <h2>風險與核准選項</h2>
+        {{核准內容}}
+      </section>
+    </main>
+
+    <footer>Spec：{{Spec路徑}}　｜　產生時間：{{產生時間}}</footer>
+  </div>
+</body>
+</html>

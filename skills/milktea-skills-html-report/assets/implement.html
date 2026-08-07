@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="zh-Hant" data-report-profile="implement" data-report-status="pass">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{功能名稱}}｜功能完成驗收報告</title>
+  <style>
+    :root {
+      --深綠: #0f5b48;
+      --亮綠: #2f9c70;
+      --海軍藍: #15324a;
+      --淡綠: #eaf6f0;
+      --背景: #f5f8f6;
+      --白色: #ffffff;
+      --文字: #15251f;
+      --淡字: #607068;
+      --線條: #d8e2dc;
+      --警示: #bd6b20;
+      --錯誤: #a53b3b;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--文字); background: var(--背景); font-family: "Microsoft JhengHei", system-ui, sans-serif; line-height: 1.62; }
+    .頁面 { width: min(1200px, calc(100% - 36px)); margin: 0 auto; padding: 32px 0 64px; }
+    .成果頁首 { display: grid; grid-template-columns: 1fr 220px; gap: 26px; align-items: center; padding: 44px; border-radius: 24px; color: white; background: linear-gradient(125deg, var(--海軍藍), var(--深綠)); box-shadow: 0 20px 48px rgba(17, 67, 53, .18); }
+    .眉題 { margin: 0 0 8px; color: #9fe0c5; font-weight: 800; letter-spacing: .14em; }
+    h1 { margin: 0; font-size: clamp(2rem, 5vw, 3.8rem); line-height: 1.08; }
+    .摘要 { max-width: 780px; color: #d8eee5; font-size: 1.08rem; }
+    .通過章 { display: grid; place-items: center; aspect-ratio: 1; border: 12px solid rgba(255,255,255,.18); border-radius: 50%; background: rgba(255,255,255,.08); text-align: center; }
+    .通過章 strong { display: block; font-size: 2rem; }
+    .指標列 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 18px; }
+    .指標 { padding: 18px; border: 1px solid var(--線條); border-radius: 14px; background: var(--白色); box-shadow: 0 8px 20px rgba(34, 68, 56, .05); }
+    .指標 small { color: var(--淡字); }
+    .指標 strong { display: block; margin: 5px 0; color: var(--深綠); font-size: 1.7rem; }
+    main { display: grid; gap: 18px; margin-top: 18px; }
+    section { padding: 30px; border: 1px solid var(--線條); border-radius: 16px; background: var(--白色); box-shadow: 0 10px 28px rgba(34, 68, 56, .06); }
+    h2 { margin: 0 0 18px; font-size: 1.55rem; }
+    .完成條 { height: 10px; overflow: hidden; border-radius: 999px; background: #dfe9e3; }
+    .完成條 span { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--深綠), var(--亮綠)); }
+    .雙欄, .三欄, .比較 { display: grid; gap: 14px; }
+    .雙欄, .比較 { grid-template-columns: repeat(2, 1fr); }
+    .三欄 { grid-template-columns: repeat(3, 1fr); }
+    .卡片 { padding: 17px; border: 1px solid var(--線條); border-radius: 12px; background: #fbfdfc; }
+    .修改前 { border-top: 5px solid #76889a; }
+    .修改後 { border-top: 5px solid var(--亮綠); }
+    .數據表 { overflow-x: auto; border: 1px solid var(--線條); border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--線條); text-align: left; vertical-align: top; }
+    th { background: var(--淡綠); color: var(--深綠); }
+    .通過 { color: var(--深綠); font-weight: 900; }
+    .未量化 { color: var(--警示); font-weight: 800; }
+    .提示 { padding: 15px; border-left: 5px solid var(--警示); border-radius: 8px; background: #fff5e8; }
+    details { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--線條); }
+    summary { color: var(--深綠); cursor: pointer; font-weight: 800; }
+    footer { display: flex; justify-content: space-between; gap: 12px; padding: 22px 4px; color: var(--淡字); }
+    @media (max-width: 820px) { .成果頁首, .指標列, .雙欄, .三欄, .比較 { grid-template-columns: 1fr; } .通過章 { width: 170px; } }
+  </style>
+</head>
+<body>
+  <div class="頁面">
+    <header class="成果頁首">
+      <div>
+        <p class="眉題">最終交付｜功能驗收</p>
+        <h1>{{功能名稱}}<br>功能完成驗收報告</h1>
+        <p class="摘要">{{首屏摘要}}</p>
+      </div>
+      <div class="通過章"><div><span>最終驗收</span><strong>通過</strong></div></div>
+    </header>
+
+    <div class="指標列">
+      <div class="指標"><small>需求完成</small><strong>{{需求完成}}</strong><span>{{需求說明}}</span></div>
+      <div class="指標"><small>Tickets</small><strong>{{Ticket完成}}</strong><span>全部完成</span></div>
+      <div class="指標"><small>測試結果</small><strong>{{測試結果}}</strong><span>{{測試說明}}</span></div>
+      <div class="指標"><small>主要改善</small><strong>{{主要改善}}</strong><span>{{改善說明}}</span></div>
+      <div class="指標"><small>設計輔助</small><strong id="design-assist">{{設計輔助}}</strong><span>報告呈現</span></div>
+    </div>
+
+    <main>
+      <section id="原始要求完成狀態">
+        <h2>原始要求與完成狀態</h2>
+        {{需求完成內容}}
+      </section>
+      <section id="實際修改內容">
+        <h2>實際完成與修改位置</h2>
+        {{實際修改內容}}
+      </section>
+      <section id="架構與資料流前後對比">
+        <h2>架構與資料流前後對比</h2>
+        {{架構差異內容}}
+      </section>
+      <section id="改善數據">
+        <h2>可量化改善</h2>
+        {{改善數據內容}}
+      </section>
+      <section id="最終驗收">
+        <h2>測試、Review 與最終驗收</h2>
+        {{最終驗收內容}}
+      </section>
+    </main>
+
+    <footer><span>基準／結果版本：{{版本識別}}</span><span>產生時間：{{產生時間}}</span></footer>
+  </div>
+</body>
+</html>

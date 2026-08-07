@@ -3,7 +3,7 @@ name: milktea-skills-to-ticket
 description: 將已核准中文規格拆成可獨立派工、驗證與 Review 的 Tickets，為每票選擇 Sonnet 5／high 或 Opus 5／high 及升級路徑，並標示依賴、安全並行、寫入所有權、分層驗收、Agent 角色與雙軸 Review。固定寫入 docs/work/功能名稱/tickets/，核准後產生新執行 Task 的共用啟動內容；不開始實作。
 ---
 
-# Milktea Skills To Ticket
+# Milktea 規格拆票
 
 把核准規格拆成最小、可驗證的垂直切片。不得重新設計需求或架構。
 
@@ -26,7 +26,24 @@ Spec 缺少時停止，不猜測。
 3. 標示依賴、阻擋關係、建議順序與可安全平行的工作。
 4. 為每張 Ticket 指定執行角色、一或兩個隔離 Reviewer 與驗收證據；實際 Reviewer 名單由執行 Task 的 `reviewer_mode` 決定，實際後端由執行階段偵測。
 5. 逐票寫入固定目錄。
-6. 顯示完整拆分、關係與實際路徑，要求使用者核准；核准後把狀態改為「已核准」，不派工、不實作。
+6. 依呼叫模式回傳：Grill-me 上游模式只回傳結構化規劃資料；其他模式維持顯示拆分並要求使用者核准。任何模式都不派工、不實作。
+
+## Grill-me 上游模式
+
+只有 `$milktea-skills-grill-me` 明確以呼叫者識別 `grill-me` 載入時使用：
+
+1. 逐票寫入狀態為「草稿」的 Ticket。
+2. 不在聊天框顯示完整 Ticket 長文、不詢問核准、不產生 HTML。
+3. 把下列結構化資料交回 Grill-me：
+   - 原始需求到 Ticket 的覆蓋。
+   - Ticket 目標、依賴、阻擋、順序與可安全並行批次。
+   - 寫入所有權、共用資源鎖與衝突原因。
+   - Developer 配置摘要、Reviewer 分工、測試與驗收。
+   - 風險、回復方式、Spec 與全部 Ticket 實際路徑。
+4. Grill-me 使用上述資料產生並顯示實作藍圖 HTML。
+5. 只有 Grill-me 回報使用者已核准 HTML 後，才把全部 Tickets 更新為「已核准」，填妥唯一交接內容並交回 Grill-me。
+
+不得讓 To Ticket 自行呼叫 HTML 報告技能，避免 Brownfield Planner 或單獨使用本技能時意外多產生一份報告。
 
 ## Developer 模型路由
 
@@ -130,7 +147,7 @@ Spec 缺少時停止，不猜測。
 
 ## 執行 Task 交接
 
-Tickets 核准後，先以實際資料填完下列模板；不得留下尖括號、改寫文字或產生第二種版本。無論由本 Skill 單獨執行，或經 `$milktea-skills-grill-me` 調用，都必須顯示同一份完整內容：
+Tickets 核准後，先以實際資料填完下列模板；不得留下尖括號、改寫文字或產生第二種版本。本 Skill 單獨執行時直接顯示；經 `$milktea-skills-grill-me` 調用時，只把同一份內容交回 Grill-me，由 Grill-me 在實作藍圖核准後顯示：
 
 ````markdown
 請開啟一個新的 Task，並將以下內容完整貼上。不要在目前的規劃 Task 繼續實作，以免 Planner 與 Implement Coordinator 身分衝突，也避免規劃對話占用實作上下文。
@@ -151,7 +168,7 @@ Tickets（已核准清單）：<已核准的實際路徑>
 ```
 ````
 
-把填妥後的完整交接內容原樣交回 `$milktea-skills-grill-me`。本 Skill 單獨執行時，顯示內容後結束；不建立 Task，也不啟動實作。
+把填妥後的完整交接內容原樣交回 `$milktea-skills-grill-me`。Grill-me 上游模式不得在 HTML 核准前建立交接。本 Skill 單獨執行時，顯示內容後結束；不建立 Task，也不啟動實作。
 
 ## 完成條件
 
@@ -160,8 +177,9 @@ Tickets（已核准清單）：<已核准的實際路徑>
 - Review 共識規則已納入每張 Ticket 或父規格。
 - 執行、Debug、Git 衝突與 Review 證據的保存位置已寫入 Ticket。
 - Tickets 已逐票寫入固定目錄。
-- Tickets 已由使用者核准且狀態已更新。
-- 完整交接內容已填入實際路徑並顯示。
+- Grill-me 上游模式：已先回傳結構化規劃資料，並只在 Grill-me 回報 HTML 已核准後更新 Ticket 狀態。
+- 其他模式：Tickets 已由使用者核准且狀態已更新。
+- 完整交接內容已填入實際路徑；Grill-me 上游模式已交回 Grill-me，其他模式已直接顯示。
 - 尚未開始實作。
 
-核准後把實際 Spec 路徑、Ticket 路徑、執行順序與完整交接內容交回 `$milktea-skills-grill-me`。
+Grill-me 上游模式核准後，把實際 Spec 路徑、Ticket 路徑、執行順序與完整交接內容交回 `$milktea-skills-grill-me`；其他模式依本 Skill 的直接交付規則結束。

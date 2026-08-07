@@ -1,9 +1,9 @@
 ---
 name: milktea-skills-grill-me
-description: 由使用者明確啟動的中文規劃流水線入口。依序協調需求確認、架構決策、本機規格與 Ticket 拆分；每階段經使用者核准後才前進，最後說明上下文隔離原因，並在平台支援時建立新的執行 Task。使用者要求從想法一路規劃到可派工 Tickets 時使用。
+description: 由使用者明確啟動的中文規劃流水線入口。依序協調需求確認、架構決策、本機規格與 Ticket 拆分；全部 Tickets 完成後以 grill-me 固定識別呼叫共用 HTML 報告技能產生實作藍圖核准報告，使用者核准後才建立新的執行 Task。不在本 Task 實作。
 ---
 
-# Milktea Skills Grill Me
+# Milktea 需求規劃與拆票
 
 使用者在規劃 Task 明確呼叫 `$milktea-skills-grill-me` 後，該 Task 的 Core Agent 立即進入 `Planner` 角色，直到使用者取消或完成執行 Task 交接。負責編排與核准關卡；不重寫子技能內容，不在本 Task 實作。
 
@@ -18,9 +18,10 @@ description: 由使用者明確啟動的中文規劃流水線入口。依序協�
 1. `$milktea-skills-grill-check-needs`：確認需求與驗收結果。
 2. `$milktea-skills-grill-architecture`：依核准需求確認架構。
 3. `$milktea-skills-to-spec`：整理已核准內容，不新增決策。
-4. `$milktea-skills-to-ticket`：拆分 Tickets、依賴、角色與 Review 責任。
-5. 顯示完整 Ticket 規劃，取得使用者核准。
-6. 顯示 `$milktea-skills-to-ticket` 產生的完整交接內容，再詢問是否開始執行。
+4. 以上游呼叫者 `grill-me` 載入 `$milktea-skills-to-ticket`：寫入全部草稿 Tickets，回傳依賴、角色、Review、驗收與實際路徑。
+5. 以呼叫者識別 `grill-me` 載入 `$milktea-skills-html-report`，產生實作藍圖核准報告。
+6. 只顯示 HTML 報告連結與核准選項；使用者核准後才把 Tickets 更新為「已核准」。
+7. 顯示 `$milktea-skills-to-ticket` 產生的唯一交接內容，再詢問是否開始執行。
 
 需要的子技能不存在時，回報缺少的技能並停止；不得自行模擬或跳過。
 
@@ -32,6 +33,27 @@ description: 由使用者明確啟動的中文規劃流水線入口。依序協�
 - `to-spec` 與 `to-ticket` 只整理已核准內容；不得臨時補需求或架構。
 - Ticket 規劃至少包含目標、依賴、執行角色、Review 角色與驗收條件。
 
+## 實作藍圖報告關卡
+
+只有 Spec 與全部 Tickets 都已完成，且需求覆蓋、依賴、並行批次、寫入所有權、角色、Review 與驗收資料齊全後，才載入 `$milktea-skills-html-report`，並明確傳入：
+
+- 呼叫者識別：`grill-me`。
+- 觸發階段：Spec 與全部 Tickets 已完成，等待使用者核准實作。
+- 功能名稱與輸出路徑：`docs/work/<功能名稱>/implementation-plan.html`。
+- 已核准需求、架構、Spec、全部 Ticket 規劃與實際證據。
+
+固定使用 Grill-me 專屬規格與模板；不得讀取或混用另外三種報告。共用 HTML 報告技能不存在時回報 `BLOCKED: HTML_REPORT_SKILL_UNAVAILABLE`；驗證失敗時修正同一份報告，通過前不得要求使用者核准或產生交接。
+
+報告通過後，聊天框只顯示：
+
+```markdown
+HTML 報告：[開啟實作藍圖核准報告](<實際絕對路徑>)
+
+看完後請選：1. 核准實作　2. 修改規劃　3. 暫停
+```
+
+選擇修改時，更新受影響的需求、架構、Spec 或 Tickets，再覆寫同一份 HTML。選擇核准時才將 Tickets 更新為「已核准」並進入交接；不得在聊天框重貼完整 Ticket 規劃。
+
 ## 對話規則
 
 - 一次只問一個決策，附推薦答案、理由與主要代價。
@@ -42,7 +64,7 @@ description: 由使用者明確啟動的中文規劃流水線入口。依序協�
 
 ## 執行 Task 交接
 
-本 Task 是規劃 Task。只有完成 `to-ticket` 且 Tickets 經使用者核准後，才建立另一個執行 Task。
+本 Task 是規劃 Task。只有實作藍圖 HTML 通過驗證且使用者核准後，才把 Tickets 標記為「已核准」並建立另一個執行 Task。
 
 Ticket 核准後，原樣顯示 `$milktea-skills-to-ticket` 產生的完整交接內容。不得改寫、縮短、重建或維護第二份啟動模板，也不得提供「留在目前 Task 執行」。
 
@@ -65,6 +87,7 @@ Claude Code、Codex CLI 或無頂層 Task 工具的平台，不顯示無法執�
 
 - 需求、架構、Spec 與 Tickets 均經使用者核准。
 - Spec 與 Tickets 已保存到 `docs/work/<功能名稱>/`。
+- 實作藍圖報告已使用呼叫者識別 `grill-me` 產生並通過驗證，且使用者已核准。
 - Ticket 角色、依賴、Review 與驗收條件完整。
 - 完整交接內容已使用實際路徑顯示。
 - Codex Desktop 使用者已選擇建立新 Task 或暫不執行；選擇建立時已有 Task ID。其他平台已明示不支援自動建立並保留完整可複製內容。

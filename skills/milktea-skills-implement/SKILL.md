@@ -1,9 +1,9 @@
 ---
 name: milktea-skills-implement
-description: 執行已核准的 Spec 與 Tickets。依 Ticket 指定的 Developer 模型與推理強度派工，必要時升級至 Opus 5／xhigh；以最大安全並行方式執行互不衝突的工作，並把 Spec 與 Standards 分給獨立 Reviewer，讓 Developer 與各 Finding Owner 依證據完成定向複驗與共識。由 milktea-skills-grill-me 建立的新執行 Task 啟動，或在使用者要求執行已核准 Tickets 時使用。
+description: 執行已核准的 Spec 與 Tickets。依 Ticket 指定配置安全並行派工，讓 Developer 與獨立 Reviewer 依證據完成定向複驗與共識；整個 Task 的所有 Tickets 與最終總驗收完成後，才以 implement 固定識別呼叫共用 HTML 報告技能產生一次功能完成驗收報告。
 ---
 
-# Milktea Skills Implement
+# Milktea 功能實作
 
 啟動後，本 Task 的 Core Agent 立即進入 `Implement Coordinator` 角色，直到所有核准 Tickets 完成、使用者停止或工作確實受阻。
 
@@ -151,4 +151,25 @@ Reviewer B 回報 `OCR_DELEGATE_UNAVAILABLE` 時，Coordinator 保存錯誤證�
 - Developer 與各 Finding Owner 已依證據達成共識；Coordinator 未替雙方裁決或用模型投票。
 - 依 Ticket 與專案 Git 規則提交；未授權不得 Commit 或 Push。
 
-最後輸出每張 Ticket 的 execution environment、初始與最終 Developer 配置、升級原因、`reviewer_mode`、Reviewer 的 `review_axis`、並行批次、排程判定、狀態、角色後端、實際模型與推理強度、`review_engine`、OCR Delegation 證據或降級原因、首次完整驗收、指定重驗、各 Finding 狀態、共識、未解風險與版本識別。
+## 最終 HTML 驗收報告
+
+只有上述完成規則全部成立，且再次確認整個 Task 沒有執行中、Review 中、修正中、受阻或未完成的 Ticket 後，才載入 `$milktea-skills-html-report`，並明確傳入：
+
+- 呼叫者識別：`implement`。
+- 觸發階段：全部 Tickets、Review、修正、複驗與最終總驗收均已完成。
+- 功能名稱與輸出路徑：`docs/work/<功能名稱>/completion-report.html`。
+- 原始需求、Spec、全部 Tickets、實際 Diff、架構與資料流差異、量化基準、測試、Reviewer、Finding、風險與版本證據。
+
+固定使用 Implement 專屬規格與模板；不得讀取或混用另外三種報告。每張 Ticket 的 execution environment、Developer 配置、升級原因、`reviewer_mode`、`review_axis`、並行批次、`review_engine`、驗收、重驗與 Finding 證據寫入報告的收合區，不在聊天框逐票列出。
+
+單張 Ticket 完成、單次 Review、修正或複驗時禁止產生或更新 HTML。任一 Ticket 受阻時只回報阻擋，待所有問題解除並完成全部 Tickets 後才產生一次。
+
+共用 HTML 報告技能不存在時回報 `BLOCKED: HTML_REPORT_SKILL_UNAVAILABLE`。報告驗證失敗時修正同一檔案，通過前不得宣稱 Task 已完整交付。
+
+驗證通過後聊天框只顯示：
+
+```markdown
+最終驗收通過。
+
+HTML 報告：[開啟功能完成驗收報告](<實際絕對路徑>)
+```

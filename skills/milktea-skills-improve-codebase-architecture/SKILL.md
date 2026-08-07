@@ -1,11 +1,11 @@
 ---
 name: milktea-skills-improve-codebase-architecture
-description: 由 milktea-skills-brownfield-refactor-planner 明確載入，在產生 Spec 與 Tickets 以前，唯讀盤點既有專案的 Snapshot、架構、資料流、共用位置、條件式 Logging、重複與清理候選，並依固定契約產生繁體中文 HTML 架構報告；只回傳報告與決策候選，不修改程式、不產生 Spec 或 Tickets。
+description: 由 milktea-skills-brownfield-refactor-planner 明確載入，在產生 HTML、Spec 與 Tickets 以前，唯讀盤點既有專案的 Snapshot、架構、資料流、共用位置、條件式 Logging、重複與清理候選，並回傳可追溯的盤點證據與決策候選；不產生 HTML、不修改程式、不產生 Spec 或 Tickets。
 ---
 
-# Milktea Skills Improve Codebase Architecture
+# Milktea 既有系統架構盤點
 
-啟動後進入 `Architecture Auditor` 角色。只負責查證、分析與產生 HTML 報告；Brownfield Refactor Planner 負責使用者核准及後續流程。
+啟動後進入 `Architecture Auditor` 角色。只負責查證與分析；Brownfield Refactor Planner 負責呼叫共用 HTML 報告技能、使用者核准及後續流程。
 
 ## 輸入
 
@@ -26,7 +26,7 @@ description: 由 milktea-skills-brownfield-refactor-planner 明確載入，在�
 - 只執行不會修改正式 Data／Runtime Root 的基準命令。
 - 工作目錄有未提交修改時照常分析，但必須獨立標示，不得列為垃圾。
 - 不修改來源碼、設定、依賴或專案資料，不 Stage、Commit 或 Push。
-- 只能寫入或更新本次 HTML 報告。
+- 不寫入 HTML、來源碼、設定、依賴或專案資料，只把盤點結果回傳給 Planner。
 - 不呼叫 `grill-me`、`to-spec`、`to-ticket` 或任何 Implement Skill。
 
 ## 唯讀盤點流程
@@ -87,29 +87,26 @@ Git SHA 只代表已提交版本。工作樹有未提交修改時，同時記錄
 - 顯示候選目標目錄、模組責任、資料所有權、公開介面與遷移順序。
 - 列出必須保留的功能、修改前可用的驗證證據、未知與阻擋。
 
-### 6. 產生 HTML 報告
+### 6. 整理盤點證據
 
-完整讀取 `references/report-contract.md`，將已查證內容寫入 `docs/architecture-reviews/YYYY-MM-DD-<範圍>.html`。
-
-同一次盤點更新同一份報告，不建立 `final`、`new` 或 `v2` 副本。報告不得要求先存在 Spec 或 Tickets，也不得替 Planner 決定是否進入規劃階段。
+依前五步整理結構化結果，包含決策摘要、現況系統、清理候選、改善方案、相容性基準、證據來源、未知與待決策事項。不得替 Planner 排版 HTML，也不得要求先存在 Spec 或 Tickets。
 
 ## Subagent 使用原則
 
 先完成第一輪目錄與入口掃描。只有存在多個可獨立盤點的模組或根目錄、大量未知區域、高風險共用水管，或單一上下文可能漏掃時，才使用最少的唯讀 Subagents。
 
-每個 Subagent 必須有互不重疊的唯讀範圍，只回報路徑、符號、引用、證據、未知與風險；不得修改檔案、做架構決策或詢問使用者。Architecture Auditor 負責去重、交叉驗證與最終報告。平台沒有 Subagent 能力時自行完成。
+每個 Subagent 必須有互不重疊的唯讀範圍，只回報路徑、符號、引用、證據、未知與風險；不得修改檔案、做架構決策或詢問使用者。Architecture Auditor 負責去重、交叉驗證與最終盤點結果。平台沒有 Subagent 能力時自行完成。
 
 ## 回傳給 Planner
 
-報告完成後先驗證 HTML 檔案確實存在，再把實際絕對路徑交回 Planner。Planner 是唯一對使用者顯示交付訊息的角色；不要另外在聊天框重述報告結論、候選、風險、未知、命令或證據。
+把結構化盤點結果、實際來源、基準版本、決策候選與未知交回 Planner。Planner 是唯一負責產生並顯示 HTML 的角色；不要另外在聊天框重述盤點結論、候選、風險、未知、命令或證據。
 
-到此停止。不得產生 Spec、Tickets、交接內容、開始重構，或用聊天文字取代 HTML 報告。
+到此停止。不得產生 HTML、Spec、Tickets、交接內容或開始重構。
 
 ## 完成條件
 
-- 報告可開啟，無 CDN 時仍可閱讀文字。
 - 所有重要結論可追溯到程式、Git、測試或文件證據。
 - 正式 Logging 已依條件判斷，不需要時沒有 Logger 契約。
 - 清理候選、改善方案、風險、驗證、回滾與未知均已說明。
-- 除本次 HTML 報告外未修改專案內容。
-- 已把報告路徑與決策候選回傳給 Planner，沒有越權進入 Spec 或 Tickets。
+- 未修改任何專案內容。
+- 已把完整盤點證據與決策候選回傳給 Planner，沒有越權產生 HTML、Spec 或 Tickets。
