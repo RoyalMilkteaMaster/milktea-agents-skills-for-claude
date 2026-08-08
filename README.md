@@ -208,6 +208,7 @@ claude auth status
 
 claude plugin marketplace add RoyalMilkteaMaster/milktea-agents-skills-for-claude
 claude plugin install milktea-agents-skills-for-claude@milktea-agents-skills-for-claude --scope user
+claude plugin marketplace update milktea-agents-skills-for-claude
 claude plugin list
 ```
 
