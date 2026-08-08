@@ -208,7 +208,6 @@ claude auth status
 
 claude plugin marketplace add RoyalMilkteaMaster/milktea-agents-skills-for-claude
 claude plugin install milktea-agents-skills-for-claude@milktea-agents-skills-for-claude --scope user
-claude plugin marketplace update milktea-agents-skills-for-claude
 claude plugin list
 ```
 
@@ -251,6 +250,15 @@ Plugin 安裝完成後，請重新開啟 Claude Code。Milktea Skills 將套用�
 
 Plugin 以使用者範圍安裝後，即可在該環境的所有專案使用，並完整保留工作流需要的相依 Skills。
 
+## 更新/升級 milktea-agents-skills
+
+如果您已經下載過 milktea-agents-skills，只是要對環境進行 skills 更新，可以直接複製以下指令(windows/linux 通用)
+
+```text
+claude plugin marketplace update milktea-agents-skills-for-claude
+claude plugin update milktea-agents-skills-for-claude@milktea-agents-skills-for-claude --scope user
+claude plugin list
+```
 
 ## 多 Agent 協作（推薦）
 
