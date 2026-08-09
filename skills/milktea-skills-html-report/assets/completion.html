@@ -38,6 +38,8 @@
     th, td { padding: 12px; border-bottom: 1px solid var(--邊線); text-align: left; vertical-align: top; }
     th { color: var(--次要); font-size: .92rem; }
     .證據 { margin-top: 16px; }
+    .動態文字 { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; color: inherit; }
+    .驗收狀態 { margin-bottom: 14px; padding: 10px 13px; border-radius: 12px; background: var(--主色淡); color: var(--主色); font-weight: 800; }
     details { border: 1px solid var(--邊線); border-radius: 12px; padding: 12px 15px; }
     summary { cursor: pointer; color: var(--輔色); font-weight: 800; }
     .確認摘要 { margin-bottom: 14px; color: var(--次要); }
@@ -66,28 +68,29 @@
         <article><small>Tickets</small><strong>{{Ticket完成摘要}}</strong></article>
         <article><small>原生瀏覽器驗收</small><strong>{{瀏覽器驗收摘要}}</strong></article>
       </div>
-      <div style="margin-top:20px">{{結論內容}}</div>
+      <pre class="動態文字" data-dynamic-text="結論內容">{{結論內容}}</pre>
     </header>
 
     <section id="原始需求">
       <h2>{{原始需求標題}}</h2>
-      {{原始需求內容}}
+      <pre class="動態文字" data-dynamic-text="原始需求內容">{{原始需求內容}}</pre>
     </section>
 
     <section id="Ticket成果">
       <h2>Ticket 成果與 Review</h2>
-      {{Ticket成果內容}}
+      <pre class="動態文字" data-dynamic-text="Ticket成果內容">{{Ticket成果內容}}</pre>
     </section>
 
     <section id="實際驗收" data-evidence="browser-acceptance">
       <h2>實際驗收與證據</h2>
-      {{實際驗收內容}}
-      <div class="證據">{{詳細證據}}</div>
+      <div class="驗收狀態" data-evidence="final-acceptance" data-result="通過">最終總驗收：通過</div>
+      <pre class="動態文字" data-dynamic-text="實際驗收內容">{{實際驗收內容}}</pre>
+      <div class="證據"><pre class="動態文字" data-dynamic-text="詳細證據">{{詳細證據}}</pre></div>
     </section>
 
     <section id="風險與回復">
       <h2>未解風險與回復方式</h2>
-      {{風險與回復內容}}
+      <pre class="動態文字" data-dynamic-text="風險與回復內容">{{風險與回復內容}}</pre>
     </section>
 
     <section id="使用者確認" data-user-checklist>

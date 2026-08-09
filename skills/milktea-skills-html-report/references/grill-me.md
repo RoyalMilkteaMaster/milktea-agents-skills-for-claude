@@ -6,9 +6,18 @@
 
 ## 產生時間
 
-需求、架構、Spec 及全部 Tickets 都完成後，建立執行 Task 之前。
+需求與架構已確認、Spec 已核准，而且全部 Ticket 草稿文件內容已填完整後；此時尚未開始實作，也不能把 Ticket 標為「完成」。
 
-只有呼叫者識別為 grill-me，而且需求覆蓋、依賴、並行、寫入所有權、角色與驗收資料全部齊全時才能產生。固定寫入 docs/work/功能名稱/implementation-plan.html；規劃修改時更新同一份報告。
+只有呼叫者識別為 grill-me，而且需求覆蓋、依賴、並行、寫入所有權、角色與驗收資料全部齊全時才能產生。新工作固定寫入 `docs/work/<工作識別碼>/implementation-plan.html`；舊工作沿用實際交接工作目錄。規劃修改時更新同一份報告。
+
+## 機器驗證閘門
+
+- 必須使用 `scripts/validate_report.py <報告路徑> --caller grill-me --project-root <專案根目錄> --work-id <工作識別碼>`，不可省略專案根目錄或工作識別碼。
+- 新工作識別碼必須符合 `wp-YYYYMMDD-HHmmss-xxxxxxxx`，固定路徑為 `docs/work/<工作識別碼>/implementation-plan.html`，HTML 根元素的 `data-work-id` 必須完全一致。
+- 舊工作可沿用 `docs/work/<實際舊目錄名稱>/implementation-plan.html`，把該目錄名稱原樣傳入 `--work-id`；不搬移、不改名。
+- Spec 文件前言的 `工作識別碼` 與 `狀態` 必須各自在前言和全文件恰好出現一次，`狀態` 精確為「已核准」。
+- Spec 的「原始需求」必須使用唯一 `R-xxx` 與原文。每張 Ticket 必須保留相同原文，且全部 Spec R-ID 至少由一張 Ticket 覆蓋；HTML 的「原始需求與範圍」也必須逐字顯示每個 R-ID 與原文。
+- 至少要有一張真正完整的 Ticket；每張 Ticket 的 `狀態` 必須只在文件前言及全文件各出現一次，且精確為「草稿」。Ticket 標題、To-ticket 契約既有的必要章節、驗收與測試、前端規劃、依賴、Dispatch、寫入所有權、共用鎖、初始執行配置、Agent 分工及預建執行欄位都必須存在；規劃階段應決定的內容不能留空或保留選項占位。任何 Ticket 已核准、執行中、完成或只是空殼時，都不能產生這份實作藍圖。
 
 ## 首頁先回答
 

@@ -24,6 +24,7 @@ description: 供 Claude 或 Codex Reviewer 子 Agent 在 Ticket 開發完成後�
 - Coordinator 解析後的共同執行環境：OS、WSL distribution、Shell、command prefix 與專案路徑。
 - Coordinator 指定的 `review_engine`；只有 Reviewer B 可收到 `open_code_review_delegate`，其他情況一律為 `native`。
 - Coordinator 指定的 `review_axis`。
+- Coordinator 已解析的實際 backend、CLI、model 與 `model_reasoning_effort` 或模型預設。
 
 無法確認規格、基準或變更範圍時，回報缺口並停止；不得猜測性審查整個程式庫。
 
@@ -102,6 +103,8 @@ Git、測試與檔案讀取仍必須在 Coordinator 指定的共同執行環境�
 
 嚴重度由提出 Finding 的 Reviewer 負責；Coordinator 不得重新評級。Developer 可接受、修正或以較高優先序的證據反駁。
 
+Developer 回報 `fixed` 只代表「Developer 表示已修正並提交新證據」，不是 Review 通過，也不是 Finding 已關閉。只有提出該 Finding 的 Reviewer 定向複驗成功後，才能明確回報 `closed`；接受 Developer 反證時回報 `withdrawn`。未完成這一步的阻擋或重要 Finding 一律仍視為未關閉。
+
 不得：
 
 - 為了產生 Finding 而找碴；零 Finding 合法。
@@ -115,8 +118,8 @@ Git、測試與檔案讀取仍必須在 Coordinator 指定的共同執行環境�
 收到開發 Agent 的修正或反證後：
 
 1. 只複驗自己提出的 Finding；先使用 Coordinator 指定的影響範圍與既有證據。
-2. 修正正確時關閉 Finding。
-3. 反證正確時撤回 Finding。
+2. 修正正確時明確回報 `closed`；不得把 Developer 的 `fixed` 原樣當作關閉。
+3. 反證正確時明確回報 `withdrawn`。
 4. 證據不足時維持 Finding，指出能辨別爭議的最小測試、第一手來源或研究問題。
 
 除非修正使原 Review 範圍或證據失效，不重做完整 Review。不得因一次證據交換未果就把技術問題交給使用者，也不得要求另一個模型投票。
@@ -129,6 +132,6 @@ Git、測試與檔案讀取仍必須在 Coordinator 指定的共同執行環境�
 2. 必要驗證證據：指令、退出碼與關鍵輸出；未自行重跑時引用 Coordinator 證據。
 3. 結論：通過／待修正／證據不足。
 
-回報必須標示 Reviewer、`review_axis`、共同執行環境、後端、實際模型、實際 `model_reasoning_effort` 或模型預設、`review_engine`、Review revision 與 Snapshot。使用 Delegation Mode 時另列 OCR 版本、Preview mode、Reviewable 檔案及 Excluded 檔案與理由，並可直接交給 Coordinator 追加到對應本機 Ticket。除 Finding 與必要命令證據外，正文盡量控制在 400 字內，不重述 Spec 或 Diff。
+回報必須標示 Reviewer、`review_axis`、共同執行環境、實際 backend、CLI、model、`model_reasoning_effort` 或模型預設、`review_engine`、Review revision 與 Snapshot。每項 Finding 都要有明確結論與證據，不得只回覆「看起來可以」。使用 Delegation Mode 時另列 OCR 版本、Preview mode、Reviewable 檔案及 Excluded 檔案與理由，並可直接交給 Coordinator 追加到對應本機 Ticket。除 Finding 與必要命令證據外，正文盡量控制在 400 字內，不重述 Spec 或 Diff。
 
 不得修改程式、派發 Agent、Commit、Push、寫入 Ticket、彙整其他 Reviewer 報告或宣稱整體共識。

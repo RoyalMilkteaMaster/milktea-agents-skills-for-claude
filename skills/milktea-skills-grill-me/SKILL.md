@@ -1,6 +1,6 @@
 ---
 name: milktea-skills-grill-me
-description: 由使用者明確啟動的中文規劃流水線入口。依序協調需求確認、架構決策、本機規格與 Ticket 拆分；全部 Tickets 完成後以 grill-me 固定識別呼叫共用 HTML 報告技能產生實作藍圖核准報告，使用者核准後才建立新的執行 Task。不在本 Task 實作。
+description: 由使用者明確啟動的中文規劃流水線入口。依序協調需求確認、架構決策、本機規格與 Ticket 拆分；Ticket 文件內容完整且仍為草稿時，以 grill-me 固定識別呼叫共用 HTML 報告技能產生實作藍圖核准報告，使用者核准後才把 Tickets 標記為已核准並交付可手動貼到新 Task 的啟動文字。不在本 Task 實作。
 ---
 
 # Milktea 需求規劃與拆票
@@ -17,11 +17,12 @@ description: 由使用者明確啟動的中文規劃流水線入口。依序協�
 
 1. `$milktea-skills-grill-check-needs`：確認需求與驗收結果。
 2. `$milktea-skills-grill-architecture`：依核准需求確認架構。
-3. 建立本次工作的唯一工作識別碼與繁體中文顯示名稱，再由 `$milktea-skills-to-spec` 整理已核准內容，不新增決策。
-4. 以上游呼叫者 `grill-me` 載入 `$milktea-skills-to-ticket`：寫入全部草稿 Tickets，回傳依賴、角色、Review、驗收與實際路徑。
-5. 以呼叫者識別 `grill-me` 載入 `$milktea-skills-html-report`，產生實作藍圖核准報告。
-6. 只顯示 HTML 報告連結與核准選項；使用者核准後才把 Tickets 更新為「已核准」。
-7. 顯示 `$milktea-skills-to-ticket` 產生的唯一交接內容，再詢問是否開始執行。
+3. 建立本次工作的唯一工作識別碼與繁體中文顯示名稱，再以呼叫者識別 `grill-me` 載入 `$milktea-skills-to-spec`：為每項已核准原始需求建立穩定的 `R-001` 起三位數識別碼，寫入狀態為「草稿」的 Spec，不新增決策。
+4. 顯示 Spec 並取得使用者核准；核准後以相同呼叫者識別再次載入 `$milktea-skills-to-spec`，只把同一份 Spec 更新為「已核准」。
+5. 以呼叫者識別 `grill-me` 載入 `$milktea-skills-to-ticket`：寫入全部草稿 Tickets，回傳需求覆蓋、依賴、角色、Review、驗收與實際路徑。
+6. 只有 Spec 狀態精確為「已核准」、全部 Ticket 文件內容完整且狀態仍精確為「草稿」時，才以呼叫者識別 `grill-me` 載入 `$milktea-skills-html-report`；傳入專案根目錄絕對路徑、工作識別碼與固定輸出路徑，產生並驗證實作藍圖核准報告。
+7. 只顯示 HTML 報告連結與核准選項。使用者核准後，以相同呼叫者識別再次載入 `$milktea-skills-to-ticket`，傳入核准結果、可開啟的 HTML URL 與 HTML 絕對路徑；由 To Ticket 把同一批 Tickets 更新為「已核准」並產生唯一交接內容。
+8. 原樣顯示 `$milktea-skills-to-ticket` 產生的完整交接文字，讓使用者手動複製到新的獨立 Task，然後結束 Planner Task。
 
 需要的子技能不存在時，回報缺少的技能並停止；不得自行模擬或跳過。
 
@@ -43,14 +44,21 @@ description: 由使用者明確啟動的中文規劃流水線入口。依序協�
 
 ## 實作藍圖報告關卡
 
-只有 Spec 與全部 Tickets 都已完成，且需求覆蓋、依賴、並行批次、寫入所有權、角色、Review 與驗收資料齊全後，才載入 `$milktea-skills-html-report`，並明確傳入：
+只有 Spec 的 `- 狀態：已核准` 可被讀取，且每一張 Ticket 的 `- 狀態：草稿` 都可被讀取、文件內容已填完整，需求覆蓋、依賴、並行批次、寫入所有權、角色、Review 與驗收資料也已齊全後，才載入 `$milktea-skills-html-report`。只要 Spec 不是「已核准」、任一 Ticket 不是「草稿」或狀態欄位重複，就停止，不得產生或驗證報告。此時尚未實作任何 Ticket，「內容已完整」不得寫成或理解成 Ticket 已執行完成。
+
+先解析專案根目錄為絕對路徑，再呼叫 HTML Report，明確傳入：
 
 - 呼叫者識別：`grill-me`。
-- 觸發階段：Spec 與全部 Tickets 已完成，等待使用者核准實作。
-- 工作識別碼、顯示名稱與輸出路徑：`docs/work/<工作識別碼>/implementation-plan.html`；舊工作使用已交接的實際路徑。
+- 觸發階段：Spec 已核准，全部 Ticket 文件內容完整且狀態仍為草稿，等待使用者核准實作。
+- 專案根目錄絕對路徑：驗證時原樣傳給 `--project-root`。
+- 工作識別碼：驗證時原樣傳給 `--work-id`。
+- 顯示名稱與固定輸出路徑：`<專案根目錄絕對路徑>/docs/work/<工作識別碼>/implementation-plan.html`。
+- HTML 根元素識別：`data-work-id="<工作識別碼>"`，必須與 Spec、工作目錄名稱及 `--work-id` 完全一致。
 - 已核准需求、架構、Spec、全部 Ticket 規劃與實際證據。
 
-固定使用 Grill-me 專屬規格與模板；不得讀取或混用另外三種報告。共用 HTML 報告技能不存在時回報 `BLOCKED: HTML_REPORT_SKILL_UNAVAILABLE`；驗證失敗時修正同一份報告，通過前不得要求使用者核准或產生交接。
+固定使用 Grill-me 專屬規格與模板；不得讀取或混用另外三種報告。產生後必須以呼叫者 `grill-me` 驗證同一個固定檔案，並同時傳入 `--project-root <專案根目錄絕對路徑>` 與 `--work-id <工作識別碼>`。共用 HTML 報告技能不存在時回報 `BLOCKED: HTML_REPORT_SKILL_UNAVAILABLE`；驗證失敗時修正同一份報告並重新執行相同驗證，通過前不得要求使用者核准或產生交接。
+
+使用者核准後、To Ticket 更新狀態前，確認最後一次驗證確實針對同一檔案、同一專案根目錄與同一工作識別碼通過，而且從驗證通過起 HTML、Spec 與 Tickets 都未再修改；任一內容有變更就回到報告關卡重新產生並驗證。只有這項檢查通過，才可把核准結果交回 To Ticket。Tickets 更新為「已核准」後不重跑要求草稿狀態的規劃報告驗證器。
 
 報告通過後，聊天框只顯示：
 
@@ -60,7 +68,7 @@ HTML 報告：[開啟實作藍圖核准報告](<實際絕對路徑>)
 看完後請選：1. 核准實作　2. 修改規劃　3. 暫停
 ```
 
-選擇修改時，更新受影響的需求、架構、Spec 或 Tickets，再覆寫同一份 HTML。選擇核准時才將 Tickets 更新為「已核准」並進入交接；不得在聊天框重貼完整 Ticket 規劃。
+選擇修改時，更新受影響的需求、架構、Spec 或 Tickets，再覆寫同一份 HTML。選擇核准時，Grill-me 必須把核准結果、同一份 HTML 的可開啟 URL 與絕對路徑交回 `$milktea-skills-to-ticket`；只有 To Ticket 負責把 Tickets 從「草稿」更新為「已核准」並產生交接文字。Grill-me 不得自行改 Ticket 狀態或另寫一份交接內容，也不得在聊天框重貼完整 Ticket 規劃。
 
 ## 對話規則
 
@@ -72,31 +80,18 @@ HTML 報告：[開啟實作藍圖核准報告](<實際絕對路徑>)
 
 ## 執行 Task 交接
 
-本 Task 是規劃 Task。只有實作藍圖 HTML 通過驗證且使用者核准後，才把 Tickets 標記為「已核准」並建立另一個執行 Task。
+本 Task 是規劃 Task。只有固定路徑的實作藍圖 HTML 使用正確 `--project-root`、`--work-id` 與 `data-work-id` 通過驗證，而且使用者核准後，才由 `$milktea-skills-to-ticket` 把 Tickets 標記為「已核准」並產生另一個執行 Task 的唯一啟動文字。
 
-Ticket 核准後，原樣顯示 `$milktea-skills-to-ticket` 產生的完整交接內容。不得改寫、縮短、重建或維護第二份啟動模板，也不得提供「留在目前 Task 執行」。
+Ticket 核准後，讀取 `references/task-handoff.md`，原樣顯示 `$milktea-skills-to-ticket` 產生的完整交接內容。交接內容必須是單一可複製文字區塊，最上方同時包含已核准實作藍圖的可開啟 HTML URL 與 HTML 絕對路徑。不得改寫、縮短、重建或維護第二份啟動模板，也不得提供「留在目前 Task 執行」。
 
-Codex Desktop 有頂層 Task 工具時，只提供：
-
-1. **直接建立新的執行 Task（推薦）**
-2. **暫不執行**
-
-有選項工具時使用選項工具；否則使用編號選單。使用者選擇建立後：
-
-1. 確認 `AGENTS.md`、`CONTEXT.md`、`docs/planning/requirements.md`、`docs/planning/architecture.md`、相關 ADR、實際 Spec、Tickets、角色與 Review 規則皆已保存，且新 Task 可讀取相同版本。
-2. 讀取 `references/task-handoff.md`，把已顯示的同一份交接內容原樣交給目前平台；不複製完整訪談對話。
-3. Codex Desktop 有頂層 Task 工具時，使用同一份交接內容直接建立並開啟新的 local Task，回報 Task ID；使用者不必手動複製。
-4. Claude Code、Codex CLI 或無頂層 Task 工具的平台，只保留已顯示的可複製內容；不得啟動巢狀 CLI 或以 Subagent 冒充新 Task。
-5. 建立失敗時回報實際錯誤並保留完整可複製內容；不得假裝成功或留在 Planner Task 實作。
-
-Claude Code、Codex CLI 或無頂層 Task 工具的平台，不顯示無法執行的自動建立選項；顯示完整交接內容、回報 `TASK_CREATION_UNAVAILABLE` 後結束規劃 Task。
+所有平台一律由使用者手動複製並貼到新的獨立 Task。不得呼叫建立、開啟或切換 Task 的工具，不顯示自動建立選項，不回報 `TASK_CREATION_UNAVAILABLE`，也不得啟動巢狀 CLI 或以 Subagent 冒充新的 Core Task。顯示完整交接文字後立即結束 Planner Task。
 
 ## 完成條件
 
 - 需求、架構、Spec 與 Tickets 均經使用者核准。
 - Spec 與 Tickets 已保存到唯一工作目錄，工作識別碼與顯示名稱已交接。
-- 實作藍圖報告已使用呼叫者識別 `grill-me` 產生並通過驗證，且使用者已核准。
+- 實作藍圖報告已固定寫入 `docs/work/<工作識別碼>/implementation-plan.html`，HTML `data-work-id` 正確，並使用專案根目錄絕對路徑、`--project-root` 與 `--work-id` 通過驗證，且使用者已核准。
 - Ticket 角色、依賴、Review 與驗收條件完整。
 - 完整交接內容已使用實際路徑顯示。
-- Codex Desktop 使用者已選擇建立新 Task 或暫不執行；選擇建立時已有 Task ID。其他平台已明示不支援自動建立並保留完整可複製內容。
+- 完整交接文字最上方已有可開啟的 HTML URL 與 HTML 絕對路徑，並已交給使用者手動複製到新的獨立 Task。
 - 本 Task 未開始實作。

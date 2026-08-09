@@ -11,12 +11,19 @@ import sys
 import tempfile
 import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import quote, unquote, urlparse
+from urllib.error import HTTPError
 from urllib.request import urlopen
+
+try:
+    from validate_report import 建立結案測試文件, 正式結案報告有效, 發布候選報告
+except ImportError:  # 允許以 package 形式載入測試
+    from .validate_report import 建立結案測試文件, 正式結案報告有效, 發布候選報告
 
 
 合法狀態 = {"草稿", "已核准", "執行中", "Review 中", "修正中", "完成", "阻擋"}
@@ -152,6 +159,8 @@ def 讀取工作資料(工作目錄: Path, 專案根目錄: Path) -> dict[str, o
     工作根目錄 = 專案根目錄 / "docs" / "work"
     if 工作根目錄.is_dir():
         for 報告路徑 in sorted(工作根目錄.glob("*/completion-report.html"), reverse=True):
+            if not 正式結案報告有效(報告路徑, 報告路徑.parent):
+                continue
             相對工作 = 報告路徑.parent.name
             歷史報告.append(
                 {
@@ -161,7 +170,8 @@ def 讀取工作資料(工作目錄: Path, 專案根目錄: Path) -> dict[str, o
                 }
             )
 
-    結案已存在 = (工作目錄 / "completion-report.html").is_file()
+    正式結案 = 工作目錄 / "completion-report.html"
+    結案已存在 = 正式結案報告有效(正式結案, 工作目錄)
     報告狀態 = "completed" if 結案已存在 else ("blocked" if 阻擋 else "in-progress")
     總數 = len(Tickets)
     return {
@@ -231,12 +241,12 @@ class 共享進度:
         self.重新讀取(force=True)
 
     def 重新讀取(self, force: bool = False) -> bool:
-        新簽章 = 狀態簽章(self.工作目錄, self.專案根目錄)
-        if not force and 新簽章 == self.簽章:
-            return False
-        新資料 = 讀取工作資料(self.工作目錄, self.專案根目錄)
-        產生進度頁(self.模板路徑, self.輸出路徑, 新資料)
         with self.條件:
+            新簽章 = 狀態簽章(self.工作目錄, self.專案根目錄)
+            if not force and 新簽章 == self.簽章:
+                return False
+            新資料 = 讀取工作資料(self.工作目錄, self.專案根目錄)
+            產生進度頁(self.模板路徑, self.輸出路徑, 新資料)
             self.簽章 = 新簽章
             self.資料 = 新資料
             self.版本 += 1
@@ -264,6 +274,7 @@ def 建立處理器(共享: 共享進度):
                 self.回傳檔案(共享.輸出路徑, "text/html; charset=utf-8")
                 return
             if 路徑 == "/snapshot":
+                共享.重新讀取(force=True)
                 _, 資料 = 共享.快照()
                 self.回傳內容(安全_json(資料).encode("utf-8"), "application/json; charset=utf-8")
                 return
@@ -281,6 +292,9 @@ def 建立處理器(共享: 共享進度):
                     已解析 = 報告.resolve(strict=True)
                     已解析.relative_to(工作根)
                 except (OSError, ValueError):
+                    self.send_error(HTTPStatus.NOT_FOUND)
+                    return
+                if not 正式結案報告有效(已解析, 已解析.parent):
                     self.send_error(HTTPStatus.NOT_FOUND)
                     return
                 self.回傳檔案(已解析, "text/html; charset=utf-8")
@@ -364,9 +378,35 @@ def 執行自我測試() -> int:
             "## 阻擋與裁決紀錄\n",
             encoding="utf-8",
         )
+        # 未驗證的正式檔不得讓進度頁誤顯示 completed，也不得進入歷史清單。
+        (工作 / "completion-report.html").write_text("<html><title>未驗證報告</title></html>", encoding="utf-8")
+
         舊工作 = 專案 / "docs" / "work" / "older-work"
-        舊工作.mkdir()
-        (舊工作 / "completion-report.html").write_text("<html lang=\"zh-Hant\"><title>舊報告</title></html>", encoding="utf-8")
+        舊Tickets = 舊工作 / "tickets"
+        舊Tickets.mkdir(parents=True)
+        (舊工作 / "spec.md").write_text(
+            "# 舊工作規格\n\n- 工作識別碼：older-work\n- 顯示名稱：已驗證舊工作\n- 狀態：已核准\n\n"
+            "## 原始需求\n\n- R-001：保留可驗證的舊功能。\n",
+            encoding="utf-8",
+        )
+        (舊Tickets / "01-finished.md").write_text(
+            "# 已完成 Ticket\n\n- 狀態：完成\n\n## 對應原始需求\n\n- R-001：保留可驗證的舊功能。\n\n"
+            "## 前端實際操作驗收\n\n- 適用性：不適用\n- 判定依據：本 Ticket 沒有使用者介面。\n"
+            "- 操作環境與實際網址：不適用\n- 使用的原生瀏覽器工具：不適用\n"
+            "- 操作步驟與預期結果：不適用\n- 操作結果：不適用\n- 操作證據：不適用\n\n"
+            "## 執行與 Review 紀錄\n\n- Developer 結論：通過\n- Reviewer 模式：both\n"
+            "- Reviewer A 結論：通過\n- Reviewer B 結論：通過\n"
+            "- 未關閉阻擋或重要 Findings：0\n- Ticket 最終驗收：通過\n",
+            encoding="utf-8",
+        )
+        (舊工作 / "completion-report.html").write_text(
+            建立結案測試文件("implement", "older-work", {"R-001": "保留可驗證的舊功能。"}), encoding="utf-8"
+        )
+        無效工作 = 專案 / "docs" / "work" / "invalid-work"
+        無效工作.mkdir()
+        (無效工作 / "completion-report.html").write_text(
+            "<html lang=\"zh-Hant\"><title>未通過驗證的舊報告</title></html>", encoding="utf-8"
+        )
 
         共享 = 共享進度(工作, 專案, 模板路徑)
         內容 = 共享.輸出路徑.read_text(encoding="utf-8")
@@ -375,6 +415,14 @@ def 執行自我測試() -> int:
             return 1
         if "繁體中文測試工作" not in 內容 or "第一張 Ticket" not in 內容:
             print("自我測試失敗：進度頁缺少工作或 Ticket 快照。")
+            return 1
+        _, 初始資料 = 共享.快照()
+        if 初始資料["報告狀態"] == "completed":
+            print("自我測試失敗：進度頁把未驗證的正式檔誤判為完成。")
+            return 1
+        歷史名稱 = [項目["名稱"] for 項目 in 初始資料["歷史報告"]]
+        if not any("older-work" in 名稱 for 名稱 in 歷史名稱) or any("invalid-work" in 名稱 for 名稱 in 歷史名稱):
+            print("自我測試失敗：歷史清單沒有只保留已驗證正式報告。")
             return 1
 
         伺服器 = 建立伺服器(共享, "127.0.0.1", 0)
@@ -387,6 +435,27 @@ def 執行自我測試() -> int:
             if 資料["工作識別碼"] != "wp-20260809-120000-a1b2c3d4":
                 print("自我測試失敗：SSE 服務讀到錯誤工作。")
                 return 1
+
+            def 連續讀取快照(工作者: int) -> str:
+                try:
+                    for 次數 in range(20):
+                        with urlopen(f"http://127.0.0.1:{埠號}/snapshot", timeout=30) as 回應:
+                            當次資料 = json.loads(回應.read().decode("utf-8"))
+                        if 當次資料["工作識別碼"] != "wp-20260809-120000-a1b2c3d4":
+                            return f"工作者 {工作者} 第 {次數 + 1} 次讀到錯誤工作"
+                except Exception as 錯誤:
+                    return f"工作者 {工作者}：{type(錯誤).__name__}: {錯誤}"
+                return ""
+
+            with ThreadPoolExecutor(max_workers=32) as 執行池:
+                並行錯誤 = [錯誤 for 錯誤 in 執行池.map(連續讀取快照, range(32)) if 錯誤]
+            if 並行錯誤:
+                print(f"自我測試失敗：並行 snapshot 發生競爭：{'；'.join(並行錯誤[:3])}")
+                return 1
+            if not 共享.輸出路徑.is_file():
+                print("自我測試失敗：並行 snapshot 後靜態快照遺失。")
+                return 1
+
             with urlopen(f"http://127.0.0.1:{埠號}/events", timeout=3) as 回應:
                 事件行 = []
                 for _ in range(4):
@@ -398,15 +467,67 @@ def 執行自我測試() -> int:
                 print("自我測試失敗：SSE 沒有送出初始進度事件。")
                 return 1
             with urlopen(f"http://127.0.0.1:{埠號}/history/older-work", timeout=3) as 回應:
-                if "舊報告" not in 回應.read().decode("utf-8"):
+                if "繁體中文測試工作" not in 回應.read().decode("utf-8"):
                     print("自我測試失敗：歷史報告路由錯誤。")
                     return 1
+            try:
+                urlopen(f"http://127.0.0.1:{埠號}/history/invalid-work", timeout=3)
+            except HTTPError as 錯誤:
+                if 錯誤.code != HTTPStatus.NOT_FOUND:
+                    print("自我測試失敗：未驗證歷史報告回傳錯誤狀態。")
+                    return 1
+            else:
+                print("自我測試失敗：歷史路由提供了未驗證正式報告。")
+                return 1
+
+            # 發布完成後，第一次 GET /snapshot 必須強制重讀、回傳 completed，並同步重寫靜態快照。
+            (工作 / "completion-report.html").unlink()
+            (工作 / "spec.md").write_text(
+                "# 測試規格\n\n- 工作識別碼：wp-20260809-120000-a1b2c3d4\n"
+                "- 顯示名稱：繁體中文測試工作\n- 狀態：已核准\n\n"
+                "## 原始需求\n\n- R-001：完成可驗證功能。\n",
+                encoding="utf-8",
+            )
+            (Tickets / "01-first.md").write_text(
+                "# 第一張 Ticket\n\n- 狀態：完成\n\n## 對應原始需求\n\n- R-001：完成可驗證功能。\n\n"
+                "## 目標\n\n建立可驗證功能。\n\n## 前端實際操作驗收\n\n"
+                "- 適用性：不適用\n- 判定依據：此功能沒有使用者介面。\n"
+                "- 操作環境與實際網址：不適用\n- 使用的原生瀏覽器工具：不適用\n"
+                "- 操作步驟與預期結果：不適用\n- 操作結果：不適用\n- 操作證據：不適用\n\n"
+                "## 執行與 Review 紀錄\n\n- Developer 結論：通過\n- Reviewer 模式：both\n"
+                "- Reviewer A 結論：通過\n- Reviewer B 結論：通過\n"
+                "- 未關閉阻擋或重要 Findings：0\n- Ticket 最終驗收：通過\n\n"
+                "## 阻擋與裁決紀錄\n",
+                encoding="utf-8",
+            )
+            候選 = 工作 / "completion-report.pending.html"
+            候選.write_text(
+                建立結案測試文件(
+                    "implement",
+                    "wp-20260809-120000-a1b2c3d4",
+                    {"R-001": "完成可驗證功能。"},
+                ),
+                encoding="utf-8",
+            )
+            發布問題 = 發布候選報告(候選, "implement", 工作)
+            if 發布問題:
+                print(f"自我測試失敗：即時發布失敗：{'；'.join(發布問題)}")
+                return 1
+            with urlopen(f"http://127.0.0.1:{埠號}/snapshot", timeout=3) as 回應:
+                發布後資料 = json.loads(回應.read().decode("utf-8"))
+            if 發布後資料["報告狀態"] != "completed":
+                print("自我測試失敗：發布後第一次 snapshot 沒有立即回傳 completed。")
+                return 1
+            靜態快照 = 共享.輸出路徑.read_text(encoding="utf-8")
+            if '"報告狀態":"completed"' not in 靜態快照 or "/history/wp-20260809-120000-a1b2c3d4" not in 靜態快照:
+                print("自我測試失敗：發布後 snapshot 沒有同步 completed 與正式報告連結到靜態進度頁。")
+                return 1
         finally:
             伺服器.shutdown()
             伺服器.server_close()
             執行緒.join(timeout=3)
 
-    print("自我測試通過：唯一工作、靜態快照、動態 Port、SSE 資料與歷史報告皆正常。")
+    print("自我測試通過：靜態快照、32×20 並行 snapshot、動態 Port、SSE 與只顯示已驗證正式報告的歷史皆正常。")
     return 0
 
 

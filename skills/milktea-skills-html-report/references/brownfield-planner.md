@@ -8,7 +8,9 @@
 
 完成唯讀架構盤點後，產生 Spec 與 Tickets 之前。
 
-只有呼叫者識別為 brownfield-planner，而且 Architecture Auditor 已交回完整盤點證據時才能產生。固定寫入 docs/architecture-reviews/YYYY-MM-DD-範圍.html；同一次盤點修改時更新同一份報告。
+只有呼叫者識別為 brownfield-planner，而且 Architecture Auditor 已交回完整盤點證據時才能產生。盤點開始時即沿用 Planner 建立的唯一工作識別碼，固定寫入 `docs/architecture-reviews/<工作識別碼>/architecture-review.html`；同一次盤點修改時更新同一份報告，不以日期或範圍名稱共用檔案。
+
+驗證時傳入 `--project-root <專案根目錄> --work-id <工作識別碼>`；HTML 根元素的 `data-work-id`、目錄名稱與傳入值必須完全一致。
 
 ## 首頁先回答
 

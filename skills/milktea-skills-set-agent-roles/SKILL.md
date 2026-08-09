@@ -81,11 +81,11 @@ Reviewer B: <cli> | <model 或 default> | <effort 或 default>
 - 不讀專案 README／AGENTS，不遞迴掃描磁碟，不找任意名稱的 CLI，不安裝或登入工具。
 - 使用者提供精確 CLI 路徑時可驗證該路徑；不得接受未經驗證的任意命令字串。
 
-只有一個後端可用時允許三個可設定角色共用，但標示缺少跨模型獨立性。執行時只為 Developer 與啟用 Reviewer 建立隔離 Agent。
+Implement 在派發每張尚未派發的 Ticket 前，逐一判斷 Developer、Reviewer A 與 Reviewer B；每個沒有使用者明確設定的角色都套用相容角色預設：Claude 與 Codex 都可用時由 Claude 擔任 Developer、Codex 擔任 Reviewer A／B；只有 Claude 時三個角色都使用不同的 Claude Agent；只有 Codex 時三個角色都使用不同的 Codex Agent。Core Agent 本身是 Claude 或 Codex 不影響這個預設。只有一個後端不是阻擋理由，但每個啟用角色仍須使用隔離 Agent，並標示「同後端獨立 Review」。
 
 模型 ID 按使用者原文記錄，不猜測或改寫。不得為任何角色設定 Haiku；Sonnet 的 `model_reasoning_effort` 必須是 `high`、`xhigh`、`max` 或更高的使用者明確值。`max` 只在使用者明確指定時記錄。其他模型的推理強度可依使用者原文保存，留待派工時由後端驗證；它是推理強度，不是 Token 上限。
 
-新格式 Ticket 的 Developer 模型與推理強度由 Ticket 的「初始執行配置」控制；本分支的 Developer 設定只作為 CLI 偏好與舊 Ticket 的明確回退。要更改已核准 Ticket 的模型時，必須更新該 Ticket，不得用 Task 設定無聲覆蓋。
+Ticket 的「初始執行配置」只在 Developer 沒有使用者明確設定時作為預設偏好，不是不可覆寫的硬鎖。使用者透過本 Skill 明確設定任一角色的 CLI、模型或推理強度時，只覆寫該角色，從下一張尚未派發的 Ticket 生效；其他角色保留既有明確設定，從未有明確設定的角色才套用相容角色預設，已派發 Ticket 保持原配置。明確設定在派工時不可用或與指定模型不相容時必須清楚阻擋，不得偷偷換後端、模型或推理強度。每次實際派工仍須記錄 backend、CLI、model 與 `model_reasoning_effort` 或模型預設。
 
 只更新使用者填寫的角色，其他角色保持不變。完成後退出。
 
