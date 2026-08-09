@@ -1,6 +1,6 @@
 ---
 name: milktea-skills-implement
-description: 執行已核准的 Spec 與 Tickets。依 Ticket 指定配置安全並行派工，讓 Developer 與獨立 Reviewer 依證據完成定向複驗與共識；整個 Task 的所有 Tickets 與最終總驗收完成後，才以 implement 固定識別呼叫共用 HTML 報告技能產生一次功能完成驗收報告。
+description: 執行已核准的 Spec 與 Tickets。以 Ticket 為唯一進度來源，提供 SSE 非同步繁體中文進度頁，依指定配置安全並行派工，完成獨立 Review、方向性阻擋裁決及原生瀏覽器驗收；只有整個 Task 全部通過後才產生不可覆寫的結案報告。
 ---
 
 # Milktea 功能實作
@@ -13,10 +13,24 @@ Coordinator 是流程管理者，不是開發者、Reviewer 或技術真理的�
 
 - Spec、Tickets、依賴、測試接縫與驗收條件已核准。
 - 專案指令、兩份 `docs/planning/` 文件、`CONTEXT.md` 與相關 ADR 可讀。
-- `docs/work/<功能名稱>/tickets/` 內的本機 Ticket 檔案可讀寫。
+- 交接指定的實際工作目錄、Spec 與 `tickets/` 可讀寫；新工作目錄使用唯一工作識別碼，舊工作沿用實際交接路徑。
 - 工作目錄與基準版本明確。
 
 缺少必要資料時停止並指出缺口。
+
+## 工作識別與非同步進度頁
+
+實作前先完成：
+
+1. 從交接內容與 Spec 讀取工作識別碼、繁體中文顯示名稱及實際工作目錄；三者不一致時停止，不自行重命名。舊工作沒有新格式識別碼時，以實際工作目錄名稱作為既有識別，不搬移或改名。
+2. 若實際工作目錄已存在 `completion-report.html`，先以 `implement` 與實際工作目錄唯讀驗證：通過時顯示既有報告並停止；失敗時回報 `BLOCKED: PREMATURE_COMPLETION_REPORT_EXISTS` 與實際錯誤，不覆寫、不刪除，也不在同一識別碼繼續新需求。
+3. 只為進度功能讀取 `$milktea-skills-html-report` 的 `references/progress.md`，使用其 `scripts/progress_server.py` 與 `assets/progress.html`。此時不得讀取或產生 Implement 結案報告。
+4. 以實際工作目錄啟動進度服務，固定綁定 `127.0.0.1` 並傳入 Port `0` 讓作業系統配置可用 Port。進度頁使用 SSE 接收事件，禁止前端輪詢、自動重新整理或整頁重載。
+5. 把實際進度網址與 `progress-report.html` 絕對路徑交給使用者。服務只讀 Spec、Tickets 與既有結案報告；Ticket 仍是唯一進度來源，不建立第二套狀態資料。
+6. 進度服務或必要 Runtime 不可用時回報 `BLOCKED: PROGRESS_REPORT_UNAVAILABLE`，附實際錯誤；不得改成定時重新整理或假裝已推送。
+7. 每次 Coordinator 更新 Ticket 狀態或證據後，SSE 服務自行讀取並推送。Task 結束時停止服務，但保留最後的本機進度快照。
+
+不同工作識別碼的報告與 Port 互相隔離。同一 Git 工作目錄內的獨立 Task 並不因此取得跨 Task 寫入鎖；偵測到其他進行中變更與本次 Exclusive write scope 重疊時，回報 `BLOCKED: CONCURRENT_WORKTREE_CONFLICT`，不得覆寫、清除或擅自建立 Worktree。
 
 ## 工作環境預檢
 
@@ -112,6 +126,7 @@ Reviewer B 未啟用時，不讀取或檢查 Open Code Review 設定。Reviewer 
 7. 依 Reviewer 契約派出所有啟用 Reviewer；提供相同 snapshot、Spec、Ticket、兩份 `docs/planning/` 文件、`CONTEXT.md`、ADR 與開發證據。啟用兩位且 slots 足夠時同時派發，並依 `reviewer_mode` 指定各自唯一的 `review_axis`；Reviewer B 只有 Standards 軸可使用 OCR。
 8. 要求每位啟用 Reviewer 載入 `$milktea-skills-code-review`，只完成指定軸；不得檢查另一軸或評論其他並行 Ticket 的變更。單 Reviewer 模式才執行兩軸。
 9. Coordinator 把 Reviewer 報告並列交給原 Developer，只追蹤各 Finding 的 `open`、`fixed`、`withdrawn` 與 Owner；不得合併、重新評級或裁決。Developer 逐項重現，正確則在原所有權範圍內修正，錯誤則以程式、測試、正式文件或研究證據反駁。
+   收到需要處理的 Finding 時，Coordinator 把 Ticket 更新為「修正中」；這是正常迭代，不是使用者阻擋。
 10. Findings 修正後，Coordinator 依實際影響明確指定要重跑的驗收；不得因修改行數少就省略高風險驗證，也不得預設重跑全套。把每個 Finding 的修正、反證與新 snapshot 只交回提出它的原 Reviewer 定向複驗；除非變更使原 Review 範圍或證據失效，不重新執行完整 Review。
 11. Developer 與 Finding Owner 有分歧時，持續使用最小辨別測試、第一手來源或 `$milktea-skills-research` 補證，直到 Owner 關閉或撤回 Finding。只有缺少產品價值、公開契約、不可逆資料處置或安全接受程度等關鍵決策時才交給使用者；不得因一次交換未果就上交，也不得用模型升級投票。
 12. 所有阻擋與重要 Finding 都由 Owner 關閉或撤回後，Coordinator 才把 Ticket 更新為「完成」、保存最終證據並結束本 Ticket 的 Agent；建議級 Finding 不得單獨阻擋完成。
@@ -120,6 +135,22 @@ Reviewer B 未啟用時，不讀取或檢查 Open Code Review 設定。Reviewer 
 Reviewer B 回報 `OCR_DELEGATE_UNAVAILABLE` 時，Coordinator 保存錯誤證據，將同一固定 Snapshot 的 Reviewer B 契約改為 `review_engine: native` 後重試一次。此回退不得觸發安裝、更新、API Key 詢問或改派 Reviewer A；原生 Review 成功時把降級原因寫入 Ticket。
 
 適用 Ticket 缺少 TDD，或缺少 Code Review Skill 時停止並回報；不得自行模擬或跳過。
+
+## 方向性阻擋與使用者裁決
+
+不得以修改次數、測試次數或對話長度判定需要使用者裁決。Bug 修正、測試失敗、Review Finding 與同一核准方案內的正常迭代由 Developer、Reviewer 與 Coordinator 繼續處理。
+
+只有下列任一條件有實際證據時，才把 Ticket 更新為「阻擋」並請使用者裁決：
+
+- 原始需求存在多種合理解讀，且會產生不同可觀察行為。
+- 驗收標準不足，無法客觀判定哪個結果才正確。
+- 多個有證據的可行嘗試都遇到相同根因。
+- 下一步必須改變功能方向、核准範圍、公開行為或使用體驗。
+- 現有技術、資料或外部服務明確無法支持原方案。
+
+升級前先讀取原始需求、Spec、Ticket、對話與實測證據，提出一至三個可能意圖及較簡單的可行方案；可以推論候選，但不得把推論當成已確認需求。Coordinator 必須把下列內容追加到 Ticket 的 `## 阻擋與裁決紀錄`，再透過進度頁與聊天框用白話顯示：原始需求、目前理解、實際卡點、已嘗試方案與證據、不能繼續盲修的原因、可行方案、Agent 建議及需要使用者決定的問題。
+
+使用者裁決只是釐清核准需求且不擴大範圍時，保存裁決證據後恢復受影響 Ticket；若改變範圍或架構，保留現況並回到規劃流程，不在 Implement 內偷偷改 Spec。
 
 ## Ticket 證據紀錄
 
@@ -132,6 +163,7 @@ Reviewer B 回報 `OCR_DELEGATE_UNAVAILABLE` 時，Coordinator 保存錯誤證�
 3. 實際發生時：Debug 根因與回歸測試、Git 衝突取捨與驗證。
 4. Review：各 Reviewer 的指定軸報告、Finding Owner 與狀態、各自的 `review_engine`、OCR Delegation 證據或降級原因、Developer 修正或反證、Owner 定向複驗。
 5. 完成：最終 Snapshot、首次完整驗收、Findings 後指定重驗、共識與未解風險。
+6. 方向性阻擋實際發生時：原始需求、歧義或限制、已嘗試方案、證據、簡單替代方案、Agent 建議與使用者裁決。
 
 只追加，不覆寫既有紀錄。寫入失敗時保留完整內容並回報；補寫前不得把 Ticket 標記完成。
 
@@ -146,25 +178,38 @@ Reviewer B 回報 `OCR_DELEGATE_UNAVAILABLE` 時，Coordinator 保存錯誤證�
 ## 完成規則
 
 - 所有核准 Tickets 與驗收條件均有可重現證據。
+- 所有適用的使用者介面需求已由 Claude／Codex 的原生瀏覽器控制能力實際操作並通過；不適用項目有實際判定依據。
 - 必跑指令成功；失敗或未執行項目已明示。
 - 所有阻擋與重要 Findings 已由原 Owner 關閉或撤回，建議級事項未被誤用為阻擋。
 - Developer 與各 Finding Owner 已依證據達成共識；Coordinator 未替雙方裁決或用模型投票。
 - 依 Ticket 與專案 Git 規則提交；未授權不得 Commit 或 Push。
 
+## 前端實際操作驗收
+
+所有 Tickets、Review、修正與定向複驗完成後，Coordinator 依原始需求、Spec 與 Tickets 建立逐項驗收矩陣，再執行最終總驗收：
+
+1. 每張 Ticket 的 `## 前端實際操作驗收` 必須明確標示「適用」或「不適用」及判定依據；不能因沒有既有 E2E 就判定不適用。
+2. 適用項目必須啟動實際應用程式，使用 Claude／Codex 當下平台真正提供的瀏覽器、Chrome 或電腦操作能力，實際點擊、輸入、切換頁面並觀察畫面。專案既有 E2E、API、單元測試與 `curl` 只能補充，不能代替使用者介面操作。
+3. 保存實際工具、環境、網址、操作步驟、預期結果、實際結果、截圖或可重現畫面證據；任一項失敗時把受影響 Ticket 恢復為「修正中」，依原 Developer、Reviewer 與定向複驗流程處理。
+4. 平台沒有可用原生瀏覽器能力時回報 `BLOCKED: BROWSER_ACCEPTANCE_TOOL_UNAVAILABLE`；不得用 HTTP 回應或測試通過冒充畫面驗收。
+5. 登入、CAPTCHA、付款、真實刪除、外部訊息或其他高影響操作缺少授權時，列出確切缺口並取得使用者決定，不擅自執行。
+6. 啟動受測前端前檢查監聽 Port、程序、專案路徑與版本。相同專案且版本正確才可重用；其他專案占用且支援覆寫 Port 時使用另一個可用 Port；固定 Port 無法更換時串行驗收。不得關閉不屬於本 Task 的程序。
+7. 最終結果逐項寫回受影響 Ticket。全部適用項目通過前，不得進入結案報告階段。
+
 ## 最終 HTML 驗收報告
 
-只有上述完成規則全部成立，且再次確認整個 Task 沒有執行中、Review 中、修正中、受阻或未完成的 Ticket 後，才載入 `$milktea-skills-html-report`，並明確傳入：
+只有上述完成規則與前端實際操作驗收全部成立，且再次確認整個 Task 沒有執行中、Review 中、修正中、受阻或未完成的 Ticket 後，才載入 `$milktea-skills-html-report` 的 Implement 結案規格，並明確傳入：
 
 - 呼叫者識別：`implement`。
 - 觸發階段：全部 Tickets、Review、修正、複驗與最終總驗收均已完成。
-- 功能名稱與輸出路徑：`docs/work/<功能名稱>/completion-report.html`。
+- 工作識別碼、繁體中文顯示名稱、實際工作目錄與輸出路徑：`<實際工作目錄>/completion-report.html`。
 - 原始需求、Spec、全部 Tickets、實際 Diff、架構與資料流差異、量化基準、測試、Reviewer、Finding、風險與版本證據。
 
-固定使用 Implement 專屬規格與模板；不得讀取或混用另外三種報告。每張 Ticket 的 execution environment、Developer 配置、升級原因、`reviewer_mode`、`review_axis`、並行批次、`review_engine`、驗收、重驗與 Finding 證據寫入報告的收合區，不在聊天框逐票列出。
+使用 Implement 專屬事實契約與彈性 HTML 外殼；原始需求決定內容，不強迫不適用的專案區塊，也不得混用其他呼叫者結論。報告必須包含原始需求逐項結果、Ticket 成果、原生瀏覽器驗收或不適用依據、未解風險、回復方式與使用者逐項確認清單。每張 Ticket 的詳細執行與 Review 證據放入收合區，不在聊天框逐票列出。
 
 單張 Ticket 完成、單次 Review、修正或複驗時禁止產生或更新 HTML。任一 Ticket 受阻時只回報阻擋，待所有問題解除並完成全部 Tickets 後才產生一次。
 
-共用 HTML 報告技能不存在時回報 `BLOCKED: HTML_REPORT_SKILL_UNAVAILABLE`。報告驗證失敗時修正同一檔案，通過前不得宣稱 Task 已完整交付。
+產生前再次確認目標檔案不存在；已存在時停止，不能覆寫。共用 HTML 報告技能不存在時回報 `BLOCKED: HTML_REPORT_SKILL_UNAVAILABLE`。驗證時必須傳入實際工作目錄；報告驗證失敗時修正尚未交付的同一檔案，通過前不得宣稱 Task 已完整交付。驗證通過後停止 SSE 服務並保留 `progress-report.html` 最後快照。
 
 驗證通過後聊天框只顯示：
 

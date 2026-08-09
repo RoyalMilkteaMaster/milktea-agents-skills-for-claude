@@ -1,6 +1,6 @@
 ---
 name: milktea-skills-to-ticket
-description: 將已核准中文規格拆成可獨立派工、驗證與 Review 的 Tickets，為每票選擇 Sonnet 5／high 或 Opus 5／high 及升級路徑，並標示依賴、安全並行、寫入所有權、分層驗收、Agent 角色與雙軸 Review。固定寫入 docs/work/功能名稱/tickets/，核准後產生新執行 Task 的共用啟動內容；不開始實作。
+description: 將已核准繁體中文規格拆成可獨立派工、驗證與 Review 的 Tickets，為每票選擇 Sonnet 5／high 或 Opus 5／high 及升級路徑，並標示依賴、安全並行、寫入所有權、分層驗收、Agent 角色與雙軸 Review。沿用 Spec 的唯一工作目錄寫入 tickets/，核准後產生新執行 Task 的共用啟動內容；不開始實作。
 ---
 
 # Milktea 規格拆票
@@ -15,8 +15,9 @@ Spec 缺少時停止，不猜測。
 
 ## 儲存位置
 
-- 固定把每張 Ticket 寫成 `docs/work/<功能名稱>/tickets/<NN>-<slug>.md`。
-- `<功能名稱>` 必須沿用 Spec 所在工作目錄；Ticket 從 `01` 連續編號，不自行建立另一個工作包。
+- 固定把每張 Ticket 寫入 Spec 所在工作目錄的 `tickets/<NN>-<slug>.md`。新工作實際路徑為 `docs/work/<工作識別碼>/tickets/<NN>-<slug>.md`。
+- 工作識別碼、顯示名稱與工作目錄必須沿用 Spec；Ticket 從 `01` 連續編號，不自行建立另一個工作包或重新命名。
+- 舊 Spec 位於 `docs/work/<功能名稱>/` 時沿用其實際目錄，不搬移、不改名。
 - 不為了拆票或交接執行 `git add`、Commit、Push、建立 Repository 或修改 Git 設定。
 
 ## 流程
@@ -40,6 +41,7 @@ Spec 缺少時停止，不猜測。
    - 寫入所有權、共用資源鎖與衝突原因。
    - Developer 配置摘要、Reviewer 分工、測試與驗收。
    - 風險、回復方式、Spec 與全部 Ticket 實際路徑。
+   - 工作識別碼、繁體中文顯示名稱與實際工作目錄。
 4. Grill-me 使用上述資料產生並顯示實作藍圖 HTML。
 5. 只有 Grill-me 回報使用者已核准 HTML 後，才把全部 Tickets 更新為「已核准」，填妥唯一交接內容並交回 Grill-me。
 
@@ -65,6 +67,10 @@ Spec 缺少時停止，不猜測。
 
 ## 目標
 
+## 對應原始需求
+
+- 逐項保留核准需求的原文或穩定識別，不用模糊摘要取代。
+
 ## 使用者價值
 
 ## 範圍
@@ -83,6 +89,15 @@ Spec 缺少時停止，不猜測。
 - Findings 修正後：由 Coordinator 依影響範圍指定要重跑的指令，不預設重跑全套。
 - 必交證據：Ready for Review 的完整驗收結果、退出碼、必要執行輸出與變更摘要。
 - 保存位置：本 Ticket 的「執行與 Review 紀錄」。
+
+## 前端實際操作驗收
+
+- 適用性：適用／不適用
+- 判定依據：對應哪項使用者介面需求；不適用時寫明理由
+- 操作環境與實際網址：執行階段填寫
+- 使用的原生瀏覽器工具：執行階段填寫
+- 操作步驟與預期結果：適用時逐項列出
+- 操作結果與證據：執行階段填寫；通過前不得標記完成
 
 ## 依賴
 
@@ -120,11 +135,24 @@ Spec 缺少時停止，不猜測。
 - Developer 與各 Finding Owner 對關閉或撤回事由達成共識。
 
 ## 執行與 Review 紀錄
+
+## 阻擋與裁決紀錄
+
+只有真正需要方向裁決時才追加下列欄位；一般 Bug 修正、測試失敗、Review Finding 或同一方案內的迭代不得寫成使用者阻擋：
+
+- 原始需求：
+- 目前理解：
+- 實際卡住的原因：
+- 已嘗試方案與證據：
+- 為什麼不能繼續盲修：
+- 簡單可行方案：
+- Agent 建議：
+- 需要使用者決定：
 ```
 
 ## 拆票規則
 
-- 狀態只能是「草稿、已核准、執行中、Review 中、完成、阻擋」之一。
+- 狀態只能是「草稿、已核准、執行中、Review 中、修正中、完成、阻擋」之一。
 - 每張 Ticket 只交付一個可驗證結果。
 - 每張 Ticket 必須有明確驗收條件，不以「完成實作」作為驗收。
 - 優先建立能端到端驗證的最小切片，再逐步擴充。
@@ -160,6 +188,9 @@ $milktea-skills-implement
 不要重新執行 grill-me，不要重新訪談、設計架構、產生 Spec 或拆票。以下已核准文件是唯一工作來源。
 
 專案根目錄：<實際路徑>
+工作識別碼：<實際工作識別碼>
+顯示名稱：<實際繁體中文顯示名稱>
+工作目錄：<實際工作目錄>
 必讀：AGENTS.md、CONTEXT.md、docs/planning/requirements.md、docs/planning/architecture.md、相關 ADR。
 Spec：<已核准的實際路徑>
 Tickets（已核准清單）：<已核准的實際路徑>
@@ -176,6 +207,7 @@ Tickets（已核准清單）：<已核准的實際路徑>
 - 所有 Tickets 皆有依賴、安全並行、寫入所有權、角色、驗收、測試與證據要求。
 - Review 共識規則已納入每張 Ticket 或父規格。
 - 執行、Debug、Git 衝突與 Review 證據的保存位置已寫入 Ticket。
+- 工作識別碼、顯示名稱與實際工作目錄已原樣交接。
 - Tickets 已逐票寫入固定目錄。
 - Grill-me 上游模式：已先回傳結構化規劃資料，並只在 Grill-me 回報 HTML 已核准後更新 Ticket 狀態。
 - 其他模式：Tickets 已由使用者核准且狀態已更新。

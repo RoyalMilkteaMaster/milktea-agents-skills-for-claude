@@ -17,7 +17,7 @@ description: 由使用者明確啟動的中文規劃流水線入口。依序協�
 
 1. `$milktea-skills-grill-check-needs`：確認需求與驗收結果。
 2. `$milktea-skills-grill-architecture`：依核准需求確認架構。
-3. `$milktea-skills-to-spec`：整理已核准內容，不新增決策。
+3. 建立本次工作的唯一工作識別碼與繁體中文顯示名稱，再由 `$milktea-skills-to-spec` 整理已核准內容，不新增決策。
 4. 以上游呼叫者 `grill-me` 載入 `$milktea-skills-to-ticket`：寫入全部草稿 Tickets，回傳依賴、角色、Review、驗收與實際路徑。
 5. 以呼叫者識別 `grill-me` 載入 `$milktea-skills-html-report`，產生實作藍圖核准報告。
 6. 只顯示 HTML 報告連結與核准選項；使用者核准後才把 Tickets 更新為「已核准」。
@@ -33,13 +33,21 @@ description: 由使用者明確啟動的中文規劃流水線入口。依序協�
 - `to-spec` 與 `to-ticket` 只整理已核准內容；不得臨時補需求或架構。
 - Ticket 規劃至少包含目標、依賴、執行角色、Review 角色與驗收條件。
 
+## 工作識別
+
+- 每次獨立工作只建立一個 `wp-YYYYMMDD-HHmmss-xxxxxxxx` 工作識別碼，尾碼使用八位小寫十六進位字元；目錄已存在時重新產生。
+- 工作識別碼建立後，原樣傳給 To Spec、To Ticket、HTML Report 與新的執行 Task，任何階段不得重新命名或另建第二個識別碼。
+- 顯示名稱與唯一識別分離：使用者有提供總名稱時原樣沿用；多項需求有共同目標時使用簡短繁體中文摘要；彼此不同且使用者未命名時使用「<專案名稱> 多需求工作包」。
+- 顯示名稱只供閱讀，不能刪減、合併或改寫原始需求。
+- 舊工作已有實際 `docs/work/<功能名稱>/` 路徑時繼續沿用，不搬移、不覆寫。
+
 ## 實作藍圖報告關卡
 
 只有 Spec 與全部 Tickets 都已完成，且需求覆蓋、依賴、並行批次、寫入所有權、角色、Review 與驗收資料齊全後，才載入 `$milktea-skills-html-report`，並明確傳入：
 
 - 呼叫者識別：`grill-me`。
 - 觸發階段：Spec 與全部 Tickets 已完成，等待使用者核准實作。
-- 功能名稱與輸出路徑：`docs/work/<功能名稱>/implementation-plan.html`。
+- 工作識別碼、顯示名稱與輸出路徑：`docs/work/<工作識別碼>/implementation-plan.html`；舊工作使用已交接的實際路徑。
 - 已核准需求、架構、Spec、全部 Ticket 規劃與實際證據。
 
 固定使用 Grill-me 專屬規格與模板；不得讀取或混用另外三種報告。共用 HTML 報告技能不存在時回報 `BLOCKED: HTML_REPORT_SKILL_UNAVAILABLE`；驗證失敗時修正同一份報告，通過前不得要求使用者核准或產生交接。
@@ -86,7 +94,7 @@ Claude Code、Codex CLI 或無頂層 Task 工具的平台，不顯示無法執�
 ## 完成條件
 
 - 需求、架構、Spec 與 Tickets 均經使用者核准。
-- Spec 與 Tickets 已保存到 `docs/work/<功能名稱>/`。
+- Spec 與 Tickets 已保存到唯一工作目錄，工作識別碼與顯示名稱已交接。
 - 實作藍圖報告已使用呼叫者識別 `grill-me` 產生並通過驗證，且使用者已核准。
 - Ticket 角色、依賴、Review 與驗收條件完整。
 - 完整交接內容已使用實際路徑顯示。

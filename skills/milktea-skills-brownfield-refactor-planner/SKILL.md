@@ -117,12 +117,15 @@ HTML 報告：[開啟架構健檢報告](<實際絕對路徑>)
 ### 6. 產生 Spec 與 Tickets
 
 1. 既有需求文件缺少、過期或衝突時，載入 `$milktea-skills-grill-check-needs`，只補本次重構需要的決策。
-2. 以 Planner 上游模式載入 `$milktea-skills-to-spec`，把已核准的報告選擇與架構決策寫入 `docs/work/<功能名稱>/spec.md`。
-3. 顯示 Spec 並取得使用者核准；需要修改時更新同一份文件。
-4. 以 Planner 上游模式載入 `$milktea-skills-to-ticket`，把已核准 Spec 拆到 `docs/work/<功能名稱>/tickets/`。
-5. 顯示完整 Tickets、依賴、角色、Review、原有功能確認及驗收條件，取得使用者核准。
+2. 建立本次重構唯一的 `wp-YYYYMMDD-HHmmss-xxxxxxxx` 工作識別碼與繁體中文顯示名稱。目錄已存在時重新產生；顯示名稱只供閱讀，不得改寫核准範圍。
+3. 以 Planner 上游模式載入 `$milktea-skills-to-spec`，把工作識別碼、顯示名稱、已核准的報告選擇與架構決策寫入 `docs/work/<工作識別碼>/spec.md`。
+4. 顯示 Spec 並取得使用者核准；需要修改時更新同一份文件。
+5. 以 Planner 上游模式載入 `$milktea-skills-to-ticket`，把已核准 Spec 拆到 `docs/work/<工作識別碼>/tickets/`。
+6. 顯示完整 Tickets、依賴、角色、Review、原有功能確認及驗收條件，取得使用者核准。
 
 `to-spec` 與 `to-ticket` 只整理已核准的報告選擇及架構決策，不得臨時新增需求或擴大重構範圍。
+
+舊工作已有實際 `docs/work/<功能名稱>/` 交接路徑時繼續沿用，不搬移、不改名、不覆寫；新工作把同一工作識別碼原樣交給 Spec、Tickets、HTML 與 Brownfield Implement。
 
 ### 7. 唯一 Task 交接
 
@@ -135,6 +138,9 @@ Spec 與 Tickets 核准後，顯示下列同一份內容，並把所有占位符
 如果目前環境找不到此 Skill，請停止並回報，不得自行模擬或改用其他流程。
 
 專案根目錄：<實際路徑>
+工作識別碼：<實際工作識別碼>
+顯示名稱：<實際繁體中文顯示名稱>
+工作目錄：<實際工作目錄>
 必讀：AGENTS.md、CONTEXT.md、docs/planning/requirements.md、docs/planning/architecture.md、相關 ADR。
 HTML 架構報告：<實際路徑>
 Spec：<已核准的實際路徑>
@@ -159,5 +165,6 @@ Codex Desktop 有使用者可見的頂層 Task 建立工具時，顯示內容後
 - 使用者已從報告選定重構方案。
 - 目標架構、遷移、回滾與原有功能確認方式已核准。
 - Spec 與 Tickets 只包含核准範圍，且皆已核准。
+- 工作識別碼、顯示名稱與實際工作目錄已原樣交接，沒有覆寫既有工作。
 - 唯一交接內容已填入實際路徑並顯示。
 - Planner Task 尚未開始實作。

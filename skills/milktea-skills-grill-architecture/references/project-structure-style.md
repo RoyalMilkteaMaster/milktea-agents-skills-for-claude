@@ -53,10 +53,12 @@ workspace/                    # 同一專案家族的外層工作區
 │     ├─ planning/            # 已核准規劃
 │     │  ├─ requirements.md   # 核准需求
 │     │  └─ architecture.md   # 核准架構與資料流
-│     ├─ work/                # 已核准 Spec、Tickets 與執行證據
-│     │  └─ <feature>/        # 單一功能工作包
-│     │     ├─ spec.md        # 本次規格
-│     │     └─ tickets/       # 每票一個 Markdown
+│     ├─ work/                # 已核准 Spec、Tickets、進度與執行證據
+│     │  └─ <work-id>/        # 唯一工作識別碼，不靠功能名稱避免撞名
+│     │     ├─ spec.md        # 本次規格與顯示名稱
+│     │     ├─ tickets/       # 每票一個 Markdown
+│     │     ├─ progress-report.html   # 執行中非同步進度頁
+│     │     └─ completion-report.html # 全部驗收後才存在的結案報告
 │     ├─ adr/                 # 重大且難逆轉的架構決策
 │     ├─ feasibility/         # 可行性評估 Markdown
 │     ├─ architecture-reviews/ # 架構健檢 HTML
@@ -109,8 +111,9 @@ PROJECT_RUNTIME_ROOT=D:/workspace/<project>_runtime
 - `CONTEXT.md`：只記錄已確認的專有名詞、關係與歧義。
 - `docs/planning/requirements.md`：核准需求。
 - `docs/planning/architecture.md`：核准架構與資料流。
-- `docs/work/<功能名稱>/spec.md`：本機 Spec。
-- `docs/work/<功能名稱>/tickets/`：本機 Tickets、狀態與執行證據。
+- `docs/work/<工作識別碼>/spec.md`：新工作的本機 Spec、工作識別碼與繁體中文顯示名稱。
+- `docs/work/<工作識別碼>/tickets/`：新工作的本機 Tickets、狀態與執行證據。
+- 舊的 `docs/work/<功能名稱>/` 仍是合法既有工作目錄；只沿用實際交接路徑，不搬移、不改名、不覆寫。
 - `docs/adr/`：ADR；需要寫入時才建立。
 - `docs/feasibility/`：可行性報告；需要寫入時才建立。
 - `docs/architecture-reviews/`：架構健檢 HTML；需要寫入時才建立。
