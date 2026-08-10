@@ -53,18 +53,14 @@ workspace/                    # 同一專案家族的外層工作區
 │     ├─ planning/            # 已核准規劃
 │     │  ├─ requirements.md   # 核准需求
 │     │  └─ architecture.md   # 核准架構與資料流
-│     ├─ work/                # 從草稿、核准到完成的工作文件與證據
-│     │  └─ <work-id>/        # 唯一工作識別碼，不靠功能名稱避免撞名
-│     │     ├─ spec.md        # 本次規格、狀態與顯示名稱
-│     │     ├─ tickets/       # 每票一個 Markdown，含草稿到完成狀態
-│     │     ├─ implementation-plan.html # Ticket 草稿完成後的實作藍圖
-│     │     ├─ progress-report.html   # 執行中非同步進度頁
-│     │     └─ completion-report.html # 全部驗收後才存在的結案報告
+│     ├─ work/                # 已核准 Spec、Tickets 與完成報告
+│     │  └─ <feature>/        # 單一功能工作包
+│     │     ├─ spec.md        # 本次規格
+│     │     ├─ tickets/       # 每票一個 Markdown
+│     │     └─ completion-report.html # 完成後才產生
 │     ├─ adr/                 # 重大且難逆轉的架構決策
 │     ├─ feasibility/         # 可行性評估 Markdown
-│     ├─ architecture-reviews/ # 架構健檢工作目錄
-│     │  └─ <work-id>/        # 盤點開始即建立的唯一工作識別碼
-│     │     └─ architecture-review.html # 該工作的唯一架構健檢 HTML
+│     ├─ architecture-reviews/ # 架構健檢 HTML
 │     └─ assets/              # 文件與報告使用的靜態資產
 │        └─ feasibility/      # 可行性分級 SVG
 │
@@ -114,16 +110,15 @@ PROJECT_RUNTIME_ROOT=D:/workspace/<project>_runtime
 - `CONTEXT.md`：只記錄已確認的專有名詞、關係與歧義。
 - `docs/planning/requirements.md`：核准需求。
 - `docs/planning/architecture.md`：核准架構與資料流。
-- `docs/work/<工作識別碼>/spec.md`：新工作的本機 Spec、工作識別碼與繁體中文顯示名稱。
-- `docs/work/<工作識別碼>/tickets/`：新工作的本機 Tickets、狀態與執行證據。
-- `docs/work/<工作識別碼>/implementation-plan.html`：Spec 已核准且全部 Tickets 仍為草稿時產生的唯一實作藍圖；HTML `data-work-id` 必須與工作識別碼一致。
-- 舊的 `docs/work/<功能名稱>/` 仍是合法既有工作目錄；只沿用實際交接路徑，不搬移、不改名、不覆寫。
+- `docs/work/<功能名稱>/spec.md`：本機 Spec。
+- `docs/work/<功能名稱>/tickets/`：本機 Tickets。
+- `docs/work/<功能名稱>/completion-report.html`：全部實作與驗收完成後產生的報告。
 - `docs/adr/`：ADR；需要寫入時才建立。
 - `docs/feasibility/`：可行性報告；需要寫入時才建立。
-- `docs/architecture-reviews/<工作識別碼>/architecture-review.html`：每次 Brownfield 盤點的唯一架構健檢 HTML；工作識別碼在盤點開始時建立，不使用日期或範圍名稱避免同名覆寫。
+- `docs/architecture-reviews/`：架構健檢 HTML；需要寫入時才建立。
 - `docs/assets/`：報告資產；不得連回 Skill 安裝目錄。
 - Spec 與 Tickets：只存 `docs/work/`，維持單一真相。
-- 執行、Debug、Git 衝突與 Review 證據：追加到對應本機 Ticket 的 `## 執行與 Review 紀錄`。
+- 執行、Debug、Git 衝突與 Review 證據由 Implement 彙整到同一份完成報告，不回寫 Tickets。
 - 以上路徑固定；不得把需求、架構或報告正文複製到 `CONTEXT.md`。
 - 長期文件放 Code Root；業務資料放 Data Root；模型與大型應用程式放 Runtime Root。
 - 只在實際產出時建立所需目錄，不預建空骨架。

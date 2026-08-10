@@ -1,151 +1,110 @@
 ---
 name: milktea-skills-set-agent-roles
-description: 由使用者明確呼叫的快速 Task 設定器。入口先讓使用者只選一項要調整的功能：共同執行環境、Developer／Reviewer 角色與模型、Reviewer A／B 開關，或 Reviewer B 的 Open Code Review；只載入所選分支、批次收集該分支需要的答案，完成後立即退出。使用者直接說出要改的項目與值時跳過選單。只更新目前 Task 的設定，不派工；Reviewer 預設雙開且至少保留一位，OCR 安裝仍須兩層確認。
+description: 快速設定目前專案共用的執行環境，以及 Developer、Reviewer A、Reviewer B 的 Agent、CLI、模型與推理強度。設定固定寫入專案的 `.milktea/agent-settings.yaml`，供之後所有 Implement 與 Brownfield Implement Task 直接使用；也可檢查或安裝 Reviewer B 使用的 Open Code Review。不派工、不實作。
+disable-model-invocation: true
 ---
-
 # Milktea Skills Set Agent Roles
 
-只修改目前 Task 的設定，不開始實作或 Review。
+快速修改目前專案共用的 Agent 設定，不開始實作或 Review。
 
-## 快速入口（最高優先）
+## 專案設定檔
 
-使用者沒有直接指定項目時，第一個動作必須是使用平台原生選項介面詢問：
+使用者已提供專案根目錄時直接使用；否則使用目前唯一的工作區根目錄。只有無法判斷目標專案時才詢問一次，不讀取專案文件或掃描其他目錄。
+
+設定只保存在：
+
+```text
+<專案根目錄>/.milktea/agent-settings.yaml
+```
+
+這是唯一設定來源。檔案不存在時，以自動環境與自動角色建立；檔案內容無法安全讀取時停止並指出問題，不覆寫原檔。
+
+## 快速入口
+
+使用者沒有直接指定要改什麼時，第一個動作是使用平台原生選項介面詢問：
 
 > 這次要調整哪一項？
 
 1. **開發環境** — PowerShell、WSL 或其他已安裝 CLI 的環境
 2. **角色設定** — Developer、Reviewer A／B、模型與推理強度
-3. **Reviewer A ＋ B（預設）** — 兩位都開啟
-4. **只開 Reviewer A** — 關閉 Reviewer B
-5. **只開 Reviewer B** — 關閉 Reviewer A
-6. **Reviewer B OCR** — 開啟、關閉或安裝 Open Code Review
+3. **Reviewer B OCR** — 檢查或安裝 Open Code Review
 
-平台沒有原生選項介面時，直接用一則短訊息顯示上述 `1／2／3／4／5／6` 選單並等待一次回答；不得因此停止、載入其他資料或改成逐題詢問。
+平台沒有原生選項介面時，以一則短訊息顯示 `1／2／3` 並等待一次回答。
 
-在使用者選擇前，不得：
+使用者已直接說明「改成 WSL」、「把 Reviewer A 改成 Codex high」或「安裝 OCR」等具體要求時，跳過選單並執行對應分支。
 
-- 讀取任何 `references/`。
-- 掃描專案文件、磁碟、WSL、CLI 或 OCR。
-- 詢問角色、模型、推理強度、Reviewer 開關或 OCR。
-
-使用者已明說「改成 WSL」、「把 Reviewer A 改成 Codex high」、「只開 Reviewer A」或「關閉 OCR」等具體要求時，跳過入口選單，直接執行對應分支。
-
-一次只執行一個分支。完成後輸出變更摘要並立即結束，不詢問是否還要調整其他項目。
+選擇分支前不讀 Reference、不偵測環境、CLI 或 OCR。進入分支後，只讀設定檔與該分支需要的資料；一次只處理一個分支，完成後立即結束。
 
 ## A. 開發環境
 
-只有選擇本分支才讀 `references/execution-environments.md`。
+只有進入本分支才讀取 `references/execution-environments.md`。
 
-未指定目標時，提供：
+使用者沒有指定目標時，提供：
 
 1. Windows PowerShell
 2. WSL
-3. 其他已安裝 CLI 的環境（AI 唯讀偵測）
+3. 其他已安裝 CLI 的環境
 
-只驗證使用者選中的環境：
+只驗證選中的環境。多個 WSL distribution 或其他環境會實際改變結果時，才追加一次選擇；不安裝、不登入，也不檢查角色 CLI。
 
-- PowerShell：確認 PowerShell、Windows 專案路徑與 Git 工作樹。
-- WSL：確認 `wsl.exe`、實際 distribution、預設 Shell 與 Linux 專案路徑；不假設 Ubuntu。多個 distribution 且沒有明確預設時才追加一次選擇。
-- 其他環境：依參考契約做有限的唯讀偵測，不安裝或登入工具。
-
-記錄 `preference`、kind、distribution、Shell、command prefix 與專案路徑。環境改變時保留角色選擇，但不立即偵測角色 CLI。
-
-OCR 安裝是環境專屬。若先前 OCR 已開啟，環境改變後保留 `enabled: true`，但直接將 `review_engine` 改為 `native`、`cli_status` 改為 `not_checked`、`delegate_ready` 改為 false；不檢查、不安裝，等使用者日後選擇 OCR 分支再驗證。
-
-完成後退出。
+把實際環境、Shell、命令前綴與專案路徑寫入設定檔，保留三個角色的設定。
 
 ## B. 角色設定
 
-本分支不讀任何 reference。
+本分支不讀取 Reference，也不掃描專案文件。
 
-先顯示目前三個角色的 CLI、模型與推理強度，再用一個批次表單或一則結構化訊息收集本次修改。不要逐一詢問 Developer、Reviewer A、Reviewer B。
-
-使用格式：
+先從設定檔顯示三個角色目前的 Agent／CLI、模型與推理強度，再用一次批次表單或一則結構化訊息收集修改：
 
 ```text
 只填要改的角色；未填或 keep 代表保持目前設定。
-Developer: <cli> | <model 或 default> | <effort 或 default>
-Reviewer A: <cli> | <model 或 default> | <effort 或 default>
-Reviewer B: <cli> | <model 或 default> | <effort 或 default>
+Developer: <auto 或 agent／cli> | <model 或 default> | <effort 或 default>
+Reviewer A: <auto 或 agent／cli> | <model 或 default> | <effort 或 default>
+Reviewer B: <auto 或 agent／cli> | <model 或 default> | <effort 或 default>
 ```
 
-- `default` 用於 model 時移除明確 model；用於 effort 時移除 `model_reasoning_effort`。
-- 使用者只想改一個角色時，只顯示該角色的一行。
-- 平台無法提供批次表單時，顯示上述一次性文字模板；不得退回三個角色逐題詢問。
+使用者只修改一個角色時，只顯示該角色的一行。Developer 使用 `auto` 時，由 Implement 依每張 Ticket 難度分派；Reviewer 使用 `auto` 時，由 Implement 選擇可用角色。`default` 用於 model 或 effort 時，移除該欄的明確設定。
 
-### 快速偵測
+### 快速驗證
 
-- 只改 model 或 effort 且保留目前 CLI 時，不做 CLI 偵測。
-- 需要更換 CLI 時，只在目前 `execution_environment` 檢查平台已提供的 Agent 後端，以及 `claude`、`codex`、`agy` 的 `PATH` 與安全版本命令。
-- Windows PowerShell 使用 `Get-Command`；Linux／WSL 使用 `command -v`；每個外部版本探測使用短逾時。
-- 不讀專案 README／AGENTS，不遞迴掃描磁碟，不找任意名稱的 CLI，不安裝或登入工具。
-- 使用者提供精確 CLI 路徑時可驗證該路徑；不得接受未經驗證的任意命令字串。
+- 只改 model 或 effort 且保留目前 Agent／CLI 時，不重新偵測 CLI。
+- 更換 Agent／CLI 時，只檢查平台已提供的 Agent，以及設定環境中 `claude`、`codex` 的 `PATH` 與安全版本命令。
+- Windows PowerShell 使用 `Get-Command`；Linux／WSL 使用 `command -v`；外部版本探測使用短逾時。
+- 不遞迴掃描磁碟、不安裝、不登入，也不接受未驗證的任意命令字串。
 
-Implement 在派發每張尚未派發的 Ticket 前，逐一判斷 Developer、Reviewer A 與 Reviewer B；每個沒有使用者明確設定的角色都套用相容角色預設：Claude 與 Codex 都可用時由 Claude 擔任 Developer、Codex 擔任 Reviewer A／B；只有 Claude 時三個角色都使用不同的 Claude Agent；只有 Codex 時三個角色都使用不同的 Codex Agent。Core Agent 本身是 Claude 或 Codex 不影響這個預設。只有一個後端不是阻擋理由，但每個啟用角色仍須使用隔離 Agent，並標示「同後端獨立 Review」。
+三個角色固定存在，執行時使用彼此隔離的 Agent。模型 ID 按使用者原文記錄，不猜測或改寫。不得設定 Haiku；Sonnet 的推理強度至少為 `high`，`max` 只在使用者明確指定時記錄。
 
-模型 ID 按使用者原文記錄，不猜測或改寫。不得為任何角色設定 Haiku；Sonnet 的 `model_reasoning_effort` 必須是 `high`、`xhigh`、`max` 或更高的使用者明確值。`max` 只在使用者明確指定時記錄。其他模型的推理強度可依使用者原文保存，留待派工時由後端驗證；它是推理強度，不是 Token 上限。
+## C. Reviewer B OCR
 
-Ticket 的「初始執行配置」只在 Developer 沒有使用者明確設定時作為預設偏好，不是不可覆寫的硬鎖。使用者透過本 Skill 明確設定任一角色的 CLI、模型或推理強度時，只覆寫該角色，從下一張尚未派發的 Ticket 生效；其他角色保留既有明確設定，從未有明確設定的角色才套用相容角色預設，已派發 Ticket 保持原配置。明確設定在派工時不可用或與指定模型不相容時必須清楚阻擋，不得偷偷換後端、模型或推理強度。每次實際派工仍須記錄 backend、CLI、model 與 `model_reasoning_effort` 或模型預設。
+本分支不設定 OCR 開關。先讀取 `references/open-code-review.md`，再於專案設定的執行環境執行：
 
-只更新使用者填寫的角色，其他角色保持不變。完成後退出。
+```text
+node <本 Skill 實際路徑>/scripts/open-code-review.js check --repo <專案實際路徑>
+```
 
-## C. Reviewer 開關
+- 已安裝且可用：顯示版本與實際路徑；之後 Reviewer B 自動使用，不再詢問是否開啟。
+- 尚未安裝：先揭露安裝版本、位置、網路與寫入範圍，再詢問唯一一次安裝確認；肯定回答後才能使用 `install --confirmed`。
+- 拒絕、條件不足或安裝失敗：Reviewer B 使用原生 Review，不阻擋其他工作。
 
-本分支不讀任何 reference，不偵測 CLI 或 OCR。快速入口的三個 Reviewer 選項直接對應：
+取得使用者確認後，可以安裝 OCR；若缺少 Git、Node.js 或 npm，先說明需要安裝的項目、位置與影響，取得使用者確認後一併安裝。不得未經確認自行安裝或升級。
 
-- 快速入口 `3`：**Reviewer A ＋ B（預設）** — `both`
-- 快速入口 `4`：**只開 Reviewer A** — `a_only`
-- 快速入口 `5`：**只開 Reviewer B** — `b_only`
+`不得要求 LLM API Key`
 
-使用者在快速入口點選後立即記錄對應的 `reviewer_mode` 並退出，不顯示第二層選單、不追加問題。
+## 寫入與完成
 
-只接受 `both`、`a_only`、`b_only`。不要改成兩個布林開關；單一模式必須從資料結構保證至少一位 Reviewer 啟用。沒有本分區更新時預設 `both`。
-
-停用 Reviewer 只停止後續派工，不刪除該角色既有的 CLI、模型、`model_reasoning_effort` 或 OCR 設定；重新啟用時直接沿用。設定從下一張尚未派發的 Ticket 生效，已派發 Ticket 的 Reviewer 名單保持不變。
-
-完成後退出。
-
-## D. Reviewer B OCR
-
-使用者已明確要求關閉時，直接記錄 `enabled: false`、`review_engine: native`、`cli_status: not_checked` 與 `delegate_ready: false`；不讀 reference、不做偵測，然後退出。
-
-其他情況先用白話說明：
-
-> Open Code Review（OCR）不是圖片文字辨識。它可以替 Reviewer B 的 Standards Review 整理 Git 變更檔案與 Review 規則，真正判斷仍由 Reviewer B 的 Claude／Codex 完成；Spec Review 不交給 OCR，Delegation Mode 也不需要 OCR 的 LLM API Key。要為目前 Task 開啟嗎？
-
-提供「維持／改為關閉（建議）」與「開啟」。未取得肯定回答，不得偵測或安裝。
-
-選擇開啟後才讀 `references/open-code-review.md`，並在目前執行環境執行 `scripts/open-code-review.js check --repo <project-path>`：
-
-- 檢查成功：記錄 OCR 絕對路徑、版本與 `delegate_ready: true`。
-- OCR 不可用：進行唯一允許的追加問題，也就是第二層安裝確認。完整揭露版本、安裝位置、網路與寫入範圍後，只有肯定回答才能執行 `install --confirmed`。
-- 拒絕、條件不足或安裝失敗：保持 Reviewer B 原生 Review，不阻擋其他設定。
-
-不得安裝 Git、Node.js 或 npm，不得執行 `ocr review`，不得要求 LLM API Key。完成後退出。
-
-## 分區狀態
-
-每次只輸出本次更新的分區；未輸出的分區沿用本 Task 先前值，沒有先前值時由 Implement 使用預設。每個分區最後一次更新取代該分區舊值。
+沒有設定檔時，以以下內容建立：
 
 ```yaml
-settings_update: execution_environment | roles | reviewers | open_code_review
+agent_settings:
+  execution_environment:
+    preference: auto
+  developer:
+    cli: auto
+  reviewer_a:
+    cli: auto
+  reviewer_b:
+    cli: auto
 ```
 
-角色更新可只包含一個角色：
+只修改本次選定的區塊，保留其他設定，並將最新完整內容寫回同一個檔案。不得建立 Task 級副本或第二份設定檔。
 
-```yaml
-settings_update: roles
-reviewer_a:
-  cli: codex
-  model: gpt-5.6-luna
-  model_reasoning_effort: high
-```
-
-Reviewer 開關只輸出單一合法模式：
-
-```yaml
-settings_update: reviewers
-reviewer_mode: a_only
-```
-
-最後只回報：更新了什麼、其他分區未變，以及設定從下一張尚未派發的 Ticket 生效。
+最後只顯示設定檔實際路徑、本次修改與目前三個角色；新設定適用於之後尚未派發的 Tickets，已經派出的 Ticket 不變。

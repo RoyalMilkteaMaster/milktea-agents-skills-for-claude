@@ -1,6 +1,7 @@
 ---
 name: milktea-skills-check-feasibility
 description: 由使用者明確呼叫，以繁體中文獨立評估一項構想、方案或已核准設計的技術可行性、依賴、成本、時間、風險、驗證方式與成功機率區間。適合使用者詢問能否實現、是否值得做或想先取得可行性報告時使用；不屬於 grill-me 流水線，不阻擋規格或 Tickets，不修改程式。
+disable-model-invocation: true
 ---
 
 # Milktea Skills Check Feasibility

@@ -1,6 +1,6 @@
 ---
 name: milktea-skills-debug
-description: 供執行開發任務的 Claude 或 Codex 子 Agent 按需載入。遇到非預期錯誤、錯誤行為、不穩定測試或效能退化時，讀取既有 Spec、planning 文件、CONTEXT.md 與 ADR，重現問題、驗證根因、建立回歸測試、完成最小修正，再繼續原任務。不處理 TDD 刻意產生的 Red 或尚未完成造成的預期失敗。
+description: 供執行開發任務的 Claude 或 Codex 子 Agent 按需載入。遇到非預期錯誤、錯誤行為、不穩定測試或效能退化時，讀取既有 Spec、planning 文件、CONTEXT.md 與 ADR，重現問題、驗證根因、在正確接縫建立回歸測試或記錄替代驗證、完成最小修正，再繼續原任務。不處理 TDD 刻意產生的 Red 或尚未完成造成的預期失敗。
 ---
 
 # Milktea Skills Debug
@@ -9,9 +9,7 @@ description: 供執行開發任務的 Claude 或 Codex 子 Agent 按需載入。
 
 ## 使用方式
 
-- 由正在工作的開發子 Agent 遇到非預期失敗時自行載入。
-- 不預先載入，不由其他 Skill 轉呼叫。
-- 呼叫者必須能使用 Skill 工具並讀取本 Skill。
+- 由正在工作的 Developer 遇到非預期失敗時按需載入；不由 Coordinator 預載，也不另外建立 Debug Agent。
 
 ## 觸發條件
 
@@ -32,6 +30,8 @@ description: 供執行開發任務的 Claude 或 Codex 子 Agent 按需載入。
 
 讀取目前派工、Ticket、Spec、`docs/planning/requirements.md`、`docs/planning/architecture.md`、`CONTEXT.md`、相關 ADR、變更 Diff 與既有測試。先確認問題屬於本次工作，不把無關舊問題混入。
 
+回報命令、輸出、Log、Trace 或擷取檔前，先移除密鑰、Token、Cookie、授權標頭與其他敏感資料；遮蔽後不足以判斷時再請使用者處理。
+
 ## 除錯流程
 
 1. 記錄預期、實際、環境、輸入與完整錯誤。
@@ -48,9 +48,9 @@ description: 供執行開發任務的 Claude 或 Codex 子 Agent 按需載入。
 ## 修正與驗證
 
 1. 選擇符合既有需求與架構限制的最小修正。
-2. 調用 `$milktea-skills-tdd`，把最小重現轉成 Red 回歸測試。
-3. 修改程式，使回歸測試通過。
-4. 重跑最小重現、原始情境、相關測試與 Ticket 必跑指令。
+2. 存在能重現真實問題的正確測試接縫時，使用 `/milktea-agents-skills-for-claude:milktea-skills-tdd` 把最小重現轉成 Red 回歸測試；沒有正確接縫時記錄原因，保留可重現的替代驗證，不建立無法捕捉真實問題的測試。
+3. 修改程式，使回歸測試或替代驗證通過。
+4. 重跑最小重現、原始情境、相關測試，以及 Spec、專案指令或相關程式庫要求的驗證。
 5. 加入臨時觀測的除錯 Agent 必須在回到原任務前，移除所有 Debug 程式碼、暫存 Log 檔案與拋棄式 Harness；只保留正式回歸測試。
 
 不得降低斷言、停用測試、吞掉例外、擴大 Ticket 範圍或以重試掩蓋根因。
@@ -69,9 +69,9 @@ description: 供執行開發任務的 Claude 或 Codex 子 Agent 按需載入。
 
 - 症狀與重現指令。
 - 已確認根因與排除證據。
-- 修正內容與回歸測試。
+- 修正內容與回歸測試，或沒有正確接縫時的理由與替代驗證。
 - 驗證指令、退出碼與關鍵輸出。
 - 已清除的臨時觀測。
 - 未解風險或需要使用者裁決的範圍變更。
 
-把回報交給執行協調者追加到對應本機 Ticket 的 `## 執行與 Review 紀錄`；不得另建 Debug 報告或自行修改 Ticket。
+把精簡證據交給 Implement Coordinator，併入 Developer 的 Ready for Review 回報；不另建 Debug 報告，也不寫入 Ticket。

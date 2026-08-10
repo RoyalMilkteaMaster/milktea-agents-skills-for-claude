@@ -11,9 +11,9 @@ description: 供執行 Git 整合的臨時開發 Agent 按需載入。當 merge�
 
 - 讓臨時開發 Agent 可發現本 Skill，但不得預載完整內容。
 - 臨時開發 Agent 執行 merge、rebase 或 cherry-pick 並收到衝突後，先載入本 Skill，再修改衝突。
-- Skill 不可用時回報 `BLOCKED: GIT_MERGE_CONFLICT_SKILL_UNAVAILABLE`，不得自行亂解。
+- 收到衝突後先通知 Coordinator；同一工作樹仍有其他 Agent 寫入時，等其安全停止或改用隔離工作樹後再繼續。Git 整合完成前，把該工作樹視為排他資源。
 - `implement` 只負責路由、派工與 Review，不親自解衝突。
-- Git 操作完成後才發現程式異常時，改用 `$milktea-skills-debug`。
+- Git 操作完成後才發現程式異常時，改用 `/milktea-agents-skills-for-claude:milktea-skills-debug`。
 
 ## 前提
 
@@ -29,7 +29,7 @@ description: 供執行 Git 整合的臨時開發 Agent 按需載入。當 merge�
 6. 檢查未合併清單、衝突標記、Diff、刪除與重新命名，確認沒有遺漏或無關修改。
 7. 先跑衝突範圍測試，再跑專案要求的型別、測試與格式檢查；修正本次合併造成的失敗。
 8. 依派工與專案 Git 規則精確 Stage 已解決檔案，完成 merge、rebase 或 cherry-pick；需要 Commit 時建立可追溯版本。
-9. 回報 `Ready for Review` 與最終 Snapshot，由 `implement` 依該 Ticket 已固定的 `reviewer_mode` 派出所有啟用 Reviewer 審查合併後版本。
+9. 回報 `Ready for Review` 與最終 Snapshot，由 `implement` 派兩位 Reviewer 審查合併後版本。
 
 ## 規則
 
@@ -49,7 +49,7 @@ description: 供執行 Git 整合的臨時開發 Agent 按需載入。當 merge�
 - 每項解法都能對應雙方意圖或核准取捨。
 - 相關檢查已執行，結果與退出碼已記錄。
 - 無關修改保持不變；Stage 與 Commit 範圍精確可核對。
-- 合併後 Snapshot 已交由 `implement` 進入所有啟用 Reviewer 與啟用角色共識流程。
+- 合併後 Snapshot 已交由 `implement` 進入雙 Reviewer 與三方共識流程。
 
 ## 回報
 
@@ -59,4 +59,4 @@ description: 供執行 Git 整合的臨時開發 Agent 按需載入。當 merge�
 - 測試指令、退出碼與關鍵結果。
 - Stage、Commit、未解事項與目前 Git 狀態。
 
-把回報交給執行協調者追加到對應本機 Ticket 的 `## 執行與 Review 紀錄`；不得另建衝突報告或自行修改 Ticket。
+把精簡證據交給 Implement Coordinator，併入 Developer 的 Ready for Review 回報；不另建衝突報告，也不寫入 Ticket。

@@ -9,6 +9,8 @@ description: 以繁體中文逐一確認需求、範圍、使用流程、限制�
 
 Spec 與 Tickets 固定留在本機 `docs/work/`。本 Skill 不詢問或記錄儲存位置。
 
+由 Grill-me 的精簡規劃呼叫時，只確認本次成果、必須保持不變的行為與驗收結果；不建立完整需求決策樹，其餘流程不變。
+
 ## 流程
 
 1. 讀取目前對話、專案指令、`CONTEXT.md`、既有 `docs/planning/requirements.md` 與產品行為。
