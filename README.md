@@ -261,7 +261,7 @@ claude plugin update milktea-agents-skills-for-claude@milktea-agents-skills-for-
 claude plugin list
 ```
 
-## 多 Agent 協作（推薦）
+## 多方 Agents 協作（推薦）
 
 Milktea Skills 支援 多方 Agent 協作。  
 雖然只使用 Claude Code 也能執行；不過若可以同時使用不同的 AI CLI，通常能獲得更好的交叉驗證，降低單一模型的審查盲點。
