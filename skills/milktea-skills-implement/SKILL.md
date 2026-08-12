@@ -31,9 +31,9 @@ Coordinator 負責讀取工作、安排 Agent、維持並行安全、收集證�
 
 ## 執行環境
 
-每張尚未派發的 Ticket 開始派工前，只檢查 `<專案根目錄>/.milktea/agent-settings.yaml`。檔案不存在時，直接使用自動環境與自動角色，不搜尋其他位置；檔案存在時，使用其中明確設定的共同執行環境，以及 Developer、Reviewer A、Reviewer B 的 Agent、CLI、模型與推理強度，未設定的欄位仍由 Implement 自動決定。後來更新的設定只影響尚未派發的 Tickets。
+每張尚未派發的 Ticket 開始派工前，只檢查 `<專案根目錄>/.milktea/agent-settings.yaml`，不搜尋其他位置。檔案不存在時，執行環境使用 `auto`，Developer 使用 `claude`，Reviewer A 與 Reviewer B 使用 `codex`；檔案存在時，使用其中明確設定的共同執行環境，以及三個角色的 Agent、CLI、模型與推理強度，未設定的角色 CLI 仍使用上述預設。只有設定檔明確寫入 `cli: auto` 時才自動選擇該角色的 Agent／CLI。後來更新的設定只影響尚未派發的 Tickets。
 
-確認設定或自動選定的環境可讀寫、必要命令可執行，並盤點可建立的 Agent 與可用並行數。明確設定無法使用時，說明原因，不自行換到其他環境、Agent、CLI、模型或推理強度；自動模式只有多個可行環境會實際改變工具、相依套件或執行結果時才詢問使用者。
+確認設定或自動選定的環境可讀寫、必要命令可執行，並盤點可建立的 Agent 與可用並行數。預設或明確設定的 `claude`／`codex` 無法使用時，說明原因並停止派發受影響的 Ticket，不自行換到其他 Agent、CLI、模型或推理強度；只有明確的 `auto` 模式可以在可用選項中自動選擇。自動環境有多個可行選項，且選擇會實際改變工具、相依套件或執行結果時，才詢問使用者。
 
 保留工作樹中既有的使用者變更。Git Commit、Push、Merge、Rebase 或其他會改變遠端或分支歷史的操作，依使用者授權及專案指令執行。
 
@@ -45,12 +45,14 @@ Coordinator 負責讀取工作、安排 Agent、維持並行安全、收集證�
 - Reviewer A：使用 `milktea-skills-code-review` 執行 Spec Review，檢查成果與驗收條件是否成立。
 - Reviewer B：使用 `milktea-skills-code-review` 執行 Standards Review，檢查正確性、可讀性、架構、安全與衍生問題；Open Code Review 可作為 Reviewer B 的選用輔助。
 
-使用者明確設定的三個角色配置優先；未設定的角色由 Implement 自動選擇。Developer 設為 `auto` 時，在每張 Ticket 派工前依 Ticket、Spec 與相關程式碼選擇：
+使用者明確設定的三個角色配置優先。角色 CLI 未設定時，Developer 固定使用 `claude`，Reviewer A 與 Reviewer B 固定使用 `codex`；Reviewer 未明確指定模型或推理強度時，使用 Codex 後端預設值，不依 Ticket 難度換 Reviewer。Developer 的 CLI 與模型路由分開處理：CLI 依設定或上述預設決定；未明確指定 Developer 模型時，仍在每張 Ticket 派工前依 Ticket、Spec 與相關程式碼選擇模型：
 
 - 工作明確、局部、低風險，有相鄰實作可沿用及快速驗證，且不涉及跨模組設計、Schema、Migration、權限、安全、資料風險或公開介面：使用較快的可用開發模型；Claude 使用 Sonnet 5／high。
 - 其他工作或難度無法確定：使用能力最強的可用開發模型；Claude 使用 Opus 5／high。
 
-Developer 被固定時，首次派工前簡短提醒可改用自動難度分派以節省 Token，但不等待回覆，仍依使用者設定繼續。
+明確指定 Developer 模型時，不套用難度選模；首次派工前簡短提醒可移除模型設定以恢復自動難度分派，但不等待回覆，仍依使用者設定繼續。只固定 Developer CLI 不會關閉難度選模。
+
+每次派發 Developer 或 Reviewer 前，記錄設定來源（預設或設定檔路徑）、角色、實際 Agent／CLI、實際模型、實際推理強度。Developer 另記錄難度判定（低風險或高／不確定）、判定依據及選模理由；Reviewer 記錄「不適用難度路由」。無法取得實際模型或推理強度時如實記錄 `unknown`，不得把預期值當成執行證據。
 
 Developer 提供可重現的能力不足證據、核心實作方法被有效 Finding 證明不可行，或同一有效 Finding 經修正仍無法解決時，改由新的更強 Developer 接手相同 Ticket 與既有證據；Claude 使用 Opus 5／xhigh。已使用最強配置時，依實際阻擋繼續查證或請使用者決定。
 

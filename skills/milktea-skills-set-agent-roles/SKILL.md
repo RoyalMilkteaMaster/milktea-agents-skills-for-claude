@@ -17,7 +17,7 @@ disable-model-invocation: true
 <專案根目錄>/.milktea/agent-settings.yaml
 ```
 
-這是唯一設定來源。檔案不存在時，以自動環境與自動角色建立；檔案內容無法安全讀取時停止並指出問題，不覆寫原檔。
+這是唯一設定來源。檔案不存在時，以自動環境、Claude Developer、Codex Reviewer A 與 Codex Reviewer B 建立；檔案內容無法安全讀取時停止並指出問題，不覆寫原檔。
 
 ## 快速入口
 
@@ -62,7 +62,7 @@ Reviewer A: <auto 或 agent／cli> | <model 或 default> | <effort 或 default>
 Reviewer B: <auto 或 agent／cli> | <model 或 default> | <effort 或 default>
 ```
 
-使用者只修改一個角色時，只顯示該角色的一行。Developer 使用 `auto` 時，由 Implement 依每張 Ticket 難度分派；Reviewer 使用 `auto` 時，由 Implement 選擇可用角色。`default` 用於 model 或 effort 時，移除該欄的明確設定。
+使用者只修改一個角色時，只顯示該角色的一行。`auto` 只在使用者明確選擇時寫入，代表由 Implement 選擇該角色的 Agent／CLI。Developer 是否依 Ticket 難度選擇模型，取決於是否明確設定 model，與 CLI 是 `claude` 或 `auto` 無關；Reviewer 不依 Ticket 難度換角色。`default` 用於 model 或 effort 時，移除該欄的明確設定。
 
 ### 快速驗證
 
@@ -98,11 +98,11 @@ agent_settings:
   execution_environment:
     preference: auto
   developer:
-    cli: auto
+    cli: claude
   reviewer_a:
-    cli: auto
+    cli: codex
   reviewer_b:
-    cli: auto
+    cli: codex
 ```
 
 只修改本次選定的區塊，保留其他設定，並將最新完整內容寫回同一個檔案。不得建立 Task 級副本或第二份設定檔。
