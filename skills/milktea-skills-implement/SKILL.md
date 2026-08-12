@@ -33,7 +33,9 @@ Coordinator 負責讀取工作、安排 Agent、維持並行安全、收集證�
 
 每張尚未派發的 Ticket 開始派工前，只檢查 `<專案根目錄>/.milktea/agent-settings.yaml`，不搜尋其他位置。檔案不存在時，執行環境使用 `auto`，Developer 使用 `claude`，Reviewer A 與 Reviewer B 使用 `codex`；檔案存在時，使用其中明確設定的共同執行環境，以及三個角色的 Agent、CLI、模型與推理強度，未設定的角色 CLI 仍使用上述預設。只有設定檔明確寫入 `cli: auto` 時才自動選擇該角色的 Agent／CLI。後來更新的設定只影響尚未派發的 Tickets。
 
-確認設定或自動選定的環境可讀寫、必要命令可執行，並盤點可建立的 Agent 與可用並行數。預設或明確設定的 `claude`／`codex` 無法使用時，說明原因並停止派發受影響的 Ticket，不自行換到其他 Agent、CLI、模型或推理強度；只有明確的 `auto` 模式可以在可用選項中自動選擇。自動環境有多個可行選項，且選擇會實際改變工具、相依套件或執行結果時，才詢問使用者。
+沒有明確環境設定或 `preference: auto` 時，先使用可讀寫專案且必要 CLI 可執行的 WSL；WSL 不可用時才使用 Windows PowerShell。使用者明確指定環境時仍使用該環境，不套用此順序。
+
+確認設定或自動選定的環境可讀寫、必要命令可執行，並盤點可建立的 Agent 與可用並行數。預設或明確設定的 `claude`／`codex` 無法使用時，說明原因並停止派發受影響的 Ticket，不自行換到其他 Agent、CLI、模型或推理強度；只有明確的 `auto` 模式可以在可用選項中自動選擇。
 
 保留工作樹中既有的使用者變更。Git Commit、Push、Merge、Rebase 或其他會改變遠端或分支歷史的操作，依使用者授權及專案指令執行。
 
