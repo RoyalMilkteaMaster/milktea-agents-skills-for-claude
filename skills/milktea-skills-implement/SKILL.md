@@ -20,14 +20,14 @@ Coordinator 負責讀取工作、安排 Agent、維持並行安全、收集證�
 
 ## 回報方式
 
-啟動時為 Coordinator 呼叫目前平台可用的 `i-have-adhd` Skill。Coordinator 的使用者回報遵循以下方式：
+啟動時先檢查本 Skill 所在的 Plugin／資料夾，再檢查目前平台的全域 Skill／Plugin 環境，找到 `i-have-adhd` 後為 Coordinator 呼叫。Coordinator 的使用者回報遵循以下方式：
 
 - 省略思考過程、重複說明及逐步操作紀錄。
 - 每張 Ticket 完成後，用一至兩句說明成立的結果及下一張工作。
 - 工作受阻、需要使用者決定、使用者詢問進度或全部完成時，提供當下需要的細節。
 - 詳細變更與驗證集中在最終 HTML 報告。
 
-`i-have-adhd` 不可用時，沿用本節格式繼續執行。
+以上兩處都確認找不到 `i-have-adhd` 時，沿用本節格式繼續執行。
 
 ## 執行環境
 
