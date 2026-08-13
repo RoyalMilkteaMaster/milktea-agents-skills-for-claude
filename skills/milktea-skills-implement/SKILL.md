@@ -31,11 +31,11 @@ Coordinator 負責讀取工作、安排 Agent、維持並行安全、收集證�
 
 ## 執行環境
 
-每張尚未派發的 Ticket 開始派工前，只檢查 `<專案根目錄>/.milktea/agent-settings.yaml`，不搜尋其他位置。檔案不存在時，執行環境使用 `auto`，Developer 使用 `claude`，Reviewer A 與 Reviewer B 使用 `codex`；檔案存在時，使用其中明確設定的共同執行環境，以及三個角色的 Agent、CLI、模型與推理強度，未設定的角色 CLI 仍使用上述預設。只有設定檔明確寫入 `cli: auto` 時才自動選擇該角色的 Agent／CLI。後來更新的設定只影響尚未派發的 Tickets。
+每張尚未派發的 Ticket 開始派工前，只檢查 `<專案根目錄>/.milktea/agent-settings.yaml`，不搜尋其他位置。找不到設定檔時，先在能正常讀寫專案的同一個環境中檢查可用 CLI。Developer 優先使用 Claude，Claude 不可用時改用 Codex；Reviewer A 與 Reviewer B 優先使用 Codex，Codex 不可用時改用 Claude。三個角色必須使用彼此隔離的上下文。只有 Claude 與 Codex 都不可用時，才能使用平台原生 Subagent。Developer 的模型與推理強度仍依每張 Ticket 的難度決定。檔案存在時，使用其中明確設定的共同執行環境，以及三個角色的 Agent、CLI、模型與推理強度；後來更新的設定只影響尚未派發的 Tickets。
 
 沒有明確環境設定或 `preference: auto` 時，先使用可讀寫專案且必要 CLI 可執行的 WSL；WSL 不可用時才使用 Windows PowerShell。使用者明確指定環境時仍使用該環境，不套用此順序。
 
-確認設定或自動選定的環境可讀寫、必要命令可執行，並盤點可建立的 Agent 與可用並行數。預設或明確設定的 `claude`／`codex` 無法使用時，說明原因並停止派發受影響的 Ticket，不自行換到其他 Agent、CLI、模型或推理強度；只有明確的 `auto` 模式可以在可用選項中自動選擇。
+確認設定或自動選定的環境可讀寫、必要命令可執行，並盤點可用並行數。使用預設路由時依上述順序選擇可用 CLI；設定檔明確指定的環境、Agent、CLI、模型或推理強度無法使用時，說明原因並停止派發受影響的 Ticket，不自行更換。
 
 保留工作樹中既有的使用者變更。Git Commit、Push、Merge、Rebase 或其他會改變遠端或分支歷史的操作，依使用者授權及專案指令執行。
 
@@ -47,7 +47,7 @@ Coordinator 負責讀取工作、安排 Agent、維持並行安全、收集證�
 - Reviewer A：使用 `milktea-skills-code-review` 執行 Spec Review，檢查成果與驗收條件是否成立。
 - Reviewer B：使用 `milktea-skills-code-review` 執行 Standards Review，檢查正確性、可讀性、架構、安全與衍生問題；Open Code Review 可作為 Reviewer B 的選用輔助。
 
-使用者明確設定的三個角色配置優先。角色 CLI 未設定時，Developer 固定使用 `claude`，Reviewer A 與 Reviewer B 固定使用 `codex`；Reviewer 未明確指定模型或推理強度時，使用 Codex 後端預設值，不依 Ticket 難度換 Reviewer。Developer 的 CLI 與模型路由分開處理：CLI 依設定或上述預設決定；未明確指定 Developer 模型時，仍在每張 Ticket 派工前依 Ticket、Spec 與相關程式碼選擇模型：
+使用者明確設定的三個角色配置優先。沒有設定檔或角色 CLI 未設定時，依上述預設路由選擇可用 CLI；Reviewer 未明確指定模型或推理強度時，使用實際 Reviewer CLI 的後端預設值，不依 Ticket 難度換 Reviewer。Developer 的 CLI 與模型路由分開處理：CLI 依設定或上述預設決定；未明確指定 Developer 模型時，仍在每張 Ticket 派工前依 Ticket、Spec 與相關程式碼選擇模型：
 
 - 工作明確、局部、低風險，有相鄰實作可沿用及快速驗證，且不涉及跨模組設計、Schema、Migration、權限、安全、資料風險或公開介面：使用較快的可用開發模型；Claude 使用 Sonnet 5／high。
 - 其他工作或難度無法確定：使用能力最強的可用開發模型；Claude 使用 Opus 5／high。
@@ -74,7 +74,7 @@ Developer 提供可重現的能力不足證據、核心實作方法被有效 Fin
 
 讀取全部 Tickets，將 `Blocked by` 已完成的 Ticket 放入 Ready Queue。
 
-派工前依必要寫入範圍及相關程式碼確認預期修改位置與排他資源。互不衝突的 Tickets 同時派發；存在重疊或無法安全判定時依序執行。使用平台目前實際可用的 Agent 數量，不固定並行數，也不為填滿空位建立沒有獨立成果的 Agent。
+Ready Tickets 能並行就全部立即派發，盡量用滿平台可用的並行數，不自行限制 Agent 數量。少量修改重疊不必直接改成循序；只要能隔離工作，並有明確的合併、驗證與回復方式，就可以並行。只有真正的前置依賴、無法隔離的共享資料、不可逆操作或平台硬性限制，才依序執行。
 
 每張 Ticket 完成、受阻或釋放修改範圍後，重新計算 Ready Queue，立即安排新解鎖且可安全執行的工作。
 

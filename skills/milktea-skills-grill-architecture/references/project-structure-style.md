@@ -91,7 +91,7 @@ workspace/                    # 同一專案家族的外層工作區
 - **Data Root**：實際資料庫、表單資料、上傳、輸出、產物，以及已啟用的正式 Log。
 - **Runtime Root**：Blender、ComfyUI、模型、外掛、大型環境與可重建快取。
 - `execution/` 只放呼叫與控制外部工具的程式，不放工具本體。
-- 多個 Worktree 可共用 Data／Runtime Root，不得各自複製；並行寫入必須有鎖或單一寫入者。
+- 多個 Worktree 可共用 Data／Runtime Root，不得各自複製。只有多個 Agent 會同時修改同一份正在使用的資料庫、輸出檔或 Runtime 狀態，而且無法分開處理或事後合併時，才限制一次只能有一個 Agent 寫入；其他不衝突或能安全合併的 Tickets 照常並行。
 - 測試不得修改正式 Data Root；使用暫存目錄或測試專用資料。
 - 備份不放進 Code、Data 或 Runtime Root。
 - 刪除或遷移前，必須確認解析後的實際路徑與所有權；不得從 workspace 根目錄遞迴操作。
