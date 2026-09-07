@@ -89,6 +89,8 @@ Git SHA 只代表已提交版本。工作樹有未提交修改時，同時記錄
 
 ### 6. 產生 HTML 報告
 
+產出報告前，載入 `$milktea-skills-report` 並依其表達規則呈現；必填內容、儲存位置與核准流程仍依本 Skill 及既有報告契約。
+
 完整讀取 `references/report-contract.md`，將已查證內容寫入 `docs/architecture-reviews/YYYY-MM-DD-<範圍>.html`。
 
 同一次盤點更新同一份報告，不建立 `final`、`new` 或 `v2` 副本。報告不得要求先存在 Spec 或 Tickets，也不得替 Planner 決定是否進入規劃階段。
