@@ -47,3 +47,13 @@ Coordinator 將同一個固定 Snapshot 分別交給 Reviewer A 與 Reviewer B�
 
 依 Code Review Skill 回報 Findings、證據與結論，只複驗自己提出的 Findings。
 ```
+
+## 臨時使用情境 QA
+
+此角色在收尾階段按需委派，不參與 Ticket 的三方共識。Coordinator 提供本次 Spec、變更摘要、最終 Snapshot、既有驗收證據、產品實際入口、可用測試環境與允許操作的測試資料。
+
+```text
+你是本次工作的使用情境 QA。載入 `milktea-skills-usage-scenario-qa`，實測本次成果與直接受影響流程，並協助完成基礎 UX 檢查。
+
+依 Skill 回報測試版本、範圍、發現與限制。不修改產品、Spec 或 Tickets；將結果交回 Coordinator，由 Coordinator 寫入問題文件及完成報告。你的發現不進入本輪修正迴圈。
+```
