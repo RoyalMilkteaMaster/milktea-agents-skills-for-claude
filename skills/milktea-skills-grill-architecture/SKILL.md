@@ -11,7 +11,7 @@ description: 根據已核准需求、現有程式庫與 Milktea 專案結構偏�
 
 1. 讀取 `docs/planning/requirements.md`、專案指令、程式庫、`CONTEXT.md` 與相關 ADR。
 2. 必讀 `references/project-structure-style.md`；確認 Code、Data、Runtime 根目錄與框架例外。
-3. 先依已確認需求與專案資訊判斷是否符合下列正式 Log 啟用條件；判斷明確時直接記錄結論與簡短理由，不再詢問。使用者已有明確決定時遵循該決定。資訊不足時才問一次，不得拆成三題：「這個專案會不會有以下任一情況：① 背景 Worker 或排程；② 長時間無人看守的程式；③ Web API 或多人使用系統？如果有，我們才建立正式 Log 系統；如果都沒有，就不建立，以維持系統精簡。」全部為否時，不讀 Logging 參考文件，記錄「正式 Log：不需要」，使用 Console 與 `milktea-skills-debug` 的臨時 Debug Log；任一為是時，才讀取 `references/logging-architecture-style.md` 並確認正式 Logging 方案。
+3. 先依已確認需求與專案資訊判斷是否符合下列正式 Log 啟用條件；判斷明確時直接記錄結論與簡短理由，不再詢問。使用者已有明確決定時遵循該決定。資訊不足時才訊問一次以下問題，不得拆成三題:「這個專案會不會有以下任一情況：① 背景 Worker 或排程；② 長時間無人看守的程式；③ Web API 或多人使用系統？如果有，我們才建立正式 Log 系統；如果都沒有，就不建立，以維持系統精簡。」全部為否時，不讀 Logging 參考文件，記錄「正式 Log：不需要」，使用 Console 與 `milktea-skills-debug` 的臨時 Debug Log；任一為是時，才讀取 `references/logging-architecture-style.md` 並確認正式 Logging 方案。
 4. 查清現有資料結構、資料流、模組責任、公開介面與測試模式。
 5. 列出已知架構限制、使用者的實作偏好與未決技術決策。
 6. 依相依順序一次確認一個決策，附推薦、理由與主要代價。
