@@ -31,7 +31,7 @@ Coordinator 負責讀取工作、安排 Agent、維持並行安全、收集證�
 
 ## 執行環境
 
-每張尚未派發的 Ticket 開始派工前，只檢查 `<專案根目錄>/.milktea/agent-settings.yaml`，不搜尋其他位置。找不到設定檔時，先在能正常讀寫專案的同一個環境中檢查可用 CLI。Developer 優先使用 Claude，Claude 不可用時改用 Codex；Reviewer A 與 Reviewer B 優先使用 Codex，Codex 不可用時改用 Claude。三個角色必須使用彼此隔離的上下文。只有 Claude 與 Codex 都不可用時，才能使用平台原生 Subagent。Developer 的模型與推理強度仍依每張 Ticket 的難度決定。檔案存在時，使用其中明確設定的共同執行環境，以及三個角色的 Agent、CLI、模型與推理強度；後來更新的設定只影響尚未派發的 Tickets。
+每張尚未派發的 Ticket 開始派工前，檢查指定或本專案既有的 `.milktea/agent-settings.yaml`；有多份且未指定時才詢問，不搜尋其他專案。找不到設定檔時，先在能正常讀寫專案的同一個環境中檢查可用 CLI。Developer 優先使用 Claude，Claude 不可用時改用 Codex；Reviewer A 與 Reviewer B 優先使用 Codex，Codex 不可用時改用 Claude。三個角色必須使用彼此隔離的上下文。只有 Claude 與 Codex 都不可用時，才能使用平台原生 Subagent。Developer 的模型與推理強度仍依每張 Ticket 的難度決定。檔案存在時，使用其中明確設定的共同執行環境，以及三個角色的 Agent、CLI、模型與推理強度；後來更新的設定只影響尚未派發的 Tickets。
 
 沒有明確環境設定或 `preference: auto` 時，先使用可讀寫專案且必要 CLI 可執行的 WSL；WSL 不可用時才使用 Windows PowerShell。使用者明確指定環境時仍使用該環境，不套用此順序。
 

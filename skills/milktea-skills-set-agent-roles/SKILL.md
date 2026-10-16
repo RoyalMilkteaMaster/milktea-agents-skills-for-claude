@@ -9,13 +9,9 @@ disable-model-invocation: true
 
 ## 專案設定檔
 
-使用者已提供專案根目錄時直接使用；否則使用目前唯一的工作區根目錄。只有無法判斷目標專案時才詢問一次，不讀取專案文件或掃描其他目錄。
+使用者已提供專案位置時直接使用；否則從目前工作區確認。只有無法判斷目標專案時才詢問一次，不讀取專案文件或掃描其他專案。
 
-設定只保存在：
-
-```text
-<專案根目錄>/.milktea/agent-settings.yaml
-```
+設定沿用指定或本專案既有的 `.milktea/agent-settings.yaml`；沒有時建立在已確認的程式碼工作目錄。有多份且未指定時才詢問。
 
 這是唯一設定來源。檔案不存在時，以自動環境、Claude Developer、Codex Reviewer A 與 Codex Reviewer B 建立；檔案內容無法安全讀取時停止並指出問題，不覆寫原檔。
 
@@ -78,7 +74,7 @@ Reviewer B: <auto 或 agent／cli> | <model 或 default> | <effort 或 default>
 本分支不設定 OCR 開關。先讀取 `references/open-code-review.md`，再於專案設定的執行環境執行：
 
 ```text
-node <本 Skill 實際路徑>/scripts/open-code-review.js check --repo <專案實際路徑>
+node <本 Skill 實際路徑>/scripts/open-code-review.js check --repo <Git 工作樹實際路徑>
 ```
 
 - 已安裝且可用：顯示版本與實際路徑；之後 Reviewer B 自動使用，不再詢問是否開啟。

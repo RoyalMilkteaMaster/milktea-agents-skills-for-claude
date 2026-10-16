@@ -15,8 +15,8 @@
 程式碼與執行資料分開存放：
 
 ```text
-工作目錄/
-├─ shop-system/          # 程式碼專案
+shop-system/
+├─ shop-system_code/     # 程式碼專案
 └─ shop-system_data/     # 程式執行後產生的資料
    └─ logs/              # 所有正式 Log 的固定位置
 ```

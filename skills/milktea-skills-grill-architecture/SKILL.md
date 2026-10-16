@@ -1,6 +1,6 @@
 ---
 name: milktea-skills-grill-architecture
-description: 根據已核准需求、現有程式庫與 Milktea 專案結構偏好，以繁體中文逐一確認 Code／Data／Runtime 根目錄、資料流、模組責任、介面、Schema、整合、相容性與測試接縫。由 milktea-skills-grill-me 在架構階段調用，或在使用者要求深入釐清技術設計時使用；不改需求、不寫規格、不實作。
+description: 根據已核准需求、現有程式庫與 Milktea 專案結構偏好，以繁體中文逐一確認 Code／Data／Output／Runtime 根目錄、資料流、模組責任、介面、Schema、整合、相容性與測試接縫。由 milktea-skills-grill-me 在架構階段調用，或在使用者要求深入釐清技術設計時使用；不改需求、不寫規格、不實作。
 ---
 
 # Milktea Skills Grill Architecture
@@ -10,7 +10,7 @@ description: 根據已核准需求、現有程式庫與 Milktea 專案結構偏�
 ## 流程
 
 1. 讀取 `docs/planning/requirements.md`、專案指令、程式庫、`CONTEXT.md` 與相關 ADR。
-2. 必讀 `references/project-structure-style.md`；確認 Code、Data、Runtime 根目錄與框架例外。
+2. 必讀 `references/project-structure-style.md`；確認專案根目錄與 Code、Data、Output、Runtime 根目錄及框架例外。
 3. 先依已確認需求與專案資訊判斷是否符合下列正式 Log 啟用條件；判斷明確時直接記錄結論與簡短理由，不再詢問。使用者已有明確決定時遵循該決定。資訊不足時才訊問一次以下問題，不得拆成三題:「這個專案會不會有以下任一情況：① 背景 Worker 或排程；② 長時間無人看守的程式；③ Web API 或多人使用系統？如果有，我們才建立正式 Log 系統；如果都沒有，就不建立，以維持系統精簡。」全部為否時，不讀 Logging 參考文件，記錄「正式 Log：不需要」，使用 Console 與 `milktea-skills-debug` 的臨時 Debug Log；任一為是時，才讀取 `references/logging-architecture-style.md` 並確認正式 Logging 方案。
 4. 查清現有資料結構、資料流、模組責任、公開介面與測試模式。
 5. 列出已知架構限制、使用者的實作偏好與未決技術決策。
@@ -23,7 +23,7 @@ description: 根據已核准需求、現有程式庫與 Milktea 專案結構偏�
 ## 架構面向
 
 - 資料是什麼、由誰擁有、如何流動與修改。
-- Code、Data、Runtime 根目錄及其邊界。
+- 專案根目錄與 Code、Data、Output、Runtime 根目錄及其邊界。
 - 新檔案的唯一位置、命名與目錄責任。
 - 受影響模組及其責任。
 - 公開介面、Schema、API contract 與系統整合。
@@ -60,8 +60,10 @@ description: 根據已核准需求、現有程式庫與 Milktea 專案結構偏�
 ```markdown
 # 核准架構與資料流
 
+- 專案根目錄：
 - Code Root：
 - Data Root：
+- Output Root：
 - Runtime Root：
 - 正式 Log：不需要／需要（理由與方案）
 - 目錄與命名：

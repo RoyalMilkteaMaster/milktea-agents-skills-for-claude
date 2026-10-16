@@ -35,8 +35,8 @@ OCR 不可用時，必須在安裝前揭露：
 標準命令：
 
 ```text
-node <本 Skill 實際路徑>/scripts/open-code-review.js check --repo <專案實際路徑>
-node <本 Skill 實際路徑>/scripts/open-code-review.js install --confirmed --repo <專案實際路徑>
+node <本 Skill 實際路徑>/scripts/open-code-review.js check --repo <Git 工作樹實際路徑>
+node <本 Skill 實際路徑>/scripts/open-code-review.js install --confirmed --repo <Git 工作樹實際路徑>
 ```
 
 第二個命令只有通過安裝確認才能執行。PowerShell 與 Shell wrapper 不能繞過 `--confirmed`。

@@ -6,7 +6,7 @@
 
 - [優先順序](#優先順序)
 - [通用骨架](#通用骨架)
-- [三個根目錄](#三個根目錄)
+- [四個根目錄](#四個根目錄)
 - [文件與報告](#文件與報告)
 - [程式碼結構](#程式碼結構)
 - [命名](#命名)
@@ -20,13 +20,15 @@
 4. 本文件的結構偏好。
 5. 最小可用結構。
 
-新專案預設採用本文件。既有專案不得為單張 Ticket 大搬家；衝突時列出差異、風險與最小改善方案，交由使用者確認。
+新專案沒有其他結構要求時，預設採用本文件。既有專案沿用現況；調整結構須有實際改善理由，交由使用者確認。
 
 ## 通用骨架
 
+以下預設骨架中，`<project>/` 是專案根目錄，`<project>_code/` 是主程式區（Code Root）。既有專案沿用原位置。
+
 ```text
-workspace/                    # 同一專案家族的外層工作區
-├─ <project>_project/         # Git：程式碼與可重現設定
+<project>/                  # 專案根目錄
+├─ <project>_code/           # Git：程式碼與可重現設定
 │  ├─ AGENTS.md              # 長期有效的 Agent 規則
 │  ├─ CONTEXT.md             # 專有名詞、關係與歧義
 │  ├─ frontend/              # 使用者介面專案
@@ -68,10 +70,11 @@ workspace/                    # 同一專案家族的外層工作區
 │  ├─ databases/              # SQLite、資料庫檔案
 │  ├─ records/                # 表單與業務資料
 │  ├─ uploads/                # 使用者或外部系統輸入
-│  ├─ artifacts/              # 任務與生成流程產物
-│  ├─ exports/                # 提供使用者取用的匯出結果
+│  ├─ artifacts/              # 任務與生成流程的中間資料
 │  ├─ logs/                   # 啟用正式 Logging 時才建立
 │  └─ temporary/              # 可安全清除的暫存資料
+│
+├─ <project>_output/          # 不進 Git：提供使用者取用的最終成果
 │
 ├─ <project>_runtime/         # 不進 Git：大型執行資源
 │  ├─ applications/           # Blender、ComfyUI 等
@@ -83,24 +86,28 @@ workspace/                    # 同一專案家族的外層工作區
 └─ backups/                   # 獨立備份
 ```
 
-不需要的分支必須省略。`runtime` 是預設名稱，不是強制名稱；邏輯責任不可混淆。
+採用此骨架時，首次寫檔先建立 `<project>/<project>_code/`，其他目錄按需新增。`runtime` 是預設名稱，不是強制名稱；邏輯責任不可混淆。
 
-## 三個根目錄
+## 四個根目錄
+
+以下依用途區分；既有專案按實際位置記錄，不要求獨立目錄或特定名稱。
 
 - **Code Root**：程式碼、測試、設定範例、Schema 與 migrations。
-- **Data Root**：實際資料庫、表單資料、上傳、輸出、產物，以及已啟用的正式 Log。
+- **Data Root**：實際資料庫、表單資料、上傳、中間資料，以及已啟用的正式 Log。
+- **Output Root**：最終影片、圖片、匯出檔等；開發報告仍放 `docs/`。
 - **Runtime Root**：Blender、ComfyUI、模型、外掛、大型環境與可重建快取。
 - `execution/` 只放呼叫與控制外部工具的程式，不放工具本體。
-- 多個 Worktree 可共用 Data／Runtime Root，不得各自複製。只有多個 Agent 會同時修改同一份正在使用的資料庫、輸出檔或 Runtime 狀態，而且無法分開處理或事後合併時，才限制一次只能有一個 Agent 寫入；其他不衝突或能安全合併的 Tickets 照常並行。
-- 測試不得修改正式 Data Root；使用暫存目錄或測試專用資料。
-- 備份不放進 Code、Data 或 Runtime Root。
+- 多個 Worktree 可共用 Data／Output／Runtime Root，不得各自複製。只有多個 Agent 會同時修改同一份正在使用的資料庫、輸出檔或 Runtime 狀態，而且無法分開處理或事後合併時，才限制一次只能有一個 Agent 寫入；其他不衝突或能安全合併的 Tickets 照常並行。
+- 測試不得修改正式 Data／Output Root；使用暫存目錄或測試專用資料。
+- 備份不放進 Code、Data、Output 或 Runtime Root。
 - 刪除或遷移前，必須確認解析後的實際路徑與所有權；不得從 workspace 根目錄遞迴操作。
 
 路徑由本機設定提供，不寫死在程式碼：
 
 ```env
-PROJECT_DATA_ROOT=D:/workspace/<project>_data
-PROJECT_RUNTIME_ROOT=D:/workspace/<project>_runtime
+PROJECT_DATA_ROOT=D:/workspace/<project>/<project>_data
+PROJECT_OUTPUT_ROOT=D:/workspace/<project>/<project>_output
+PROJECT_RUNTIME_ROOT=D:/workspace/<project>/<project>_runtime
 ```
 
 實際 `.env` 不提交；`.env.example` 只放變數與範例。使用 junction、symlink 或 mount 時必須記錄真實目標並排除版本控制。
@@ -120,7 +127,7 @@ PROJECT_RUNTIME_ROOT=D:/workspace/<project>_runtime
 - Spec 與 Tickets：只存 `docs/work/`，維持單一真相。
 - 執行、Debug、Git 衝突與 Review 證據由 Implement 彙整到同一份完成報告，不回寫 Tickets。
 - 以上路徑固定；不得把需求、架構或報告正文複製到 `CONTEXT.md`。
-- 長期文件放 Code Root；業務資料放 Data Root；模型與大型應用程式放 Runtime Root。
+- 長期文件放 Code Root；業務資料放 Data Root；最終成果放 Output Root；模型與大型應用程式放 Runtime Root。
 - 只在實際產出時建立所需目錄，不預建空骨架。
 
 ## 程式碼結構

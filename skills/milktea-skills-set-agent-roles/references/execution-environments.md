@@ -18,7 +18,7 @@
 
 ## 記錄方式
 
-把解析結果寫入 `<專案根目錄>/.milktea/agent-settings.yaml`：
+把解析結果寫回同一份 `.milktea/agent-settings.yaml`；`project_path` 填入該環境中的實際工作目錄：
 
 ```yaml
 agent_settings:
@@ -37,7 +37,7 @@ Windows PowerShell 的 `distribution` 為 `null`。沒有使用者指定時保�
 
 - WSL 從 Windows 啟動時，所有專案命令都使用記錄的 WSL 前綴與 Linux 專案路徑。
 - PowerShell 選項只使用 Windows 工具與 Windows 專案路徑。
-- 其他環境只能使用已解析的單一位置，不讓不同角色各自選擇工作目錄。
+- 各角色使用已確認的工作目錄；個別命令依專案慣例切換所需目錄。
 - 派工前確認設定環境仍可用；失效時回報，不偷偷改用另一個環境。
 - 新設定適用於所有後續 Task 尚未派發的 Tickets；進行中的 Ticket 不換環境。
 

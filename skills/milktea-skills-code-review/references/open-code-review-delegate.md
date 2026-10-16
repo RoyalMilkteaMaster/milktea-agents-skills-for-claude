@@ -13,11 +13,11 @@
 
 1. 在與固定 Snapshot 相同的專案與執行環境確認 `ocr` 可用，並執行 `ocr version` 記錄實際版本。
 2. 依 Snapshot 執行其中一種 Preview：
-   - 工作區：`ocr delegate preview --repo <專案根目錄>`
-   - Revision 範圍：`ocr delegate preview --repo <專案根目錄> --from <來源> --to <目標>`
-   - 單一 Commit：`ocr delegate preview --repo <專案根目錄> --commit <SHA>`
+   - 工作區：`ocr delegate preview --repo <Git 工作樹實際路徑>`
+   - Revision 範圍：`ocr delegate preview --repo <Git 工作樹實際路徑> --from <來源> --to <目標>`
+   - 單一 Commit：`ocr delegate preview --repo <Git 工作樹實際路徑> --commit <SHA>`
 3. 確認 Preview 的模式、Revision、Reviewable 與 Excluded 檔案沒有偏離固定 Snapshot；不一致時停止使用 OCR，改回原生 Review。
-4. 對 Reviewable 檔案執行 `ocr delegate rule --repo <專案根目錄> <路徑...>`，把規則結果當成額外檢查清單。
+4. 對 Reviewable 檔案執行 `ocr delegate rule --repo <Git 工作樹實際路徑> <路徑...>`，把規則結果當成額外檢查清單。
 5. Reviewer B 親自閱讀固定 Diff 與必要上下文，驗證問題並使用 Milktea 的阻擋／重要／建議格式。OCR 輸出本身不是 Finding。
 
 回報時附上 OCR 版本、實際命令，以及 Reviewable／Excluded 檔案；Excluded 檔案仍依 Ticket 影響使用原生方式檢查。

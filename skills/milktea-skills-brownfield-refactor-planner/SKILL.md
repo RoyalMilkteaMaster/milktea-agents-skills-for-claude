@@ -36,7 +36,7 @@ disable-model-invocation: true
 
 ### 1. 確認盤點目標與邊界
 
-先讀目前對話、專案指令、`AGENTS.md`、`CONTEXT.md`、`docs/planning/requirements.md`、`docs/planning/architecture.md`、相關 ADR 與現有產品行為。
+先讀目前對話、現有專案指令與文件（如 `AGENTS.md`、`CONTEXT.md`、需求、架構與 ADR），並確認現有產品行為。
 
 先從目前工作目錄、版本庫邊界與專案指令確認專案根目錄；只有存在多個合理候選或實際範圍不明時才詢問使用者。
 
@@ -58,7 +58,7 @@ disable-model-invocation: true
 - 專案根目錄與掃描範圍。
 - 必須保留的功能、介面與資料。
 - 可列為清理或重建候選的範圍。
-- 已知 Code／Data／Runtime Root 與專案文件位置。
+- 已知的程式碼、資料、輸出、執行資源與專案文件位置。
 - 可安全執行的基準驗證及禁止執行的操作。
 - 使用者已確認的限制、未知與風險。
 
